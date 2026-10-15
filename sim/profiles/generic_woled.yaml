@@ -1,0 +1,60 @@
+# PLACEHOLDER profile — not a measured TV.
+# Generic white OLED (WRGB) with per-pixel emission and a simple ABL curve.
+name: generic_woled
+technology: woled
+description: >
+  Placeholder WOLED. Emission is per pixel (no zone grid). The WRGB mosaic
+  is energy-preserving when box-filtered, so it does not change a flat color.
+  ABL pulls the allowed peak down toward the full-field figure as APL rises.
+  Spectral white-subpixel mixing beyond that mosaic is not modeled.
+
+input:
+  eotf: srgb
+  sdr_white_nits: 100.0
+  hlg_peak_nits: 1000.0
+
+processing:
+  scale_factor: 1.0
+  scale_mode: bilinear
+  sharpen_amount: 0.15
+  sharpen_sigma: 0.7
+
+backlight:
+  mode: per_pixel
+  zones_x: 1
+  zones_y: 1
+  psf_sigma_zones: 0.0    # pixels of optical crosstalk; 0 disables it
+  peak_nits: 800.0
+  floor_nits: 0.0
+
+panel:
+  native_contrast: 1000000.0   # unused on the self-emissive path; recorded for comparison
+  subpixel: wrgb
+  viewing_angle_deg: 0.0
+  angle_loss_per_deg: 0.005
+  color_matrix:
+    - [1.0, 0.0, 0.0]
+    - [0.0, 1.0, 0.0]
+    - [0.0, 0.0, 1.0]
+
+hdr:
+  tone_map: soft_clip
+  panel_peak_nits: 800.0
+  knee_ratio: 0.85
+  abl_enabled: true
+  abl_full_field_nits: 150.0
+  abl_gamma: 2.0
+
+ambient:
+  lux: 0.0
+  reflectance: 0.015
+
+temporal:
+  response_time_ms: 0.2
+  frame_time_ms: 16.666
+  sample_and_hold: true
+  motion_px_per_frame: 0.0
+
+output:
+  eotf: srgb
+  reference_nits: 100.0

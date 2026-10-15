@@ -1,0 +1,16 @@
+[project]
+name = "tv-sim"
+version = "0.1.0"
+description = "Reference TV display simulator (linear-light NumPy pipeline)"
+requires-python = ">=3.11"
+dependencies = [
+    "numpy>=1.26",
+    "pillow>=10",
+    "pyyaml>=6",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

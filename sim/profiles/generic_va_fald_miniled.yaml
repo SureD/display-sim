@@ -1,0 +1,59 @@
+# PLACEHOLDER profile — not a measured TV.
+# Generic VA LCD with a mini-LED full-array local-dimming backlight.
+name: generic_va_fald_miniled
+technology: va_lcd
+description: >
+  Placeholder VA mini-LED FALD set. Contrast is high on axis and falls off
+  quickly with angle. Zone grid and PSF are round numbers, not a zone map
+  from a shipping set.
+
+input:
+  eotf: srgb
+  sdr_white_nits: 100.0
+  hlg_peak_nits: 1000.0
+
+processing:
+  scale_factor: 1.0
+  scale_mode: bilinear
+  sharpen_amount: 0.25
+  sharpen_sigma: 0.8
+
+backlight:
+  mode: fald
+  zones_x: 16
+  zones_y: 12
+  psf_sigma_zones: 0.75   # Gaussian stand-in for the optical light guide, in zone widths
+  peak_nits: 1500.0
+  floor_nits: 0.0
+
+panel:
+  native_contrast: 4000.0
+  subpixel: rgb_stripe
+  viewing_angle_deg: 0.0
+  angle_loss_per_deg: 0.08   # VA loses chroma/contrast quickly off axis
+  color_matrix:              # identity; gamut mapping is not modeled
+    - [1.0, 0.0, 0.0]
+    - [0.0, 1.0, 0.0]
+    - [0.0, 0.0, 1.0]
+
+hdr:
+  tone_map: soft_clip
+  panel_peak_nits: 1500.0
+  knee_ratio: 0.85
+  abl_enabled: false
+  abl_full_field_nits: 600.0
+  abl_gamma: 2.0
+
+ambient:
+  lux: 0.0
+  reflectance: 0.02
+
+temporal:
+  response_time_ms: 8.0
+  frame_time_ms: 16.666
+  sample_and_hold: true
+  motion_px_per_frame: 0.0
+
+output:
+  eotf: srgb
+  reference_nits: 100.0    # SDR preview; code 1.0 is 100 nits
