@@ -39,9 +39,14 @@ def convolve_axis(image: np.ndarray, kernel: np.ndarray, axis: int) -> np.ndarra
     return np.moveaxis(filtered, -1, axis).astype(np.float32)
 
 
+def gaussian_blur_xy(image: np.ndarray, sigma_x: float, sigma_y: float) -> np.ndarray:
+    """Separable Gaussian with independent horizontal and vertical sigma."""
+
+    blurred = convolve_axis(image, gaussian_kernel1d(sigma_x), axis=1)
+    return convolve_axis(blurred, gaussian_kernel1d(sigma_y), axis=0)
+
+
 def gaussian_blur(image: np.ndarray, sigma: float) -> np.ndarray:
     """Separable Gaussian blur. ``image`` is ``H x W`` or ``H x W x C``."""
 
-    kernel = gaussian_kernel1d(sigma)
-    blurred = convolve_axis(image, kernel, axis=1)
-    return convolve_axis(blurred, kernel, axis=0)
+    return gaussian_blur_xy(image, sigma, sigma)
