@@ -1,8 +1,18 @@
-"""Command-line preview: ``python -m sim.cli --profile NAME --input in.png --output out.png``."""
+"""Command-line preview and validation.
+
+Preview one still::
+
+    python -m sim --profile NAME --input in.png --output out.png
+
+Run the pattern harness (metrics JSON/CSV and preview PNGs)::
+
+    python -m sim validate [--profiles NAME ...] [--out reports/]
+"""
 
 from __future__ import annotations
 
 import argparse
+import sys
 from pathlib import Path
 
 import numpy as np
@@ -42,10 +52,20 @@ def build_parser() -> argparse.ArgumentParser:
         default=None,
         help="Sample-and-hold eye motion in pixels per frame",
     )
+    parser.epilog = (parser.epilog or "") + " Validation: python -m sim validate --help"
     return parser
 
 
 def main(argv: list[str] | None = None) -> None:
+    if argv is None:
+        argv = sys.argv[1:]
+    else:
+        argv = list(argv)
+    if argv and argv[0] == "validate":
+        from sim.validate import main as validate_main
+
+        validate_main(argv[1:])
+        return
     args = build_parser().parse_args(argv)
     profile = load_profile(args.profile).with_overrides(
         input_eotf=args.input_eotf,

@@ -1,0 +1,627 @@
+{
+  "disclaimer": "Simulator outputs from placeholder profiles. Not laboratory measurements. Do not compare these figures to a retail set without saying they are synthetic.",
+  "resolution": [
+    384,
+    216
+  ],
+  "window_fractions": [
+    0.01,
+    0.02,
+    0.05,
+    0.1,
+    0.25,
+    0.5,
+    1.0
+  ],
+  "preview": "PNGs are sRGB previews with each frame scaled so its maximum nit maps to code 1. They are not radiometric images.",
+  "profiles": {
+    "generic_ips_edge": {
+      "technology": "ips_lcd",
+      "disclaimer": "Simulator outputs from placeholder profiles. Not laboratory measurements. Do not compare these figures to a retail set without saying they are synthetic.",
+      "resolution": [
+        384,
+        216
+      ],
+      "ansi": {
+        "white_nits": 377.927,
+        "black_nits": 0.333333,
+        "contrast_ratio": 1133.78
+      },
+      "on_off": {
+        "white_nits": 377.927,
+        "black_nits": 8.33333e-12,
+        "contrast_ratio": null,
+        "input_eotf": "pq",
+        "white_code": 1.0
+      },
+      "windows": [
+        {
+          "area_fraction_requested": 0.01,
+          "area_fraction_actual": 0.0100791,
+          "peak_nits": 377.927,
+          "halo_nits": 0.333333,
+          "far_black_nits": 0.333333,
+          "bloom_excess_nits": 0.333333,
+          "bloom_above_far_nits": 0.0,
+          "abl_ratio_vs_smallest": 1.0
+        },
+        {
+          "area_fraction_requested": 0.02,
+          "area_fraction_actual": 0.0201823,
+          "peak_nits": 377.927,
+          "halo_nits": 0.333333,
+          "far_black_nits": 0.333333,
+          "bloom_excess_nits": 0.333333,
+          "bloom_above_far_nits": 0.0,
+          "abl_ratio_vs_smallest": 1.0
+        },
+        {
+          "area_fraction_requested": 0.05,
+          "area_fraction_actual": 0.0497685,
+          "peak_nits": 377.927,
+          "halo_nits": 0.333333,
+          "far_black_nits": 0.333333,
+          "bloom_excess_nits": 0.333333,
+          "bloom_above_far_nits": 0.0,
+          "abl_ratio_vs_smallest": 1.0
+        },
+        {
+          "area_fraction_requested": 0.1,
+          "area_fraction_actual": 0.0991995,
+          "peak_nits": 377.927,
+          "halo_nits": 0.333333,
+          "far_black_nits": 0.333333,
+          "bloom_excess_nits": 0.333333,
+          "bloom_above_far_nits": 0.0,
+          "abl_ratio_vs_smallest": 1.0
+        },
+        {
+          "area_fraction_requested": 0.25,
+          "area_fraction_actual": 0.25,
+          "peak_nits": 377.927,
+          "halo_nits": 0.333333,
+          "far_black_nits": 0.333333,
+          "bloom_excess_nits": 0.333333,
+          "bloom_above_far_nits": 0.0,
+          "abl_ratio_vs_smallest": 1.0
+        },
+        {
+          "area_fraction_requested": 0.5,
+          "area_fraction_actual": 0.501736,
+          "peak_nits": 377.927,
+          "halo_nits": 0.333333,
+          "far_black_nits": 0.333333,
+          "bloom_excess_nits": 0.333333,
+          "bloom_above_far_nits": 0.0,
+          "abl_ratio_vs_smallest": 1.0
+        },
+        {
+          "area_fraction_requested": 1.0,
+          "area_fraction_actual": 1.0,
+          "peak_nits": 377.927,
+          "halo_nits": null,
+          "far_black_nits": null,
+          "bloom_excess_nits": null,
+          "bloom_above_far_nits": null,
+          "abl_ratio_vs_smallest": 1.0
+        }
+      ],
+      "window_ring_px": {
+        "near": 3,
+        "far": 12
+      },
+      "grey_ramp": {
+        "mean_abs_rel_error": 0.010599,
+        "max_abs_rel_error": 0.180443,
+        "mean_abs_error_nits_near_black": 0.00151128,
+        "clipping_code": 0.898039,
+        "clipping_nits": 78.331,
+        "input_eotf": "srgb"
+      },
+      "pq_ramp": {
+        "mean_abs_rel_error": 0.294679,
+        "max_abs_rel_error": 0.962207,
+        "mean_abs_error_nits_near_black": 0.000883838,
+        "clipping_code": 0.642298,
+        "clipping_nits": 359.36,
+        "input_eotf": "pq"
+      },
+      "mprt": {
+        "motion_px_per_frame": 8.0,
+        "frame_time_ms": 16.666,
+        "definition": "blur_px is the 10-90 percent width of the pursuit-integrated edge after the full pipeline, so backlight spread is included. motion_blur_px removes the still-edge width in quadrature.",
+        "as_configured": {
+          "blur_px": 74.707,
+          "blur_ms": 155.633,
+          "still_blur_px": 67.6726,
+          "motion_blur_px": 31.6473,
+          "motion_blur_ms": 65.9293,
+          "overdrive_gain": 0.0,
+          "overdrive_ms": 2.0,
+          "bfi_duty": 1.0,
+          "motion_px_per_frame": 8.0,
+          "frames": 6
+        },
+        "bfi": {
+          "note": "profile duty is 1; comparison duty 0.5 is a harness stimulus, not a profile setting",
+          "profile_duty": 1.0,
+          "comparison_duty": 0.5,
+          "blur_px_profile_duty": 74.707,
+          "blur_ms_profile_duty": 155.633,
+          "motion_blur_px_profile_duty": 31.6473,
+          "motion_blur_ms_profile_duty": 65.9293,
+          "blur_px_comparison_duty": 74.7229,
+          "blur_ms_comparison_duty": 155.666,
+          "motion_blur_px_comparison_duty": 31.6848,
+          "motion_blur_ms_comparison_duty": 66.0074
+        },
+        "overdrive": {
+          "supported": true,
+          "note": "profile gain is 0; probe gain 0.5 is a harness stimulus, not a profile value",
+          "profile_gain": 0.0,
+          "comparison_gain": 0.5,
+          "blur_px_profile": 74.707,
+          "motion_blur_px_profile": 31.6473,
+          "blur_px_comparison": 74.793,
+          "motion_blur_px_comparison": 31.8498
+        }
+      }
+    },
+    "generic_qdoled": {
+      "technology": "qdoled",
+      "disclaimer": "Simulator outputs from placeholder profiles. Not laboratory measurements. Do not compare these figures to a retail set without saying they are synthetic.",
+      "resolution": [
+        384,
+        216
+      ],
+      "ansi": {
+        "white_nits": 399.999,
+        "black_nits": 0.0,
+        "contrast_ratio": null
+      },
+      "on_off": {
+        "white_nits": 200.0,
+        "black_nits": 0.0,
+        "contrast_ratio": null,
+        "input_eotf": "pq",
+        "white_code": 1.0
+      },
+      "windows": [
+        {
+          "area_fraction_requested": 0.01,
+          "area_fraction_actual": 0.0100791,
+          "peak_nits": 935.251,
+          "halo_nits": 0.0,
+          "far_black_nits": 0.0,
+          "bloom_excess_nits": 0.0,
+          "bloom_above_far_nits": 0.0,
+          "abl_ratio_vs_smallest": 1.0
+        },
+        {
+          "area_fraction_requested": 0.02,
+          "area_fraction_actual": 0.0201823,
+          "peak_nits": 925.171,
+          "halo_nits": 0.0,
+          "far_black_nits": 0.0,
+          "bloom_excess_nits": 0.0,
+          "bloom_above_far_nits": 0.0,
+          "abl_ratio_vs_smallest": 0.989222
+        },
+        {
+          "area_fraction_requested": 0.05,
+          "area_fraction_actual": 0.0497685,
+          "peak_nits": 893.315,
+          "halo_nits": 0.0,
+          "far_black_nits": 0.0,
+          "bloom_excess_nits": 0.0,
+          "bloom_above_far_nits": 0.0,
+          "abl_ratio_vs_smallest": 0.95516
+        },
+        {
+          "area_fraction_requested": 0.1,
+          "area_fraction_actual": 0.0991995,
+          "peak_nits": 834.817,
+          "halo_nits": 0.0,
+          "far_black_nits": 0.0,
+          "bloom_excess_nits": 0.0,
+          "bloom_above_far_nits": 0.0,
+          "abl_ratio_vs_smallest": 0.892612
+        },
+        {
+          "area_fraction_requested": 0.25,
+          "area_fraction_actual": 0.25,
+          "peak_nits": 649.01,
+          "halo_nits": 0.0,
+          "far_black_nits": 0.0,
+          "bloom_excess_nits": 0.0,
+          "bloom_above_far_nits": 0.0,
+          "abl_ratio_vs_smallest": 0.693942
+        },
+        {
+          "area_fraction_requested": 0.5,
+          "area_fraction_actual": 0.501736,
+          "peak_nits": 398.613,
+          "halo_nits": 0.0,
+          "far_black_nits": 0.0,
+          "bloom_excess_nits": 0.0,
+          "bloom_above_far_nits": 0.0,
+          "abl_ratio_vs_smallest": 0.426209
+        },
+        {
+          "area_fraction_requested": 1.0,
+          "area_fraction_actual": 1.0,
+          "peak_nits": 200.0,
+          "halo_nits": null,
+          "far_black_nits": null,
+          "bloom_excess_nits": null,
+          "bloom_above_far_nits": null,
+          "abl_ratio_vs_smallest": 0.213846
+        }
+      ],
+      "window_ring_px": {
+        "near": 3,
+        "far": 12
+      },
+      "grey_ramp": {
+        "mean_abs_rel_error": 0.000433092,
+        "max_abs_rel_error": 0.00192484,
+        "mean_abs_error_nits_near_black": 0.000843695,
+        "clipping_code": null,
+        "clipping_nits": null,
+        "input_eotf": "srgb"
+      },
+      "pq_ramp": {
+        "mean_abs_rel_error": 0.253744,
+        "max_abs_rel_error": 0.946652,
+        "mean_abs_error_nits_near_black": 3.23409e-05,
+        "clipping_code": 0.686684,
+        "clipping_nits": 509.29,
+        "input_eotf": "pq"
+      },
+      "mprt": {
+        "motion_px_per_frame": 8.0,
+        "frame_time_ms": 16.666,
+        "definition": "blur_px is the 10-90 percent width of the pursuit-integrated edge after the full pipeline, so backlight spread is included. motion_blur_px removes the still-edge width in quadrature.",
+        "as_configured": {
+          "blur_px": 7.59644,
+          "blur_ms": 15.8253,
+          "still_blur_px": 0.774997,
+          "motion_blur_px": 7.55681,
+          "motion_blur_ms": 15.7427,
+          "overdrive_gain": 0.0,
+          "overdrive_ms": 0.0,
+          "bfi_duty": 1.0,
+          "motion_px_per_frame": 8.0,
+          "frames": 6
+        },
+        "bfi": {
+          "note": "profile duty is 1; comparison duty 0.5 is a harness stimulus, not a profile setting",
+          "profile_duty": 1.0,
+          "comparison_duty": 0.5,
+          "blur_px_profile_duty": 7.59644,
+          "blur_ms_profile_duty": 15.8253,
+          "motion_blur_px_profile_duty": 7.55681,
+          "motion_blur_ms_profile_duty": 15.7427,
+          "blur_px_comparison_duty": 3.93248,
+          "blur_ms_comparison_duty": 8.19234,
+          "motion_blur_px_comparison_duty": 3.85536,
+          "motion_blur_ms_comparison_duty": 8.03168
+        },
+        "overdrive": {
+          "supported": false,
+          "note": "overdrive_ms is 0, so the overdrive prefix cannot run",
+          "profile_gain": 0.0,
+          "comparison_gain": null,
+          "blur_px_profile": 7.59644,
+          "motion_blur_px_profile": 7.55681,
+          "blur_px_comparison": null,
+          "motion_blur_px_comparison": null
+        }
+      }
+    },
+    "generic_va_fald_miniled": {
+      "technology": "va_lcd",
+      "disclaimer": "Simulator outputs from placeholder profiles. Not laboratory measurements. Do not compare these figures to a retail set without saying they are synthetic.",
+      "resolution": [
+        384,
+        216
+      ],
+      "ansi": {
+        "white_nits": 1417.23,
+        "black_nits": 0.268475,
+        "contrast_ratio": 5278.8
+      },
+      "on_off": {
+        "white_nits": 1417.23,
+        "black_nits": 2.5e-12,
+        "contrast_ratio": null,
+        "input_eotf": "pq",
+        "white_code": 1.0
+      },
+      "windows": [
+        {
+          "area_fraction_requested": 0.01,
+          "area_fraction_actual": 0.0100791,
+          "peak_nits": 1417.23,
+          "halo_nits": 0.375,
+          "far_black_nits": 0.0202,
+          "bloom_excess_nits": 0.375,
+          "bloom_above_far_nits": 0.3548,
+          "abl_ratio_vs_smallest": 1.0
+        },
+        {
+          "area_fraction_requested": 0.02,
+          "area_fraction_actual": 0.0201823,
+          "peak_nits": 1417.23,
+          "halo_nits": 0.375,
+          "far_black_nits": 0.03368,
+          "bloom_excess_nits": 0.375,
+          "bloom_above_far_nits": 0.34132,
+          "abl_ratio_vs_smallest": 1.0
+        },
+        {
+          "area_fraction_requested": 0.05,
+          "area_fraction_actual": 0.0497685,
+          "peak_nits": 1417.23,
+          "halo_nits": 0.375,
+          "far_black_nits": 0.0474551,
+          "bloom_excess_nits": 0.375,
+          "bloom_above_far_nits": 0.327545,
+          "abl_ratio_vs_smallest": 1.0
+        },
+        {
+          "area_fraction_requested": 0.1,
+          "area_fraction_actual": 0.0991995,
+          "peak_nits": 1417.23,
+          "halo_nits": 0.375,
+          "far_black_nits": 0.054065,
+          "bloom_excess_nits": 0.375,
+          "bloom_above_far_nits": 0.320935,
+          "abl_ratio_vs_smallest": 1.0
+        },
+        {
+          "area_fraction_requested": 0.25,
+          "area_fraction_actual": 0.25,
+          "peak_nits": 1417.23,
+          "halo_nits": 0.375,
+          "far_black_nits": 0.0708457,
+          "bloom_excess_nits": 0.375,
+          "bloom_above_far_nits": 0.304154,
+          "abl_ratio_vs_smallest": 1.0
+        },
+        {
+          "area_fraction_requested": 0.5,
+          "area_fraction_actual": 0.501736,
+          "peak_nits": 1417.23,
+          "halo_nits": 0.375,
+          "far_black_nits": 0.281625,
+          "bloom_excess_nits": 0.375,
+          "bloom_above_far_nits": 0.0933754,
+          "abl_ratio_vs_smallest": 1.0
+        },
+        {
+          "area_fraction_requested": 1.0,
+          "area_fraction_actual": 1.0,
+          "peak_nits": 1417.23,
+          "halo_nits": null,
+          "far_black_nits": null,
+          "bloom_excess_nits": null,
+          "bloom_above_far_nits": null,
+          "abl_ratio_vs_smallest": 1.0
+        }
+      ],
+      "window_ring_px": {
+        "near": 3,
+        "far": 12
+      },
+      "grey_ramp": {
+        "mean_abs_rel_error": 0.00116556,
+        "max_abs_rel_error": 0.0351975,
+        "mean_abs_error_nits_near_black": 0.00164416,
+        "clipping_code": null,
+        "clipping_nits": null,
+        "input_eotf": "srgb"
+      },
+      "pq_ramp": {
+        "mean_abs_rel_error": 0.139351,
+        "max_abs_rel_error": 0.858277,
+        "mean_abs_error_nits_near_black": 7.18778e-05,
+        "clipping_code": 0.785901,
+        "clipping_nits": 1350.24,
+        "input_eotf": "pq"
+      },
+      "mprt": {
+        "motion_px_per_frame": 8.0,
+        "frame_time_ms": 16.666,
+        "definition": "blur_px is the 10-90 percent width of the pursuit-integrated edge after the full pipeline, so backlight spread is included. motion_blur_px removes the still-edge width in quadrature.",
+        "as_configured": {
+          "blur_px": 8.71294,
+          "blur_ms": 18.1512,
+          "still_blur_px": 1.48553,
+          "motion_blur_px": 8.58537,
+          "motion_blur_ms": 17.8855,
+          "overdrive_gain": 0.0,
+          "overdrive_ms": 2.0,
+          "bfi_duty": 1.0,
+          "motion_px_per_frame": 8.0,
+          "frames": 6
+        },
+        "bfi": {
+          "note": "profile duty is 1; comparison duty 0.5 is a harness stimulus, not a profile setting",
+          "profile_duty": 1.0,
+          "comparison_duty": 0.5,
+          "blur_px_profile_duty": 8.71294,
+          "blur_ms_profile_duty": 18.1512,
+          "motion_blur_px_profile_duty": 8.58537,
+          "motion_blur_ms_profile_duty": 17.8855,
+          "blur_px_comparison_duty": 8.0687,
+          "blur_ms_comparison_duty": 16.8091,
+          "motion_blur_px_comparison_duty": 7.93077,
+          "motion_blur_ms_comparison_duty": 16.5218
+        },
+        "overdrive": {
+          "supported": true,
+          "note": "profile gain is 0; probe gain 0.5 is a harness stimulus, not a profile value",
+          "profile_gain": 0.0,
+          "comparison_gain": 0.5,
+          "blur_px_profile": 8.71294,
+          "motion_blur_px_profile": 8.58537,
+          "blur_px_comparison": 8.71272,
+          "motion_blur_px_comparison": 8.58514
+        }
+      }
+    },
+    "generic_woled": {
+      "technology": "woled",
+      "disclaimer": "Simulator outputs from placeholder profiles. Not laboratory measurements. Do not compare these figures to a retail set without saying they are synthetic.",
+      "resolution": [
+        384,
+        216
+      ],
+      "ansi": {
+        "white_nits": 312.499,
+        "black_nits": 0.0,
+        "contrast_ratio": null
+      },
+      "on_off": {
+        "white_nits": 150.0,
+        "black_nits": 0.0,
+        "contrast_ratio": null,
+        "input_eotf": "pq",
+        "white_code": 1.0
+      },
+      "windows": [
+        {
+          "area_fraction_requested": 0.01,
+          "area_fraction_actual": 0.0100791,
+          "peak_nits": 748.078,
+          "halo_nits": 0.0,
+          "far_black_nits": 0.0,
+          "bloom_excess_nits": 0.0,
+          "bloom_above_far_nits": 0.0,
+          "abl_ratio_vs_smallest": 1.0
+        },
+        {
+          "area_fraction_requested": 0.02,
+          "area_fraction_actual": 0.0201823,
+          "peak_nits": 739.877,
+          "halo_nits": 0.0,
+          "far_black_nits": 0.0,
+          "bloom_excess_nits": 0.0,
+          "bloom_above_far_nits": 0.0,
+          "abl_ratio_vs_smallest": 0.989037
+        },
+        {
+          "area_fraction_requested": 0.05,
+          "area_fraction_actual": 0.0497685,
+          "peak_nits": 713.932,
+          "halo_nits": 0.0,
+          "far_black_nits": 0.0,
+          "bloom_excess_nits": 0.0,
+          "bloom_above_far_nits": 0.0,
+          "abl_ratio_vs_smallest": 0.954355
+        },
+        {
+          "area_fraction_requested": 0.1,
+          "area_fraction_actual": 0.0991995,
+          "peak_nits": 666.247,
+          "halo_nits": 0.0,
+          "far_black_nits": 0.0,
+          "bloom_excess_nits": 0.0,
+          "bloom_above_far_nits": 0.0,
+          "abl_ratio_vs_smallest": 0.890612
+        },
+        {
+          "area_fraction_requested": 0.25,
+          "area_fraction_actual": 0.25,
+          "peak_nits": 514.905,
+          "halo_nits": 0.0,
+          "far_black_nits": 0.0,
+          "bloom_excess_nits": 0.0,
+          "bloom_above_far_nits": 0.0,
+          "abl_ratio_vs_smallest": 0.688304
+        },
+        {
+          "area_fraction_requested": 0.5,
+          "area_fraction_actual": 0.501736,
+          "peak_nits": 311.373,
+          "halo_nits": 0.0,
+          "far_black_nits": 0.0,
+          "bloom_excess_nits": 0.0,
+          "bloom_above_far_nits": 0.0,
+          "abl_ratio_vs_smallest": 0.416231
+        },
+        {
+          "area_fraction_requested": 1.0,
+          "area_fraction_actual": 1.0,
+          "peak_nits": 150.0,
+          "halo_nits": null,
+          "far_black_nits": null,
+          "bloom_excess_nits": null,
+          "bloom_above_far_nits": null,
+          "abl_ratio_vs_smallest": 0.200514
+        }
+      ],
+      "window_ring_px": {
+        "near": 3,
+        "far": 12
+      },
+      "grey_ramp": {
+        "mean_abs_rel_error": 0.000433093,
+        "max_abs_rel_error": 0.00192484,
+        "mean_abs_error_nits_near_black": 0.000843696,
+        "clipping_code": null,
+        "clipping_nits": null,
+        "input_eotf": "srgb"
+      },
+      "pq_ramp": {
+        "mean_abs_rel_error": 0.288229,
+        "max_abs_rel_error": 0.959832,
+        "mean_abs_error_nits_near_black": 3.2341e-05,
+        "clipping_code": 0.655352,
+        "clipping_nits": 382.541,
+        "input_eotf": "pq"
+      },
+      "mprt": {
+        "motion_px_per_frame": 8.0,
+        "frame_time_ms": 16.666,
+        "definition": "blur_px is the 10-90 percent width of the pursuit-integrated edge after the full pipeline, so backlight spread is included. motion_blur_px removes the still-edge width in quadrature.",
+        "as_configured": {
+          "blur_px": 7.59644,
+          "blur_ms": 15.8253,
+          "still_blur_px": 0.774997,
+          "motion_blur_px": 7.55681,
+          "motion_blur_ms": 15.7427,
+          "overdrive_gain": 0.0,
+          "overdrive_ms": 0.0,
+          "bfi_duty": 1.0,
+          "motion_px_per_frame": 8.0,
+          "frames": 6
+        },
+        "bfi": {
+          "note": "profile duty is 1; comparison duty 0.5 is a harness stimulus, not a profile setting",
+          "profile_duty": 1.0,
+          "comparison_duty": 0.5,
+          "blur_px_profile_duty": 7.59644,
+          "blur_ms_profile_duty": 15.8253,
+          "motion_blur_px_profile_duty": 7.55681,
+          "motion_blur_ms_profile_duty": 15.7427,
+          "blur_px_comparison_duty": 3.93248,
+          "blur_ms_comparison_duty": 8.19234,
+          "motion_blur_px_comparison_duty": 3.85536,
+          "motion_blur_ms_comparison_duty": 8.03168
+        },
+        "overdrive": {
+          "supported": false,
+          "note": "overdrive_ms is 0, so the overdrive prefix cannot run",
+          "profile_gain": 0.0,
+          "comparison_gain": null,
+          "blur_px_profile": 7.59644,
+          "motion_blur_px_profile": 7.55681,
+          "blur_px_comparison": null,
+          "motion_blur_px_comparison": null
+        }
+      }
+    }
+  }
+}
