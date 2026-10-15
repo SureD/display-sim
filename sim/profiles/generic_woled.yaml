@@ -1,4 +1,11 @@
 # PLACEHOLDER profile — not a measured TV.
+# M3 synthetic ranges and migration notes (not calibration):
+# research/m3-local-dimming-params.md: grid/PSF and LCD leakage.
+# research/m3-hdr-abl-params.md: peak/full-field priors and ABL load convention.
+# research/m3-temporal-params.md: response_time_ms is tau, NOT t10–90.
+# LCD core sigma prior 0.2–0.8 pitches; OLED sigma below is instead pixels.
+# Main t10–90 priors: LCD 2–20 ms (slow transitions up to 50), OLED 0.05–1 ms.
+# knee_ratio=0.85 is a synthetic late knee; suggested shoulder sweep 0.5–0.8.
 # Generic white OLED (WRGB) with per-pixel emission and a simple ABL curve.
 name: generic_woled
 technology: woled

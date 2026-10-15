@@ -34,3 +34,35 @@ def test_abl_pulls_a_full_field_down_more_than_a_small_window():
     window_out = tone_map(Frame(window), params)
     assert full_out.rgb.max() < 30.0
     assert window_out.rgb.max() > full_out.rgb.max()
+
+
+def test_oled_profiles_reduce_highlight_output_as_window_load_increases():
+    from dataclasses import replace
+    from sim.profile import load_profile
+
+    for name in ("generic_woled", "generic_qdoled"):
+        params = load_profile(name).hdr
+        peaks, highlights = [], []
+        for side in (2, 6, 10, 14, 20):
+            rgb = np.zeros((20, 20, 3), np.float32)
+            rgb[:side, :side] = params.panel_peak_nits
+            peaks.append(effective_peak(rgb, params))
+            highlights.append(tone_map(Frame(rgb), params).rgb.max())
+            # Load has no effect on the ceiling when the limiter is disabled.
+            assert effective_peak(rgb, replace(params, abl_enabled=False)) == params.panel_peak_nits
+        assert np.all(np.diff(peaks) < 0)
+        assert np.all(np.diff(highlights) < 0)
+        assert np.isclose(peaks[-1], params.abl_full_field_nits)
+        assert highlights[-1] <= params.abl_full_field_nits + 1e-3
+
+
+def test_neutral_hdr_ramp_remains_monotone_and_bounded():
+    params = HdrParams(panel_peak_nits=1000, knee_ratio=0.7, abl_enabled=False)
+    ramp = np.linspace(0, 10000, 1001, dtype=np.float32)
+    rgb = np.repeat(ramp[None, :, None], 3, axis=2)
+    output = tone_map(Frame(rgb), params).rgb
+    assert np.isfinite(output).all()
+    assert output[0, 0, 0] == 0
+    assert np.all(np.diff(output[0, :, 0]) >= 0)
+    assert output.max() <= params.panel_peak_nits + 1e-3
+    assert np.allclose(output[0, ramp <= 700, 0], ramp[ramp <= 700], atol=1e-4)

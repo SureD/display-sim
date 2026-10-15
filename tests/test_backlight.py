@@ -62,3 +62,26 @@ def test_edge_lit_column_is_vertically_uniform():
     column = out.backlight[:, 32]
     assert np.allclose(column, column[0], atol=0.05)
     assert column[0] > out.backlight[32, 0]
+
+
+def test_profile_small_windows_emit_lcd_halo_with_inverse_contrast_scaling():
+    from sim.profile import load_profile
+    from sim.stages.panel import lcd_transmit
+
+    profile = load_profile("generic_va_fald_miniled")
+    for fraction in (0.01, 0.02, 0.10):
+        frame = _window(size=96, fraction=fraction, nits=1000.0)
+        driven = simulate_backlight(frame, profile.backlight)
+        emitted = lcd_transmit(frame.rgb, driven.backlight, profile.panel.native_contrast)
+        dark = frame.rgb[..., 0] == 0
+        # Measure emitted halo, rather than interpreting backlight spread as light.
+        halo = emitted[..., 0][dark]
+        assert halo.max() > 0.001
+        assert halo.max() > emitted[0, 0, 0] + 0.001
+        assert np.allclose(halo, driven.backlight[dark] / profile.panel.native_contrast,
+                           rtol=1e-4, atol=1e-6)
+        higher_contrast = lcd_transmit(frame.rgb, driven.backlight,
+                                      2 * profile.panel.native_contrast)
+        assert np.allclose(higher_contrast[..., 0][dark], halo / 2, atol=1e-6)
+        assert np.isfinite(emitted).all()
+        assert emitted.min() >= 0
