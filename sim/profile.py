@@ -40,15 +40,23 @@ class ProcessingParams:
 class BacklightParams:
     """Local-dimming or self-emissive drive.
 
-    ``mode`` is ``fald`` (2D zone grid), ``edge`` (coarse zones, same math),
-    or ``per_pixel`` (OLED). ``psf_sigma_zones`` is the light-spread sigma in
-    units of one zone. ``floor_nits`` is a minimum LED drive.
+    ``mode`` is ``fald`` (2D zone grid), ``edge`` (column strips when
+    ``zones_y`` is 1), or ``per_pixel`` (OLED). Core PSF sigmas are in zone
+    pitches for zoned modes and in pixels for ``per_pixel``. ``psf_sigma_y_*``
+    left as ``None`` copies the horizontal sigma. Tail weight 0 is a single
+    Gaussian. ``zone_percentile`` 100 is a zone maximum. These are modeling
+    knobs, not measured optical constants. ``floor_nits`` is a minimum drive.
     """
 
     mode: str = "fald"
     zones_x: int = 16
     zones_y: int = 12
     psf_sigma_zones: float = 0.7
+    psf_sigma_y_zones: float | None = None
+    psf_tail_sigma_zones: float = 2.0
+    psf_tail_sigma_y_zones: float | None = None
+    psf_tail_weight: float = 0.0
+    zone_percentile: float = 100.0
     peak_nits: float = 1000.0
     floor_nits: float = 0.0
 
@@ -68,10 +76,12 @@ class PanelParams:
 
 @dataclass
 class HdrParams:
-    """Highlight compression and a placeholder OLED ABL curve.
+    """Highlight compression and a placeholder load limiter.
 
     Effective peak is ``panel_peak_nits`` when ABL is off. When ABL is on,
-    average picture level slides that peak toward ``abl_full_field_nits``.
+    mean linear luminance (APL) slides that peak toward
+    ``abl_full_field_nits``. ``abl_power_budget_nits`` is a separate global
+    gain on weighted channel drive; 0 leaves it off.
     """
 
     tone_map: str = "soft_clip"
@@ -80,6 +90,10 @@ class HdrParams:
     abl_enabled: bool = False
     abl_full_field_nits: float = 1000.0
     abl_gamma: float = 2.0
+    # Channel-power proxy in weighted nits (not watts). 0 disables the gain.
+    # Weights are a placeholder, not a measured current budget.
+    abl_power_budget_nits: float = 0.0
+    abl_channel_weights: list[float] = field(default_factory=lambda: [1.0, 1.0, 1.0])
 
 
 @dataclass
@@ -92,12 +106,23 @@ class AmbientParams:
 
 @dataclass
 class TemporalParams:
-    """Response time (exponential approach) and sample-and-hold blur."""
+    """Response lag, optional overdrive, sample-and-hold, and a BFI gate.
+
+    ``overdrive_gain`` 0 or ``overdrive_ms`` 0 leaves the single first-order
+    step. ``bfi_duty`` 1 is a continuous hold. ``overdrive_ceiling_nits`` 0
+    means the overdriven command is only clipped at zero (no calibrated
+    headroom). None of these defaults are a measured LUT or strobe waveform.
+    """
 
     response_time_ms: float = 8.0
     frame_time_ms: float = 1000.0 / 60.0
     sample_and_hold: bool = True
     motion_px_per_frame: float = 0.0
+    overdrive_gain: float = 0.0
+    overdrive_ms: float = 0.0
+    overdrive_ceiling_nits: float = 0.0
+    bfi_duty: float = 1.0
+    bfi_preserve_mean: bool = False
 
 
 @dataclass
