@@ -33,7 +33,7 @@ backlight:
   psf_sigma_zones: 0.45   # pixels; PLACEHOLDER optical crosstalk, not a measured PSF
   psf_tail_weight: 0.0
   zone_percentile: 100.0
-  peak_nits: 1000.0
+  peak_nits: 1100.0
   floor_nits: 0.0
 
 panel:
@@ -48,11 +48,13 @@ panel:
 
 hdr:
   tone_map: soft_clip
-  panel_peak_nits: 1000.0
+  # PLACEHOLDER load curve near the published S95B Filmmaker readings
+  # (977 nits at 10%, 199 nits full white). Not an S95B emulation.
+  panel_peak_nits: 1100.0
   knee_ratio: 0.85
   abl_enabled: true
-  abl_full_field_nits: 200.0
-  abl_gamma: 2.0
+  abl_full_field_nits: 199.0
+  abl_gamma: 1.0
   abl_power_budget_nits: 0.0          # PLACEHOLDER; 0 disables channel-power gain
   abl_channel_weights: [1.0, 1.0, 1.0]
 

@@ -40,6 +40,9 @@ backlight:
   floor_nits: 0.0
 
 panel:
+  # PLACEHOLDER. Dimming-on ANSI at the harness PQ white lands inside the
+  # published IPS sample envelope ~764–1,290:1. That envelope is dimming-off
+  # ANSI at 120 nits, so this is a ratio check, not a matched-panel fit.
   native_contrast: 1200.0
   subpixel: rgb_stripe
   viewing_angle_deg: 0.0
