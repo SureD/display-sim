@@ -1,0 +1,60 @@
+# PLACEHOLDER profile — not a measured TV.
+# Generic QD-OLED: per-pixel emission, triangular RGB mosaic, slight crosstalk.
+name: generic_qdoled
+technology: qdoled
+description: >
+  Placeholder QD-OLED. The triangular subpixel buffer is a geometric stand-in
+  that box-filters back to the source color. A little per-pixel PSF stands in
+  for optical crosstalk. Quantum-dot spectra and a real gamut matrix are not
+  modeled; color_matrix stays identity.
+
+input:
+  eotf: srgb
+  sdr_white_nits: 100.0
+  hlg_peak_nits: 1000.0
+
+processing:
+  scale_factor: 1.0
+  scale_mode: bilinear
+  sharpen_amount: 0.15
+  sharpen_sigma: 0.7
+
+backlight:
+  mode: per_pixel
+  zones_x: 1
+  zones_y: 1
+  psf_sigma_zones: 0.45   # pixels; small halo from optical crosstalk
+  peak_nits: 1000.0
+  floor_nits: 0.0
+
+panel:
+  native_contrast: 1000000.0
+  subpixel: qd_oled
+  viewing_angle_deg: 0.0
+  angle_loss_per_deg: 0.004
+  color_matrix:
+    - [1.0, 0.0, 0.0]
+    - [0.0, 1.0, 0.0]
+    - [0.0, 0.0, 1.0]
+
+hdr:
+  tone_map: soft_clip
+  panel_peak_nits: 1000.0
+  knee_ratio: 0.85
+  abl_enabled: true
+  abl_full_field_nits: 200.0
+  abl_gamma: 2.0
+
+ambient:
+  lux: 0.0
+  reflectance: 0.012
+
+temporal:
+  response_time_ms: 0.1
+  frame_time_ms: 16.666
+  sample_and_hold: true
+  motion_px_per_frame: 0.0
+
+output:
+  eotf: srgb
+  reference_nits: 100.0

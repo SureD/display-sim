@@ -1,0 +1,60 @@
+# PLACEHOLDER profile — not a measured TV.
+# Generic IPS LCD with a coarse edge-lit dimming grid (one row of segments).
+name: generic_ips_edge
+technology: ips_lcd
+description: >
+  Placeholder edge-lit IPS set. Native contrast is lower than VA, viewing
+  angle is wider, and the backlight is a single row of segments whose light
+  is spread by a wide PSF. Each segment drives a full-height column before
+  the blur; that is a stand-in, not a light-guide simulation.
+
+input:
+  eotf: srgb
+  sdr_white_nits: 100.0
+  hlg_peak_nits: 1000.0
+
+processing:
+  scale_factor: 1.0
+  scale_mode: bilinear
+  sharpen_amount: 0.2
+  sharpen_sigma: 0.8
+
+backlight:
+  mode: edge
+  zones_x: 8
+  zones_y: 1
+  psf_sigma_zones: 1.5
+  peak_nits: 400.0
+  floor_nits: 0.0
+
+panel:
+  native_contrast: 1200.0
+  subpixel: rgb_stripe
+  viewing_angle_deg: 0.0
+  angle_loss_per_deg: 0.015  # IPS holds chroma better off axis than VA
+  color_matrix:
+    - [1.0, 0.0, 0.0]
+    - [0.0, 1.0, 0.0]
+    - [0.0, 0.0, 1.0]
+
+hdr:
+  tone_map: soft_clip
+  panel_peak_nits: 400.0
+  knee_ratio: 0.85
+  abl_enabled: false
+  abl_full_field_nits: 350.0
+  abl_gamma: 2.0
+
+ambient:
+  lux: 0.0
+  reflectance: 0.025
+
+temporal:
+  response_time_ms: 12.0
+  frame_time_ms: 16.666
+  sample_and_hold: true
+  motion_px_per_frame: 0.0
+
+output:
+  eotf: srgb
+  reference_nits: 100.0
