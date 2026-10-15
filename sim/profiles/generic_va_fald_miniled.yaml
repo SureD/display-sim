@@ -22,7 +22,13 @@ backlight:
   mode: fald
   zones_x: 16
   zones_y: 12
-  psf_sigma_zones: 0.75   # Gaussian stand-in for the optical light guide, in zone widths
+  # PLACEHOLDER priors (research/02 sweep), not a measured PSF or zone map.
+  psf_sigma_zones: 0.75       # core sigma, zone pitches
+  psf_sigma_y_zones: 0.75
+  psf_tail_sigma_zones: 2.0   # tail prior is 1–3 pitches
+  psf_tail_sigma_y_zones: 2.0
+  psf_tail_weight: 0.08       # synthetic prior inside 0–0.15; not fit to a panel
+  zone_percentile: 100.0      # 100 keeps the zone maximum
   peak_nits: 1500.0
   floor_nits: 0.0
 
@@ -43,6 +49,8 @@ hdr:
   abl_enabled: false
   abl_full_field_nits: 600.0
   abl_gamma: 2.0
+  abl_power_budget_nits: 0.0          # 0 disables the channel-power gain
+  abl_channel_weights: [1.0, 1.0, 1.0]  # PLACEHOLDER, not a current budget
 
 ambient:
   lux: 0.0
@@ -53,6 +61,13 @@ temporal:
   frame_time_ms: 16.666
   sample_and_hold: true
   motion_px_per_frame: 0.0
+  # PLACEHOLDER hooks. Gain 0 and duty 1 keep first-order lag + full hold.
+  # Not a measured overdrive LUT or backlight strobe.
+  overdrive_gain: 0.0
+  overdrive_ms: 2.0
+  overdrive_ceiling_nits: 0.0
+  bfi_duty: 1.0
+  bfi_preserve_mean: false
 
 output:
   eotf: srgb

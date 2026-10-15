@@ -23,7 +23,9 @@ backlight:
   mode: per_pixel
   zones_x: 1
   zones_y: 1
-  psf_sigma_zones: 0.45   # pixels; small halo from optical crosstalk
+  psf_sigma_zones: 0.45   # pixels; PLACEHOLDER optical crosstalk, not a measured PSF
+  psf_tail_weight: 0.0
+  zone_percentile: 100.0
   peak_nits: 1000.0
   floor_nits: 0.0
 
@@ -44,6 +46,8 @@ hdr:
   abl_enabled: true
   abl_full_field_nits: 200.0
   abl_gamma: 2.0
+  abl_power_budget_nits: 0.0          # PLACEHOLDER; 0 disables channel-power gain
+  abl_channel_weights: [1.0, 1.0, 1.0]
 
 ambient:
   lux: 0.0
@@ -54,6 +58,12 @@ temporal:
   frame_time_ms: 16.666
   sample_and_hold: true
   motion_px_per_frame: 0.0
+  # PLACEHOLDER. Duty 1 is continuous emission, not a claimed BFI mode.
+  overdrive_gain: 0.0
+  overdrive_ms: 0.0
+  overdrive_ceiling_nits: 0.0
+  bfi_duty: 1.0
+  bfi_preserve_mean: false
 
 output:
   eotf: srgb

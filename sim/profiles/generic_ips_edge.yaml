@@ -22,8 +22,13 @@ processing:
 backlight:
   mode: edge
   zones_x: 8
-  zones_y: 1
-  psf_sigma_zones: 1.5
+  zones_y: 1                 # one full-height strip per segment
+  # PLACEHOLDER priors, not a measured light-guide LSF.
+  psf_sigma_zones: 1.5       # horizontal core, in zone pitches
+  psf_sigma_y_zones: 0.15    # vertical pitch is the full panel height
+  psf_tail_sigma_zones: 2.5
+  psf_tail_weight: 0.0
+  zone_percentile: 100.0
   peak_nits: 400.0
   floor_nits: 0.0
 
@@ -44,6 +49,8 @@ hdr:
   abl_enabled: false
   abl_full_field_nits: 350.0
   abl_gamma: 2.0
+  abl_power_budget_nits: 0.0
+  abl_channel_weights: [1.0, 1.0, 1.0]  # PLACEHOLDER, not a current budget
 
 ambient:
   lux: 0.0
@@ -54,6 +61,12 @@ temporal:
   frame_time_ms: 16.666
   sample_and_hold: true
   motion_px_per_frame: 0.0
+  # PLACEHOLDER hooks. Gain 0 and duty 1 keep first-order lag + full hold.
+  overdrive_gain: 0.0
+  overdrive_ms: 2.0
+  overdrive_ceiling_nits: 0.0
+  bfi_duty: 1.0
+  bfi_preserve_mean: false
 
 output:
   eotf: srgb

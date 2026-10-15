@@ -3,8 +3,10 @@
 decode → image processing → backlight / local dimming → panel →
 HDR tone map / ABL → ambient reflection → temporal → encode.
 
-Not in this skeleton: MEMC, a spectral or measured subpixel model, CRT and
-plasma profiles, and a GPU backend.
+Not in this pipeline: MEMC, a spectral or measured subpixel model, CRT and
+plasma profiles, and a GPU backend. Overdrive and BFI are optional hooks
+with placeholder parameters; duty 1 and overdrive gain 0 leave lag plus
+sample-and-hold.
 """
 
 from __future__ import annotations

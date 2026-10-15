@@ -24,6 +24,8 @@ backlight:
   zones_x: 1
   zones_y: 1
   psf_sigma_zones: 0.0    # pixels of optical crosstalk; 0 disables it
+  psf_tail_weight: 0.0    # PLACEHOLDER; no measured OLED PSF
+  zone_percentile: 100.0
   peak_nits: 800.0
   floor_nits: 0.0
 
@@ -44,6 +46,10 @@ hdr:
   abl_enabled: true
   abl_full_field_nits: 150.0
   abl_gamma: 2.0
+  # PLACEHOLDER power proxy in weighted nits, not a measured watt budget.
+  # 0 leaves only the APL peak curve above.
+  abl_power_budget_nits: 0.0
+  abl_channel_weights: [1.0, 1.0, 1.0]
 
 ambient:
   lux: 0.0
@@ -54,6 +60,12 @@ temporal:
   frame_time_ms: 16.666
   sample_and_hold: true
   motion_px_per_frame: 0.0
+  # PLACEHOLDER. OLED profiles do not claim a measured overdrive or BFI mode.
+  overdrive_gain: 0.0
+  overdrive_ms: 0.0
+  overdrive_ceiling_nits: 0.0
+  bfi_duty: 1.0
+  bfi_preserve_mean: false
 
 output:
   eotf: srgb
