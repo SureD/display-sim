@@ -4,7 +4,7 @@ Preview one still::
 
     python -m sim --profile NAME --input in.png --output out.png
 
-Run the pattern harness (metrics JSON/CSV and preview PNGs)::
+Run the pattern harness (metrics JSON/CSV, comparison.md, and preview PNGs)::
 
     python -m sim validate [--profiles NAME ...] [--out reports/]
 """
