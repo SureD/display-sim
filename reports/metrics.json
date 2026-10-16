@@ -129,13 +129,15 @@
       "mprt": {
         "motion_px_per_frame": 8.0,
         "frame_time_ms": 16.666,
-        "definition": "blur_px is the 10-90 percent width of the pursuit-integrated edge after the full pipeline, so backlight spread is included. motion_blur_px removes the still-edge width in quadrature.",
+        "definition": "blur_px is the 10-90 percent width of the pursuit-integrated edge after the full pipeline, so backlight spread is included. still_blur_px is that edge with motion off. temporal_blur_px is the 10-90 width of a sharp step through the temporal stage only (response, overdrive, BFI, pursuit), with backlight spread left out. motion_blur_px removes the still width from blur_px in quadrature and is not the temporal-only width.",
         "as_configured": {
           "blur_px": 74.707,
           "blur_ms": 155.633,
           "still_blur_px": 67.6726,
           "motion_blur_px": 31.6473,
           "motion_blur_ms": 65.9293,
+          "temporal_blur_px": 14.4461,
+          "temporal_blur_ms": 30.0949,
           "overdrive_gain": 0.0,
           "overdrive_ms": 2.0,
           "bfi_duty": 1.0,
@@ -150,10 +152,14 @@
           "blur_ms_profile_duty": 155.633,
           "motion_blur_px_profile_duty": 31.6473,
           "motion_blur_ms_profile_duty": 65.9293,
+          "temporal_blur_px_profile_duty": 14.4461,
+          "temporal_blur_ms_profile_duty": 30.0949,
           "blur_px_comparison_duty": 74.7229,
           "blur_ms_comparison_duty": 155.666,
           "motion_blur_px_comparison_duty": 31.6848,
-          "motion_blur_ms_comparison_duty": 66.0074
+          "motion_blur_ms_comparison_duty": 66.0074,
+          "temporal_blur_px_comparison_duty": 11.2399,
+          "temporal_blur_ms_comparison_duty": 23.4156
         },
         "overdrive": {
           "supported": true,
@@ -162,8 +168,10 @@
           "comparison_gain": 0.5,
           "blur_px_profile": 74.707,
           "motion_blur_px_profile": 31.6473,
+          "temporal_blur_px_profile": 14.4461,
           "blur_px_comparison": 74.793,
-          "motion_blur_px_comparison": 31.8498
+          "motion_blur_px_comparison": 31.8498,
+          "temporal_blur_px_comparison": 14.4461
         }
       }
     },
@@ -175,12 +183,12 @@
         216
       ],
       "ansi": {
-        "white_nits": 399.999,
+        "white_nits": 649.148,
         "black_nits": 0.0,
         "contrast_ratio": null
       },
       "on_off": {
-        "white_nits": 200.0,
+        "white_nits": 199.0,
         "black_nits": 0.0,
         "contrast_ratio": null,
         "input_eotf": "pq",
@@ -190,7 +198,7 @@
         {
           "area_fraction_requested": 0.01,
           "area_fraction_actual": 0.0100791,
-          "peak_nits": 935.251,
+          "peak_nits": 1033.97,
           "halo_nits": 0.0,
           "far_black_nits": 0.0,
           "bloom_excess_nits": 0.0,
@@ -200,62 +208,62 @@
         {
           "area_fraction_requested": 0.02,
           "area_fraction_actual": 0.0201823,
-          "peak_nits": 925.171,
+          "peak_nits": 1028.45,
           "halo_nits": 0.0,
           "far_black_nits": 0.0,
           "bloom_excess_nits": 0.0,
           "bloom_above_far_nits": 0.0,
-          "abl_ratio_vs_smallest": 0.989222
+          "abl_ratio_vs_smallest": 0.994659
         },
         {
           "area_fraction_requested": 0.05,
           "area_fraction_actual": 0.0497685,
-          "peak_nits": 893.315,
+          "peak_nits": 1011.3,
           "halo_nits": 0.0,
           "far_black_nits": 0.0,
           "bloom_excess_nits": 0.0,
           "bloom_above_far_nits": 0.0,
-          "abl_ratio_vs_smallest": 0.95516
+          "abl_ratio_vs_smallest": 0.978074
         },
         {
           "area_fraction_requested": 0.1,
           "area_fraction_actual": 0.0991995,
-          "peak_nits": 834.817,
+          "peak_nits": 979.695,
           "halo_nits": 0.0,
           "far_black_nits": 0.0,
           "bloom_excess_nits": 0.0,
           "bloom_above_far_nits": 0.0,
-          "abl_ratio_vs_smallest": 0.892612
+          "abl_ratio_vs_smallest": 0.947509
         },
         {
           "area_fraction_requested": 0.25,
           "area_fraction_actual": 0.25,
-          "peak_nits": 649.01,
+          "peak_nits": 866.078,
           "halo_nits": 0.0,
           "far_black_nits": 0.0,
           "bloom_excess_nits": 0.0,
           "bloom_above_far_nits": 0.0,
-          "abl_ratio_vs_smallest": 0.693942
+          "abl_ratio_vs_smallest": 0.837624
         },
         {
           "area_fraction_requested": 0.5,
           "area_fraction_actual": 0.501736,
-          "peak_nits": 398.613,
+          "peak_nits": 647.594,
           "halo_nits": 0.0,
           "far_black_nits": 0.0,
           "bloom_excess_nits": 0.0,
           "bloom_above_far_nits": 0.0,
-          "abl_ratio_vs_smallest": 0.426209
+          "abl_ratio_vs_smallest": 0.626319
         },
         {
           "area_fraction_requested": 1.0,
           "area_fraction_actual": 1.0,
-          "peak_nits": 200.0,
+          "peak_nits": 199.0,
           "halo_nits": null,
           "far_black_nits": null,
           "bloom_excess_nits": null,
           "bloom_above_far_nits": null,
-          "abl_ratio_vs_smallest": 0.213846
+          "abl_ratio_vs_smallest": 0.192462
         }
       ],
       "window_ring_px": {
@@ -271,23 +279,25 @@
         "input_eotf": "srgb"
       },
       "pq_ramp": {
-        "mean_abs_rel_error": 0.253744,
-        "max_abs_rel_error": 0.946652,
+        "mean_abs_rel_error": 0.20723,
+        "max_abs_rel_error": 0.921331,
         "mean_abs_error_nits_near_black": 3.23409e-05,
-        "clipping_code": 0.686684,
-        "clipping_nits": 509.29,
+        "clipping_code": 0.72846,
+        "clipping_nits": 752.113,
         "input_eotf": "pq"
       },
       "mprt": {
         "motion_px_per_frame": 8.0,
         "frame_time_ms": 16.666,
-        "definition": "blur_px is the 10-90 percent width of the pursuit-integrated edge after the full pipeline, so backlight spread is included. motion_blur_px removes the still-edge width in quadrature.",
+        "definition": "blur_px is the 10-90 percent width of the pursuit-integrated edge after the full pipeline, so backlight spread is included. still_blur_px is that edge with motion off. temporal_blur_px is the 10-90 width of a sharp step through the temporal stage only (response, overdrive, BFI, pursuit), with backlight spread left out. motion_blur_px removes the still width from blur_px in quadrature and is not the temporal-only width.",
         "as_configured": {
           "blur_px": 7.59644,
           "blur_ms": 15.8253,
           "still_blur_px": 0.774997,
           "motion_blur_px": 7.55681,
           "motion_blur_ms": 15.7427,
+          "temporal_blur_px": 7.6,
+          "temporal_blur_ms": 15.8327,
           "overdrive_gain": 0.0,
           "overdrive_ms": 0.0,
           "bfi_duty": 1.0,
@@ -302,10 +312,14 @@
           "blur_ms_profile_duty": 15.8253,
           "motion_blur_px_profile_duty": 7.55681,
           "motion_blur_ms_profile_duty": 15.7427,
+          "temporal_blur_px_profile_duty": 7.6,
+          "temporal_blur_ms_profile_duty": 15.8327,
           "blur_px_comparison_duty": 3.93248,
           "blur_ms_comparison_duty": 8.19234,
           "motion_blur_px_comparison_duty": 3.85536,
-          "motion_blur_ms_comparison_duty": 8.03168
+          "motion_blur_ms_comparison_duty": 8.03168,
+          "temporal_blur_px_comparison_duty": 3.95,
+          "temporal_blur_ms_comparison_duty": 8.22884
         },
         "overdrive": {
           "supported": false,
@@ -314,8 +328,10 @@
           "comparison_gain": null,
           "blur_px_profile": 7.59644,
           "motion_blur_px_profile": 7.55681,
+          "temporal_blur_px_profile": 7.6,
           "blur_px_comparison": null,
-          "motion_blur_px_comparison": null
+          "motion_blur_px_comparison": null,
+          "temporal_blur_px_comparison": null
         }
       }
     },
@@ -327,12 +343,12 @@
         216
       ],
       "ansi": {
-        "white_nits": 1417.23,
-        "black_nits": 0.268475,
-        "contrast_ratio": 5278.8
+        "white_nits": 1284.9,
+        "black_nits": 0.288878,
+        "contrast_ratio": 4447.9
       },
       "on_off": {
-        "white_nits": 1417.23,
+        "white_nits": 619.959,
         "black_nits": 2.5e-12,
         "contrast_ratio": null,
         "input_eotf": "pq",
@@ -342,72 +358,72 @@
         {
           "area_fraction_requested": 0.01,
           "area_fraction_actual": 0.0100791,
-          "peak_nits": 1417.23,
-          "halo_nits": 0.375,
-          "far_black_nits": 0.0202,
-          "bloom_excess_nits": 0.375,
-          "bloom_above_far_nits": 0.3548,
+          "peak_nits": 1771.94,
+          "halo_nits": 0.5,
+          "far_black_nits": 0.0219041,
+          "bloom_excess_nits": 0.5,
+          "bloom_above_far_nits": 0.478096,
           "abl_ratio_vs_smallest": 1.0
         },
         {
           "area_fraction_requested": 0.02,
           "area_fraction_actual": 0.0201823,
-          "peak_nits": 1417.23,
-          "halo_nits": 0.375,
-          "far_black_nits": 0.03368,
-          "bloom_excess_nits": 0.375,
-          "bloom_above_far_nits": 0.34132,
-          "abl_ratio_vs_smallest": 1.0
+          "peak_nits": 1764.48,
+          "halo_nits": 0.5,
+          "far_black_nits": 0.038024,
+          "bloom_excess_nits": 0.5,
+          "bloom_above_far_nits": 0.461976,
+          "abl_ratio_vs_smallest": 0.99579
         },
         {
           "area_fraction_requested": 0.05,
           "area_fraction_actual": 0.0497685,
-          "peak_nits": 1417.23,
-          "halo_nits": 0.375,
-          "far_black_nits": 0.0474551,
-          "bloom_excess_nits": 0.375,
-          "bloom_above_far_nits": 0.327545,
-          "abl_ratio_vs_smallest": 1.0
+          "peak_nits": 1741.97,
+          "halo_nits": 0.5,
+          "far_black_nits": 0.0541565,
+          "bloom_excess_nits": 0.5,
+          "bloom_above_far_nits": 0.445843,
+          "abl_ratio_vs_smallest": 0.983084
         },
         {
           "area_fraction_requested": 0.1,
           "area_fraction_actual": 0.0991995,
-          "peak_nits": 1417.23,
-          "halo_nits": 0.375,
-          "far_black_nits": 0.054065,
-          "bloom_excess_nits": 0.375,
-          "bloom_above_far_nits": 0.320935,
-          "abl_ratio_vs_smallest": 1.0
+          "peak_nits": 1702.12,
+          "halo_nits": 0.5,
+          "far_black_nits": 0.0604111,
+          "bloom_excess_nits": 0.5,
+          "bloom_above_far_nits": 0.439589,
+          "abl_ratio_vs_smallest": 0.960595
         },
         {
           "area_fraction_requested": 0.25,
           "area_fraction_actual": 0.25,
-          "peak_nits": 1417.23,
-          "halo_nits": 0.375,
-          "far_black_nits": 0.0708457,
-          "bloom_excess_nits": 0.375,
-          "bloom_above_far_nits": 0.304154,
-          "abl_ratio_vs_smallest": 1.0
+          "peak_nits": 1563.78,
+          "halo_nits": 0.5,
+          "far_black_nits": 0.0756322,
+          "bloom_excess_nits": 0.5,
+          "bloom_above_far_nits": 0.424368,
+          "abl_ratio_vs_smallest": 0.882525
         },
         {
           "area_fraction_requested": 0.5,
           "area_fraction_actual": 0.501736,
-          "peak_nits": 1417.23,
-          "halo_nits": 0.375,
-          "far_black_nits": 0.281625,
-          "bloom_excess_nits": 0.375,
-          "bloom_above_far_nits": 0.0933754,
-          "abl_ratio_vs_smallest": 1.0
+          "peak_nits": 1282.78,
+          "halo_nits": 0.5,
+          "far_black_nits": 0.349511,
+          "bloom_excess_nits": 0.5,
+          "bloom_above_far_nits": 0.150489,
+          "abl_ratio_vs_smallest": 0.723941
         },
         {
           "area_fraction_requested": 1.0,
           "area_fraction_actual": 1.0,
-          "peak_nits": 1417.23,
+          "peak_nits": 619.959,
           "halo_nits": null,
           "far_black_nits": null,
           "bloom_excess_nits": null,
           "bloom_above_far_nits": null,
-          "abl_ratio_vs_smallest": 1.0
+          "abl_ratio_vs_smallest": 0.349875
         }
       ],
       "window_ring_px": {
@@ -423,23 +439,25 @@
         "input_eotf": "srgb"
       },
       "pq_ramp": {
-        "mean_abs_rel_error": 0.139351,
-        "max_abs_rel_error": 0.858277,
+        "mean_abs_rel_error": 0.132989,
+        "max_abs_rel_error": 0.846711,
         "mean_abs_error_nits_near_black": 7.18778e-05,
-        "clipping_code": 0.785901,
-        "clipping_nits": 1350.24,
+        "clipping_code": 0.809399,
+        "clipping_nits": 1462.67,
         "input_eotf": "pq"
       },
       "mprt": {
         "motion_px_per_frame": 8.0,
         "frame_time_ms": 16.666,
-        "definition": "blur_px is the 10-90 percent width of the pursuit-integrated edge after the full pipeline, so backlight spread is included. motion_blur_px removes the still-edge width in quadrature.",
+        "definition": "blur_px is the 10-90 percent width of the pursuit-integrated edge after the full pipeline, so backlight spread is included. still_blur_px is that edge with motion off. temporal_blur_px is the 10-90 width of a sharp step through the temporal stage only (response, overdrive, BFI, pursuit), with backlight spread left out. motion_blur_px removes the still width from blur_px in quadrature and is not the temporal-only width.",
         "as_configured": {
           "blur_px": 8.71294,
           "blur_ms": 18.1512,
           "still_blur_px": 1.48553,
           "motion_blur_px": 8.58537,
           "motion_blur_ms": 17.8855,
+          "temporal_blur_px": 9.06252,
+          "temporal_blur_ms": 18.8795,
           "overdrive_gain": 0.0,
           "overdrive_ms": 2.0,
           "bfi_duty": 1.0,
@@ -454,10 +472,14 @@
           "blur_ms_profile_duty": 18.1512,
           "motion_blur_px_profile_duty": 8.58537,
           "motion_blur_ms_profile_duty": 17.8855,
+          "temporal_blur_px_profile_duty": 9.06252,
+          "temporal_blur_ms_profile_duty": 18.8795,
           "blur_px_comparison_duty": 8.0687,
           "blur_ms_comparison_duty": 16.8091,
           "motion_blur_px_comparison_duty": 7.93077,
-          "motion_blur_ms_comparison_duty": 16.5218
+          "motion_blur_ms_comparison_duty": 16.5218,
+          "temporal_blur_px_comparison_duty": 8.58137,
+          "temporal_blur_ms_comparison_duty": 17.8771
         },
         "overdrive": {
           "supported": true,
@@ -466,8 +488,10 @@
           "comparison_gain": 0.5,
           "blur_px_profile": 8.71294,
           "motion_blur_px_profile": 8.58537,
+          "temporal_blur_px_profile": 9.06252,
           "blur_px_comparison": 8.71272,
-          "motion_blur_px_comparison": 8.58514
+          "motion_blur_px_comparison": 8.58514,
+          "temporal_blur_px_comparison": 9.06252
         }
       }
     },
@@ -479,12 +503,12 @@
         216
       ],
       "ansi": {
-        "white_nits": 312.499,
+        "white_nits": 298.836,
         "black_nits": 0.0,
         "contrast_ratio": null
       },
       "on_off": {
-        "white_nits": 150.0,
+        "white_nits": 170.0,
         "black_nits": 0.0,
         "contrast_ratio": null,
         "input_eotf": "pq",
@@ -494,7 +518,7 @@
         {
           "area_fraction_requested": 0.01,
           "area_fraction_actual": 0.0100791,
-          "peak_nits": 748.078,
+          "peak_nits": 793.296,
           "halo_nits": 0.0,
           "far_black_nits": 0.0,
           "bloom_excess_nits": 0.0,
@@ -504,62 +528,62 @@
         {
           "area_fraction_requested": 0.02,
           "area_fraction_actual": 0.0201823,
-          "peak_nits": 739.877,
+          "peak_nits": 782.909,
           "halo_nits": 0.0,
           "far_black_nits": 0.0,
           "bloom_excess_nits": 0.0,
           "bloom_above_far_nits": 0.0,
-          "abl_ratio_vs_smallest": 0.989037
+          "abl_ratio_vs_smallest": 0.986907
         },
         {
           "area_fraction_requested": 0.05,
           "area_fraction_actual": 0.0497685,
-          "peak_nits": 713.932,
+          "peak_nits": 749.964,
           "halo_nits": 0.0,
           "far_black_nits": 0.0,
           "bloom_excess_nits": 0.0,
           "bloom_above_far_nits": 0.0,
-          "abl_ratio_vs_smallest": 0.954355
+          "abl_ratio_vs_smallest": 0.945377
         },
         {
           "area_fraction_requested": 0.1,
           "area_fraction_actual": 0.0991995,
-          "peak_nits": 666.247,
+          "peak_nits": 690.036,
           "halo_nits": 0.0,
           "far_black_nits": 0.0,
           "bloom_excess_nits": 0.0,
           "bloom_above_far_nits": 0.0,
-          "abl_ratio_vs_smallest": 0.890612
+          "abl_ratio_vs_smallest": 0.869834
         },
         {
           "area_fraction_requested": 0.25,
           "area_fraction_actual": 0.25,
-          "peak_nits": 514.905,
+          "peak_nits": 510.585,
           "halo_nits": 0.0,
           "far_black_nits": 0.0,
           "bloom_excess_nits": 0.0,
           "bloom_above_far_nits": 0.0,
-          "abl_ratio_vs_smallest": 0.688304
+          "abl_ratio_vs_smallest": 0.643625
         },
         {
           "area_fraction_requested": 0.5,
           "area_fraction_actual": 0.501736,
-          "peak_nits": 311.373,
+          "peak_nits": 297.765,
           "halo_nits": 0.0,
           "far_black_nits": 0.0,
           "bloom_excess_nits": 0.0,
           "bloom_above_far_nits": 0.0,
-          "abl_ratio_vs_smallest": 0.416231
+          "abl_ratio_vs_smallest": 0.375351
         },
         {
           "area_fraction_requested": 1.0,
           "area_fraction_actual": 1.0,
-          "peak_nits": 150.0,
+          "peak_nits": 170.0,
           "halo_nits": null,
           "far_black_nits": null,
           "bloom_excess_nits": null,
           "bloom_above_far_nits": null,
-          "abl_ratio_vs_smallest": 0.200514
+          "abl_ratio_vs_smallest": 0.214296
         }
       ],
       "window_ring_px": {
@@ -575,23 +599,25 @@
         "input_eotf": "srgb"
       },
       "pq_ramp": {
-        "mean_abs_rel_error": 0.288229,
-        "max_abs_rel_error": 0.959832,
+        "mean_abs_rel_error": 0.290846,
+        "max_abs_rel_error": 0.960682,
         "mean_abs_error_nits_near_black": 3.2341e-05,
-        "clipping_code": 0.655352,
-        "clipping_nits": 382.541,
+        "clipping_code": 0.652742,
+        "clipping_nits": 374.054,
         "input_eotf": "pq"
       },
       "mprt": {
         "motion_px_per_frame": 8.0,
         "frame_time_ms": 16.666,
-        "definition": "blur_px is the 10-90 percent width of the pursuit-integrated edge after the full pipeline, so backlight spread is included. motion_blur_px removes the still-edge width in quadrature.",
+        "definition": "blur_px is the 10-90 percent width of the pursuit-integrated edge after the full pipeline, so backlight spread is included. still_blur_px is that edge with motion off. temporal_blur_px is the 10-90 width of a sharp step through the temporal stage only (response, overdrive, BFI, pursuit), with backlight spread left out. motion_blur_px removes the still width from blur_px in quadrature and is not the temporal-only width.",
         "as_configured": {
           "blur_px": 7.59644,
           "blur_ms": 15.8253,
           "still_blur_px": 0.774997,
           "motion_blur_px": 7.55681,
           "motion_blur_ms": 15.7427,
+          "temporal_blur_px": 7.6,
+          "temporal_blur_ms": 15.8327,
           "overdrive_gain": 0.0,
           "overdrive_ms": 0.0,
           "bfi_duty": 1.0,
@@ -606,10 +632,14 @@
           "blur_ms_profile_duty": 15.8253,
           "motion_blur_px_profile_duty": 7.55681,
           "motion_blur_ms_profile_duty": 15.7427,
+          "temporal_blur_px_profile_duty": 7.6,
+          "temporal_blur_ms_profile_duty": 15.8327,
           "blur_px_comparison_duty": 3.93248,
           "blur_ms_comparison_duty": 8.19234,
           "motion_blur_px_comparison_duty": 3.85536,
-          "motion_blur_ms_comparison_duty": 8.03168
+          "motion_blur_ms_comparison_duty": 8.03168,
+          "temporal_blur_px_comparison_duty": 3.95,
+          "temporal_blur_ms_comparison_duty": 8.22884
         },
         "overdrive": {
           "supported": false,
@@ -618,8 +648,10 @@
           "comparison_gain": null,
           "blur_px_profile": 7.59644,
           "motion_blur_px_profile": 7.55681,
+          "temporal_blur_px_profile": 7.6,
           "blur_px_comparison": null,
-          "motion_blur_px_comparison": null
+          "motion_blur_px_comparison": null,
+          "temporal_blur_px_comparison": null
         }
       }
     }

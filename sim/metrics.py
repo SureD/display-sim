@@ -39,7 +39,12 @@ MPRT-style blur width
     Distance in pixels between the 10% and 90% points of a 1-D edge, using
     the median of each end as the dark and bright plateau. Time in
     milliseconds is ``width_px * frame_time_ms / motion_px_per_frame`` at the
-    pursuit speed.
+    pursuit speed. Quadrature removal of a still-edge width is only a rough
+    split. When backlight spread dominates, the temporal width has to be
+    measured on a sharp step that never sees that spread. Quadrature removal of a still-edge width is only a rough
+    split. When the still edge is wide (backlight spread), the pursuit width
+    mostly repeats that spread. The temporal-only width is measured on an
+    ideal step that never sees the backlight.
 """
 
 from __future__ import annotations
@@ -319,11 +324,12 @@ def moving_edge_blur_px(
 
 
 def motion_blur_px(moving_px: float | None, still_px: float | None) -> float | None:
-    """Motion's share of a 10–90% width, removed from the still edge in quadrature.
+    """Rough motion share of a 10–90% width, still edge removed in quadrature.
 
-    A static optical spread and a pursuit smear both widen the edge. Subtracting
-    the still width in quadrature estimates the part that appears only while the
-    edge is moving. The result is ``None`` when either width is missing.
+    This is not the temporal-only width. A wide static backlight edge barely
+    grows under a short pursuit smear, so the quadrature remainder does not
+    equal the smear of a sharp step. The result is ``None`` when either width
+    is missing.
     """
 
     if moving_px is None or still_px is None:

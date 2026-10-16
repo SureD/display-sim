@@ -33,7 +33,7 @@ backlight:
   psf_sigma_zones: 0.0    # pixels of optical crosstalk; 0 disables it
   psf_tail_weight: 0.0    # PLACEHOLDER; no measured OLED PSF
   zone_percentile: 100.0
-  peak_nits: 800.0
+  peak_nits: 850.0
   floor_nits: 0.0
 
 panel:
@@ -48,11 +48,14 @@ panel:
 
 hdr:
   tone_map: soft_clip
-  panel_peak_nits: 800.0
+  # PLACEHOLDER load curve. The 10% HDR window is aimed at the published
+  # WOLED sample envelope 667–717 nits. HDR full-white and sustained cells
+  # have no numeric anchor; the full-field ceiling is only a synthetic knob.
+  panel_peak_nits: 850.0
   knee_ratio: 0.85
   abl_enabled: true
-  abl_full_field_nits: 150.0
-  abl_gamma: 2.0
+  abl_full_field_nits: 170.0
+  abl_gamma: 2.4
   # PLACEHOLDER power proxy in weighted nits, not a measured watt budget.
   # 0 leaves only the APL peak curve above.
   abl_power_budget_nits: 0.0

@@ -21,7 +21,11 @@ from pathlib import Path
 import numpy as np
 from PIL import Image
 
+from sim.anchors import render_comparison
+from sim.anchors import render_comparison
 from sim.color import luminance, pq_eotf, srgb_eotf
+from sim.frame import Frame
+from sim.frame import Frame
 from sim.metrics import (
     abl_ratios,
     ansi_contrast,
@@ -36,7 +40,7 @@ from sim.patterns import window_bounds
 from sim.pipeline import Pipeline
 from sim.profile import TVProfile, available_profiles, load_profile
 from sim.stages.encode import encode_frame
-from sim.stages.temporal import TemporalState
+from sim.stages.temporal import TemporalState, apply_temporal, apply_temporal
 
 WINDOW_FRACTIONS = (0.01, 0.02, 0.05, 0.10, 0.25, 0.50, 1.0)
 PQ_WHITE = 1.0
@@ -185,12 +189,16 @@ def _edge_blur(profile: TVProfile, height: int, width: int, frames: int, motion_
     still_1d = np.asarray(luminance(still.rgb[y0:y1]), dtype=np.float64).mean(axis=0)
     still_px = moving_edge_blur_px(still_1d)
     added_px = motion_blur_px(blur_px, still_px)
+    # Ideal step through the temporal stage only, so backlight spread is absent.
+    temporal_px = temporal_only_blur_px(profile, height, width, frames, motion_px)
     return {
         "blur_px": blur_px,
         "blur_ms": blur_width_ms(blur_px, motion_px, profile.temporal.frame_time_ms),
         "still_blur_px": still_px,
         "motion_blur_px": added_px,
         "motion_blur_ms": blur_width_ms(added_px, motion_px, profile.temporal.frame_time_ms),
+        "temporal_blur_px": temporal_px,
+        "temporal_blur_ms": blur_width_ms(temporal_px, motion_px, profile.temporal.frame_time_ms),
         "overdrive_gain": float(profile.temporal.overdrive_gain),
         "overdrive_ms": float(profile.temporal.overdrive_ms),
         "bfi_duty": float(profile.temporal.bfi_duty),
@@ -198,6 +206,36 @@ def _edge_blur(profile: TVProfile, height: int, width: int, frames: int, motion_
         "frames": int(frames),
         "preview_rgb": last.rgb,
     }
+
+
+def temporal_only_blur_px(
+    profile: TVProfile,
+    height: int,
+    width: int,
+    frames: int,
+    motion_px: float,
+) -> float | None:
+    """10–90% width of a sharp step after response, BFI, and pursuit only.
+
+    The step never goes through backlight spread, sharpening, or the panel,
+    so the width is the temporal smear. Pursuit of a soft backlight edge is
+    a different number and stays on ``blur_px``.
+    """
+
+    start = width / 5.0
+    state = TemporalState()
+    last = None
+    for index in range(frames):
+        rgb = np.zeros((height, width, 3), dtype=np.float32)
+        column = int(np.ceil(start + index * motion_px))
+        if column < width:
+            rgb[:, max(0, column) :] = np.float32(100.0)
+        last = apply_temporal(Frame(rgb), profile.temporal, state)
+    assert last is not None
+    y0 = height // 3
+    y1 = max(y0 + 1, height - y0)
+    profile_1d = np.asarray(luminance(last.rgb[y0:y1]), dtype=np.float64).mean(axis=0)
+    return moving_edge_blur_px(profile_1d)
 
 
 def _with_temporal(profile: TVProfile, **kwargs: float) -> TVProfile:
@@ -310,8 +348,10 @@ def evaluate_profile(
             "comparison_gain": probe_gain,
             "blur_px_profile": as_configured["blur_px"],
             "motion_blur_px_profile": as_configured["motion_blur_px"],
+            "temporal_blur_px_profile": as_configured["temporal_blur_px"],
             "blur_px_comparison": probed["blur_px"],
             "motion_blur_px_comparison": probed["motion_blur_px"],
+            "temporal_blur_px_comparison": probed["temporal_blur_px"],
         }
     else:
         overdrive = {
@@ -321,8 +361,10 @@ def evaluate_profile(
             "comparison_gain": None,
             "blur_px_profile": as_configured["blur_px"],
             "motion_blur_px_profile": as_configured["motion_blur_px"],
+            "temporal_blur_px_profile": as_configured["temporal_blur_px"],
             "blur_px_comparison": None,
             "motion_blur_px_comparison": None,
+            "temporal_blur_px_comparison": None,
         }
 
     metrics = {
@@ -347,7 +389,11 @@ def evaluate_profile(
             "definition": (
                 "blur_px is the 10-90 percent width of the pursuit-integrated edge "
                 "after the full pipeline, so backlight spread is included. "
-                "motion_blur_px removes the still-edge width in quadrature."
+                "still_blur_px is that edge with motion off. "
+                "temporal_blur_px is the 10-90 width of a sharp step through the "
+                "temporal stage only (response, overdrive, BFI, pursuit), with "
+                "backlight spread left out. motion_blur_px removes the still width "
+                "from blur_px in quadrature and is not the temporal-only width."
             ),
             "as_configured": {
                 key: value for key, value in as_configured.items() if key != "preview_rgb"
@@ -360,10 +406,14 @@ def evaluate_profile(
                 "blur_ms_profile_duty": as_configured["blur_ms"],
                 "motion_blur_px_profile_duty": as_configured["motion_blur_px"],
                 "motion_blur_ms_profile_duty": as_configured["motion_blur_ms"],
+                "temporal_blur_px_profile_duty": as_configured["temporal_blur_px"],
+                "temporal_blur_ms_profile_duty": as_configured["temporal_blur_ms"],
                 "blur_px_comparison_duty": bfi_case["blur_px"],
                 "blur_ms_comparison_duty": bfi_case["blur_ms"],
                 "motion_blur_px_comparison_duty": bfi_case["motion_blur_px"],
                 "motion_blur_ms_comparison_duty": bfi_case["motion_blur_ms"],
+                "temporal_blur_px_comparison_duty": bfi_case["temporal_blur_px"],
+                "temporal_blur_ms_comparison_duty": bfi_case["temporal_blur_ms"],
             },
             "overdrive": overdrive,
         },
@@ -425,6 +475,10 @@ def write_reports(out_dir: Path, payload: dict, previews: dict[str, dict[str, np
         writer = csv.writer(handle)
         writer.writerow(["profile", "metric", "value", "python_type"])
         writer.writerows(rows)
+    (out_dir / "comparison.md").write_text(
+        render_comparison(document["profiles"]),
+        encoding="utf-8",
+    )
     for name, images in previews.items():
         _save_png(out_dir / f"{name}_checkerboard.png", images["checkerboard"])
         _save_png(out_dir / f"{name}_moving_edge.png", images["moving_edge"])
@@ -470,7 +524,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description=(
             "Render validation patterns through each TV profile and write "
-            "metrics plus preview PNGs. Results are simulator outputs, not measurements."
+            "metrics, a published-anchor comparison, and preview PNGs. "
+            "Results are simulator outputs, not measurements."
         )
     )
     parser.add_argument(

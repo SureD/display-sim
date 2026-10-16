@@ -5,7 +5,8 @@
 # research/m3-temporal-params.md: response_time_ms is tau, NOT t10–90.
 # LCD core sigma prior 0.2–0.8 pitches; OLED sigma below is instead pixels.
 # Main t10–90 priors: LCD 2–20 ms (slow transitions up to 50), OLED 0.05–1 ms.
-# knee_ratio=0.85 is a synthetic late knee; suggested shoulder sweep 0.5–0.8.
+# Suggested shoulder sweep is 0.5–0.8. This profile uses 0.70 so a
+# backlight-clipped window can approach the ABL ceiling.
 # Generic VA LCD with a mini-LED full-array local-dimming backlight.
 name: generic_va_fald_miniled
 technology: va_lcd
@@ -36,7 +37,9 @@ backlight:
   psf_tail_sigma_y_zones: 2.0
   psf_tail_weight: 0.08       # synthetic prior inside 0–0.15; not fit to a panel
   zone_percentile: 100.0      # 100 keeps the zone maximum
-  peak_nits: 1500.0
+  # PLACEHOLDER drive cap. High enough that a small HDR window still
+  # clips, so ABL (not this clip) sets the 10% vs full-white drop.
+  peak_nits: 2000.0
   floor_nits: 0.0
 
 panel:
@@ -51,11 +54,14 @@ panel:
 
 hdr:
   tone_map: soft_clip
-  panel_peak_nits: 1500.0
-  knee_ratio: 0.85
-  abl_enabled: false
-  abl_full_field_nits: 600.0
-  abl_gamma: 2.0
+  # PLACEHOLDER ceilings so the harness 10% and full-white peaks can sit in
+  # the published VA mini-LED sample envelope (~1,300–1,774 nits at 10%,
+  # 591–almost 650 full white). Not a QN95B or X95K emulation.
+  panel_peak_nits: 2000.0
+  knee_ratio: 0.70
+  abl_enabled: true
+  abl_full_field_nits: 620.0
+  abl_gamma: 1.0          # low end of the synthetic 1–3 shape prior
   abl_power_budget_nits: 0.0          # 0 disables the channel-power gain
   abl_channel_weights: [1.0, 1.0, 1.0]  # PLACEHOLDER, not a current budget
 
