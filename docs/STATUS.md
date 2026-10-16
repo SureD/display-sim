@@ -1,4 +1,4 @@
-# Status — 2026-10-16 21:34 CST
+# Status — 2026-10-17 00:30 CST
 
 ## Milestone progress
 - **M1 research docs**: DONE (`37cc504`).
@@ -8,28 +8,29 @@
 - **M5 mechanism fidelity**: DONE (merge `1baa2e1` + fidelity research).
 - **M5 macOS EDR research**: DONE (`research/m5-mac-display.md`).
 - **M6 profile wiring research**: DONE (`research/m6-profile-wiring.md`).
-- **M6 visual gallery**: DONE (merge `30f8e97` of `cursor/m6-gallery`, 5 commits `adf6bd4`..`5685b4b`). `python3 -m sim gallery` → `reports/gallery/` (7 PNG contact sheets, `index.html`, `manifest.json`): subpixel macro (RGB stripe / WRGB / QD-OLED triangle), pursuit pan with response/overdrive/BFI, starfield, subtitles, bright windows, gradients across all 4 profiles.
-- **M7 MEMC/motion research**: DONE (`research/m7-memc-motion.md`, Codex run9; PM committed).
-- **M7 MEMC implementation phase 1**: IN PROGRESS (Cursor, `cursor/m7-memc`).
-- **M8 profile provenance sidecar**: DONE in worktree `/workspace/tv-sim-codex`, branch `codex/m8-provenance` (uncommitted: git metadata is read-only). Four versioned sidecars cover all 220 effective profile values, with separate named-sample measurements, strict support lookup, and `python3 -m sim provenance --check`. Runtime YAMLs unchanged; pipeline parity tested.
+- **M6 visual gallery**: DONE (merge `30f8e97`).
+- **M7 MEMC/motion research**: DONE (`research/m7-memc-motion.md`).
+- **M8 profile provenance sidecar**: DONE (merge `94f248b` of `codex/m8-provenance`, commit `d0ca06f`). Four versioned `sim/profiles/*.provenance.yaml` sidecars cover all 220 effective profile values (M/D/P/NR, source locators, conditions, support ranges); strict lookup fails out of support; `python3 -m sim provenance --check`; schema in `docs/PROVENANCE.md`. Runtime YAMLs unchanged, parity tested.
+- **M7 MEMC implementation phase 1**: IN PROGRESS — **reassigned to Codex** (worktree `/workspace/tv-sim-codex`, branch `codex/m7-memc`) because Cursor run10 died at start (connection stalled; 3rd such failure: runs 6, 8, 10).
+- **M9 opt-in window replay / drive fitting**: IN PROGRESS (Cursor, worktree `/workspace/tv-sim-cursor`, branch `cursor/m9-window-replay`).
 
 ## Workers (this cycle)
-- Cursor run9: **finished** — gallery committed after a transient reconnect; 115/115 tests.
-- Codex run9: **finished** — M7 MEMC research (uncommitted → PM committed).
-- Restarted: Cursor run10 → M7 MEMC phase 1; Codex run10 → **finished M8 provenance** (code; git staging failed on read-only metadata, so changes remain uncommitted for PM review/commit).
+- Cursor run10: **failed at start** (`RetriableError: Connection stalled repeatedly`), no work done; stale empty `cursor/m7-memc` branch deleted.
+- Codex run10: **finished** M8 (uncommitted → PM committed + merged).
+- Started: Codex run11 → M7 MEMC phase 1; Cursor run11 → M9 window replay.
 
 ## Tests
-- **115/115 pytest** on `main` after the gallery merge.
-- **230/230 pytest** on `codex/m8-provenance`: 115 existing + 115 provenance tests. All four sidecars pass validation; tests prove byte-identical linear/encoded output and temporal history with sidecars present, absent, or malformed.
+- **230/230 pytest** on `main` after the M8 merge (115 existing + 115 provenance).
 
 ## Drift / risks
-- Profile numbers remain placeholders; gallery labels say so. Do not present as emulating a specific TV.
-- MEMC must be off by default and leave the current MEMC-off path bit-identical (M7 research §9; QD-OLED historical-M4 PSF exception documented in M6 wiring research).
-- MEMC (`sim/pipeline.py`, `sim/stages/temporal.py`, CLI) and provenance (`sim/profiles*`, YAML loading, validation) should touch mostly different files; PM resolves any merge conflicts.
-- Still stubbed: measured OD/BFI/PWM waveforms, measured PSFs/zone maps in YAML, spectral subpixels, gamut mapping, glare, CRT/plasma, GPU path, zone temporal smoothing, full watt solver, angular leakage LUTs, OLED attack/release, block-estimation MEMC.
+- Profile numbers remain placeholders; do not present as emulating a specific TV.
+- MEMC must be off by default and leave the MEMC-off path bit-identical.
+- M9 must be opt-in with a separate dataset ID; defaults and original generic YAMLs unchanged; no double limiting.
+- Cursor CLI connection stalls are recurring; if run11 also fails, move remaining work to Codex.
+- Still stubbed: measured OD/BFI/PWM waveforms, measured PSFs/zone maps, spectral subpixels, gamut mapping, glare, CRT/plasma, GPU path, zone temporal smoothing, full watt solver, angular leakage LUTs, OLED attack/release, block-estimation MEMC.
 - GPU path on `dscs2pc` (RTX 3070) still **blocked on user OK** + local-machine approval.
 
 ## Next (assigned this cycle)
-1. **M7 MEMC phase 1 (Cursor, `cursor/m7-memc`)**: per `research/m7-memc-motion.md` handoff order — capture MEMC-disabled baselines; source/output PTS separation with a rational repeat (judder) scheduler + diagnostics; analytic-translation / layer reconstruction at intermediate times with cut/fallback flags; opt-in CLI/profile switch (default off); tests proving MEMC-off parity; gallery row comparing 24p repeat vs interpolated pan.
-2. **M8 provenance sidecar (Codex)**: complete in this worktree; ready for PM review/commit. Schema/API and preserved measurement limits documented in `docs/PROVENANCE.md`.
+1. **M7 MEMC phase 1 (Codex, `codex/m7-memc`)**: per `research/m7-memc-motion.md` handoff — MEMC-disabled baselines; source/output PTS separation with rational repeat (judder) scheduler + diagnostics; analytic-translation / layer reconstruction at intermediate times with cut/fallback flags; opt-in CLI/profile switch (default off); MEMC-off parity tests; gallery row 24p repeat vs interpolated pan.
+2. **M9 window replay (Cursor, `cursor/m9-window-replay`)**: per `research/m6-profile-wiring.md` §8 item 2 — opt-in window replay/drive fitting using M8 provenance measurement records, explicit amplitude/color/time matching, separate dataset ID, no double limiting; defaults unchanged; tests.
 3. **GPU path (PyTorch on dscs2pc)**: still awaiting user confirm.
