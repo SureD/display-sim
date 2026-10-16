@@ -1,32 +1,30 @@
-# Status — 2026-10-16 09:25 CST
+# Status — 2026-10-16 12:25 CST
 
 ## Milestone progress
 - **M1 research docs**: DONE (`37cc504`).
 - **M2 pipeline skeleton + TV profiles**: DONE (merge `f0d7e05`).
 - **M3 local dimming + HDR + temporal**: DONE (merge `477685d`).
-- **M4 validation + report**: DONE (this cycle).
-  - Codex filled `docs/REPORT.md` against pre-cal harness; PM committed (`e5f39eb`).
-  - Cursor `cursor/m4-calibration` merged (`c7dbf01`): placeholder HDR ceiling nudge, `temporal_blur_*`, `reports/comparison.md`, anchors module.
-  - PM re-ran `python3 -m sim validate --out reports/` (no artifact drift vs merge) and **47/47 pytest** on main.
-  - PM refreshed `docs/REPORT.md` tables to post-cal numbers and pointed scored cells at `reports/comparison.md`.
-
-## Post-cal highlights (placeholders only)
-- VA ABL on: 10% ~1702 nits (**in** ~1300–1774), 100% ~620 nits (**in** 591–almost 650).
-- WOLED 10% ~690 nits (**in** 667–717); QD-OLED 10% ~980 / 100% 199 (**in** vs Q1).
-- IPS ANSI ~1134:1 (**in** ~764–1290); IPS temporal-only edge ~14.4 px (pursuit still ~74.7 / still ~67.7).
-- Many 2/25/50%, sustained, MPRT/GtG cells remain **NR**.
+- **M4 validation + report**: DONE (merge `c7dbf01` + REPORT refresh `cc71643`).
+- **M5 mechanism fidelity**: DONE this cycle (merge `1baa2e1`).
+  - Cursor `cursor/m5-fidelity`: source-demand ABL load (`sim/load.py`), OLED emissive PSF in panel stage, shaped zone PSFs / LSF table hook / edge policies (reflect|zero|all-on-norm). Defaults keep prior profile output.
+  - Codex wrote `research/m5-fidelity.md` (ABL curves, angle leakage, halo/PSF, subpixel, temporal, perceptual params; NR marked; 34+ sources).
+  - PM merged + **79/79 pytest** on main (was 47).
 
 ## Workers (this cycle)
-- Codex (`codex_run4.log`): **finished / idle**. Wrote uncommitted `docs/REPORT.md` (pre-cal); PM committed then refreshed post-merge.
-- Cursor (`cursor_run4.log`, worktree `/workspace/tv-sim-cursor` on `cursor/m4-calibration`): **finished / idle**. Two commits merged (`1562e32`, `f1c655a`).
-- No `codex exec` or `agent -p` processes running at check time. Tooling (`codex`, `agent`) is installed but PM is **not** starting new long-running workers.
+- Codex (`codex_run6.log`): **finished / idle**. Delivered uncommitted `research/m5-fidelity.md`; PM committed.
+- Codex (`codex_run5.log`): **finished early / incomplete**. Mac EDR research task; no `research/m5-mac-display.md` left behind.
+- Cursor (`cursor_run6.log` / worktree `cursor/m5-fidelity`): **finished code then stalled** (connection stalled ~10:32 CST after 3 commits). Work was already committed on the branch; merge succeeded.
+- Cursor (`cursor_run5.log`): empty / no useful output.
+- No `codex exec` or `agent -p` processes running at check time. **Not starting new long-running workers** until the user picks the next milestone.
 
 ## Drift / risks
 - Profile numbers remain placeholders; do not present as emulating a specific TV.
-- Stubbed: MEMC, measured overdrive LUTs and BFI/PWM waveforms, measured PSFs/zone maps, spectral subpixels, gamut mapping, glare, CRT/plasma, GPU path, zone temporal smoothing, backlight/LCD power solver.
+- M5 knobs default off / Gaussian+reflect so M4 harness numbers should still match unless profiles opt in.
+- Still stubbed: MEMC, measured OD/BFI/PWM waveforms, measured PSFs/zone maps wired into YAML, spectral subpixels, gamut mapping, glare, CRT/plasma, GPU path, zone temporal smoothing, full backlight/LCD watt solver, angular leakage LUTs.
 - No remote origin configured; all work is local.
-- REPORT pre-cal snapshot is preserved in git history (`e5f39eb`); tip report is post-cal.
+- Cursor agent transport remains flaky (stalls on long runs).
 
 ## Next (assigned — awaiting user OK before kicking workers)
-1. **Post-M4 candidate: GPU path (PyTorch) on RTX 3070 box `dscs2pc`** for realtime preview, with numerical parity against the CPU reference on the same harness patterns. **Do not start Codex/Cursor workers until the user confirms this milestone.**
-2. Optional fidelity follow-ups (also need prioritization): measured LUTs/PSFs, source-demand APL, consume OLED PSF in emissive path, longer temporal histories.
+1. **GPU path (PyTorch) on RTX 3070 box `dscs2pc`**: realtime preview + numerical parity vs CPU harness. Needs user confirm + local machine approval.
+2. **M5 follow-through from research**: wire measured window tables / provenance, angular leakage model, consume LSF/PSF tables in profiles, attack/release ABL on OLED profiles — research-only until prioritized.
+3. **Optional**: finish macOS EDR preview research (`m5-mac-display.md`) that Codex run5 did not deliver.
