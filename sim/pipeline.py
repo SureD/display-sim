@@ -24,7 +24,7 @@ from sim.stages.ambient import add_ambient
 from sim.stages.backlight import simulate_backlight
 from sim.stages.decode import decode_encoded
 from sim.stages.encode import encode_frame
-from sim.stages.panel import emission_psf_pixels, simulate_panel
+from sim.stages.panel import emission_psf, simulate_panel
 from sim.stages.process import process_image
 from sim.stages.temporal import TemporalState, apply_temporal
 from sim.stages.tonemap import tone_map
@@ -71,9 +71,7 @@ class Pipeline:
             profile.panel,
             self_emissive=profile.self_emissive,
             peak_nits=profile.backlight.peak_nits,
-            emission_psf=(
-                emission_psf_pixels(profile.backlight) if profile.self_emissive else None
-            ),
+            psf=emission_psf(profile.backlight) if profile.self_emissive else None,
         )
         frame = tone_map(frame, profile.hdr, demand_apl_nits=apl)
         frame = add_ambient(frame, profile.ambient)

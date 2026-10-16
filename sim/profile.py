@@ -37,6 +37,23 @@ class ProcessingParams:
 
 
 @dataclass
+class PsfProfile:
+    """A tabulated half-profile line-spread function, in zone pitches.
+
+    ``x`` and ``y`` list the relative response at ``0, step_zones,
+    2*step_zones, ...`` from a zone centre, which is the shape a symmetrized
+    LSF measurement is normally reported in. Either axis may be omitted, in
+    which case that axis keeps the parametric kernel. Nothing shipped in
+    ``sim/profiles`` is measured; these tables are the hook a measurement
+    would be loaded into, and they are labeled placeholders until then.
+    """
+
+    step_zones: float = 1.0
+    x: list[float] | None = None
+    y: list[float] | None = None
+
+
+@dataclass
 class BacklightParams:
     """Local-dimming or self-emissive drive.
 
@@ -44,8 +61,18 @@ class BacklightParams:
     ``zones_y`` is 1), or ``per_pixel`` (OLED). Core PSF sigmas are in zone
     pitches for zoned modes and in pixels for ``per_pixel``. ``psf_sigma_y_*``
     left as ``None`` copies the horizontal sigma. Tail weight 0 is a single
-    Gaussian. ``zone_percentile`` 100 is a zone maximum. These are modeling
-    knobs, not measured optical constants. ``floor_nits`` is a minimum drive.
+    core component. ``zone_percentile`` 100 is a zone maximum. These are
+    modeling knobs, not measured optical constants. ``floor_nits`` is a
+    minimum drive.
+
+    ``psf_shape`` picks the tail component: ``gaussian`` is the original
+    two-Gaussian mixture, ``exponential_tail`` replaces the far term with a
+    slower ``exp(-r/s)`` skirt. ``psf_profile`` overrides either axis with a
+    tabulated LSF. ``psf_boundary`` is the edge policy: ``reflect`` mirrors
+    light back in, ``zero`` lets a border zone lose the part of its footprint
+    that falls off the panel, and ``calibrated_zero`` applies the all-on
+    normalization ``B_i = Bmax_i (Σ_j H_ij d_j)/(Σ_j H_ij)`` from
+    ``research/m3-local-dimming-params.md``.
     """
 
     mode: str = "fald"
@@ -56,9 +83,16 @@ class BacklightParams:
     psf_tail_sigma_zones: float = 2.0
     psf_tail_sigma_y_zones: float | None = None
     psf_tail_weight: float = 0.0
+    psf_shape: str = "gaussian"
+    psf_boundary: str = "reflect"
+    psf_profile: PsfProfile | None = None
     zone_percentile: float = 100.0
     peak_nits: float = 1000.0
     floor_nits: float = 0.0
+
+    def __post_init__(self) -> None:
+        if isinstance(self.psf_profile, dict):
+            self.psf_profile = PsfProfile(**self.psf_profile)
 
 
 @dataclass

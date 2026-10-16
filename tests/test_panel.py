@@ -6,14 +6,26 @@ import pytest
 from sim.frame import Frame
 from sim.profile import BacklightParams, PanelParams
 from sim.stages.panel import (
+    EmissionPsf,
     apply_viewing_angle,
     composite_subpixels,
-    emission_psf_pixels,
+    emission_psf,
     lcd_transmit,
     render_subpixels,
     simulate_panel,
     spread_emission,
 )
+
+
+def _gaussian_psf(sigma: float, tail_sigma: float = 2.0, weight: float = 0.0) -> EmissionPsf:
+    return emission_psf(
+        BacklightParams(
+            mode="per_pixel",
+            psf_sigma_zones=sigma,
+            psf_tail_sigma_zones=tail_sigma,
+            psf_tail_weight=weight,
+        )
+    )
 
 
 def test_lcd_black_sits_on_the_contrast_floor():
@@ -64,13 +76,13 @@ def test_oled_panel_clips_to_peak_without_lcd_floor():
 
 
 def test_emission_psf_sigmas_are_pixels_not_zone_pitches():
-    params = BacklightParams(
-        mode="per_pixel",
-        psf_sigma_zones=0.45,
-        psf_tail_sigma_zones=2.0,
-        psf_tail_weight=0.1,
-    )
-    assert emission_psf_pixels(params) == (0.45, 0.45, 2.0, 2.0, 0.1)
+    from sim.filters import gaussian_kernel1d
+
+    psf = _gaussian_psf(0.45, tail_sigma=2.0, weight=0.1)
+    # 0.45 is read as 0.45 px, so the kernel is the one-pixel-sigma Gaussian.
+    assert np.allclose(psf.kernels[0], gaussian_kernel1d(0.45))
+    assert np.allclose(psf.kernels[2], gaussian_kernel1d(2.0))
+    assert psf.kernels[4] == pytest.approx(0.1)
 
 
 def test_emission_psf_moves_light_onto_dark_neighbors_without_creating_any():
@@ -78,7 +90,7 @@ def test_emission_psf_moves_light_onto_dark_neighbors_without_creating_any():
     # otherwise mirror light back and inflate the sum (research/m3 boundary note).
     emitted = np.zeros((25, 25, 3), dtype=np.float32)
     emitted[12, 12] = (300.0, 0.0, 0.0)
-    spread = spread_emission(emitted, (0.8, 0.8, 2.0, 2.0, 0.05))
+    spread = spread_emission(emitted, _gaussian_psf(0.8, 2.0, 0.05))
     assert spread[12, 13, 0] > 0.0
     assert spread[12, 12, 0] < 300.0
     # Only the red emitter was lit, so only red moves.
@@ -89,7 +101,7 @@ def test_emission_psf_moves_light_onto_dark_neighbors_without_creating_any():
 def test_zero_emission_psf_is_identity():
     emitted = np.zeros((5, 5, 3), dtype=np.float32)
     emitted[2, 2] = (120.0, 60.0, 30.0)
-    assert np.allclose(spread_emission(emitted, (0.0, 0.0, 2.0, 2.0, 0.0)), emitted)
+    assert np.allclose(spread_emission(emitted, _gaussian_psf(0.0)), emitted)
 
 
 def test_oled_emission_psf_glows_past_the_emitter_edge():
@@ -107,7 +119,7 @@ def test_oled_emission_psf_glows_past_the_emitter_edge():
         PanelParams(subpixel="qd_oled"),
         self_emissive=True,
         peak_nits=600.0,
-        emission_psf=(0.6, 0.6, 2.0, 2.0, 0.0),
+        psf=_gaussian_psf(0.6),
     )
     assert float(sharp.rgb[3, 2].max()) == 0.0
     assert float(glowing.rgb[3, 2].max()) > 0.0

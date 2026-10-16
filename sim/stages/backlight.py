@@ -40,7 +40,11 @@ from __future__ import annotations
 
 import numpy as np
 
-from sim.filters import gaussian_blur_xy
+from sim.filters import (
+    exponential_kernel1d,
+    gaussian_kernel1d,
+    separable_convolve,
+)
 from sim.frame import Frame
 from sim.profile import BacklightParams
 
@@ -132,24 +136,109 @@ def psf_pixel_sigmas(
     return core_x, core_y, tail_x, tail_y
 
 
+def table_kernel1d(samples: list[float] | np.ndarray, step_px: float) -> np.ndarray:
+    """Unit-sum 1D kernel from a half-profile LSF sampled every ``step_px``."""
+
+    values = np.asarray(samples, dtype=np.float64)
+    if values.ndim != 1 or values.size < 2:
+        raise ValueError("an LSF table needs at least two samples")
+    if np.any(values < 0.0):
+        raise ValueError("LSF samples must be nonnegative")
+    if values[0] <= 0.0:
+        raise ValueError("the LSF table must start with a positive centre sample")
+    if step_px <= 0.0:
+        raise ValueError("psf_profile step must be positive")
+    radius = int(np.floor((values.size - 1) * step_px))
+    if radius < 1:
+        raise ValueError(
+            f"LSF table spans {(values.size - 1) * step_px:.3f} px, which cannot "
+            "fill a one-pixel radius; use a coarser step or more samples"
+        )
+    offsets = np.abs(np.arange(-radius, radius + 1, dtype=np.float64)) / step_px
+    kernel = np.interp(offsets, np.arange(values.size, dtype=np.float64), values)
+    total = kernel.sum()
+    if total <= 0.0:
+        raise ValueError("LSF table resampled to zero total response")
+    return kernel / total
+
+
+def psf_axis_kernels(
+    params: BacklightParams,
+    *,
+    zone_pitch_y: float,
+    zone_pitch_x: float,
+    per_pixel: bool,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, float]:
+    """Core and tail 1D kernels for x and y, plus the tail weight.
+
+    Both components are unit-sum, so the 2D mixture
+    ``(1 - a) K_core + a K_tail`` is unit-sum as well.
+    """
+
+    core_x, core_y, tail_x, tail_y = psf_pixel_sigmas(
+        params, zone_pitch_y=zone_pitch_y, zone_pitch_x=zone_pitch_x, per_pixel=per_pixel
+    )
+    shape = str(params.psf_shape).lower()
+    if shape == "gaussian":
+        tail_kx = gaussian_kernel1d(tail_x)
+        tail_ky = gaussian_kernel1d(tail_y)
+    elif shape == "exponential_tail":
+        tail_kx = exponential_kernel1d(tail_x)
+        tail_ky = exponential_kernel1d(tail_y)
+    else:
+        raise ValueError(
+            f"Unknown psf_shape {params.psf_shape!r}. Use gaussian or exponential_tail."
+        )
+    core_kx = gaussian_kernel1d(core_x)
+    core_ky = gaussian_kernel1d(core_y)
+    table = params.psf_profile
+    if table is not None:
+        pitch_x = 1.0 if per_pixel else zone_pitch_x
+        pitch_y = 1.0 if per_pixel else zone_pitch_y
+        step = float(table.step_zones)
+        if table.x is not None:
+            core_kx = tail_kx = table_kernel1d(table.x, step * pitch_x)
+        if table.y is not None:
+            core_ky = tail_ky = table_kernel1d(table.y, step * pitch_y)
+    return core_kx, core_ky, tail_kx, tail_ky, float(params.psf_tail_weight)
+
+
 def apply_light_spread(
     field: np.ndarray,
-    sigma_x: float,
-    sigma_y: float,
-    tail_sigma_x: float,
-    tail_sigma_y: float,
-    tail_weight: float,
+    kernels: tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, float],
+    boundary: str = "reflect",
 ) -> np.ndarray:
-    """Unit-sum two-component separable Gaussian. ``tail_weight`` 0 skips the tail."""
+    """Unit-sum two-component separable spread. ``tail_weight`` 0 skips the tail.
 
-    core = gaussian_blur_xy(field, sigma_x, sigma_y)
-    weight = float(tail_weight)
-    if weight <= 1e-8:
-        return core
-    weight = min(weight, 1.0)
-    tail = gaussian_blur_xy(field, tail_sigma_x, tail_sigma_y)
-    mixed = (1.0 - weight) * core + weight * tail
-    return mixed.astype(np.float32)
+    ``calibrated_zero`` divides by the all-on response so a border zone keeps
+    its commanded drive without mirroring light inward; ``zero`` leaves the
+    border short, which is what an uncompensated panel edge does.
+    """
+
+    core_kx, core_ky, tail_kx, tail_ky, tail_weight = kernels
+    if boundary == "calibrated_zero":
+        pad = "zero"
+    elif boundary in {"reflect", "zero"}:
+        pad = boundary
+    else:
+        raise ValueError(
+            f"Unknown psf_boundary {boundary!r}. "
+            "Use reflect, zero, or calibrated_zero."
+        )
+
+    def spread(data: np.ndarray) -> np.ndarray:
+        core = separable_convolve(data, core_kx, core_ky, boundary=pad)
+        weight = min(max(float(tail_weight), 0.0), 1.0)
+        if weight <= 1e-8:
+            return core
+        tail = separable_convolve(data, tail_kx, tail_ky, boundary=pad)
+        return ((1.0 - weight) * core + weight * tail).astype(np.float32)
+
+    spread_field = spread(np.asarray(field, dtype=np.float32))
+    if boundary != "calibrated_zero":
+        return spread_field.astype(np.float32)
+    all_on = spread(np.ones_like(spread_field, dtype=np.float32))
+    return (spread_field / np.maximum(all_on, np.float32(1e-6))).astype(np.float32)
 
 
 def simulate_backlight(
@@ -183,17 +272,16 @@ def simulate_backlight(
     backlight = upsample_zones(zones, y_edges, x_edges, (height, width))
     zone_h = height / zones.shape[0]
     zone_w = width / zones.shape[1]
-    sigma_x, sigma_y, tail_x, tail_y = psf_pixel_sigmas(
+    kernels = psf_axis_kernels(
         params,
         zone_pitch_y=zone_h,
         zone_pitch_x=zone_w,
         per_pixel=False,
     )
-    weight = float(params.psf_tail_weight)
-    if max(sigma_x, sigma_y, tail_x * weight, tail_y * weight) > 1e-6:
-        backlight = apply_light_spread(
-            backlight, sigma_x, sigma_y, tail_x, tail_y, params.psf_tail_weight
-        )
+    if any(kernel.size > 1 for kernel in kernels[:2]) or (
+        kernels[4] > 1e-8 and any(kernel.size > 1 for kernel in kernels[2:4])
+    ):
+        backlight = apply_light_spread(backlight, kernels, params.psf_boundary)
     floor = np.float32(params.floor_nits)
     peak = np.float32(float(params.peak_nits) * float(peak_scale))
     backlight = np.clip(np.maximum(backlight, floor), 0.0, peak)
