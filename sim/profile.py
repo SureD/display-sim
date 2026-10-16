@@ -157,7 +157,11 @@ class TemporalParams:
     ``overdrive_gain`` 0 or ``overdrive_ms`` 0 leaves the single first-order
     step. ``bfi_duty`` 1 is a continuous hold. ``overdrive_ceiling_nits`` 0
     means the overdriven command is only clipped at zero (no calibrated
-    headroom). None of these defaults are a measured LUT or strobe waveform.
+    headroom). ``integration_samples`` 1 keeps the original endpoint plus
+    seven-shift pursuit approximation. Values greater than 1 integrate
+    response and a centered rectangular BFI pulse within each frame; 16 is
+    useful for an 8-pixel/frame gallery pan. None of these defaults are a
+    measured LUT or strobe waveform.
     """
 
     response_time_ms: float = 8.0
@@ -169,6 +173,7 @@ class TemporalParams:
     overdrive_ceiling_nits: float = 0.0
     bfi_duty: float = 1.0
     bfi_preserve_mean: bool = False
+    integration_samples: int = 1
 
 
 @dataclass
