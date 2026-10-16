@@ -229,12 +229,16 @@ class TVProfile:
 
 
 def available_profiles() -> list[str]:
-    return sorted(path.stem for path in PROFILES_DIR.glob("*.yaml"))
+    return sorted(
+        path.stem
+        for path in PROFILES_DIR.glob("*.yaml")
+        if not path.name.endswith(".provenance.yaml")
+    )
 
 
 def profile_path(name: str) -> Path:
     path = PROFILES_DIR / f"{name}.yaml"
-    if not path.is_file():
+    if name.endswith(".provenance") or not path.is_file():
         known = ", ".join(available_profiles()) or "(none)"
         raise FileNotFoundError(f"Unknown profile {name!r}. Available: {known}")
     return path

@@ -11,6 +11,10 @@ Run the pattern harness (metrics JSON/CSV, comparison.md, and preview PNGs)::
 Build the offline visual gallery::
 
     python -m sim gallery [--out reports/gallery/]
+
+Check profile provenance without changing runtime settings::
+
+    python -m sim provenance --check
 """
 
 from __future__ import annotations
@@ -56,7 +60,7 @@ def build_parser() -> argparse.ArgumentParser:
         default=None,
         help="Sample-and-hold eye motion in pixels per frame",
     )
-    parser.epilog = (parser.epilog or "") + " Commands: python -m sim {validate,gallery} --help"
+    parser.epilog = (parser.epilog or "") + " Commands: python -m sim {validate,gallery,provenance} --help"
     return parser
 
 
@@ -65,6 +69,11 @@ def main(argv: list[str] | None = None) -> None:
         argv = sys.argv[1:]
     else:
         argv = list(argv)
+    if argv and argv[0] == "provenance":
+        from sim.provenance import main as provenance_main
+
+        provenance_main(argv[1:])
+        return
     if argv and argv[0] == "validate":
         from sim.validate import main as validate_main
 

@@ -1,0 +1,911 @@
+# M8 research sidecar; never runtime settings. All shipped profile values remain placeholders.
+# M = published named-sample measurement; D = calculation; P = synthetic/model choice; NR = not reported.
+# Unknown numerical support is NR and lookup must reject it; not_applicable is not a numeric bound.
+schema_version: 1
+profile: generic_va_fald_miniled
+entries:
+  name:
+    value: generic_va_fald_miniled
+    evidence: P
+    source:
+      locator: sim/profiles/generic_va_fald_miniled.yaml#name
+      sample: NR
+    conditions: &id001
+      specimen: NR
+      region_panel_variant: NR
+      firmware: NR
+      picture_mode: NR
+      dynamic_tone_mapping: NR
+      input_mode: NR
+      local_dimming: NR
+      refresh_hz: NR
+      vrr: NR
+      white_xy: NR
+      source_encoding: NR
+      requested_window_nits: NR
+      source_rgb_primaries: NR
+      stimulus: NR
+      stimulus_rgb_code: NR
+      pattern_aspect_ratio: NR
+      position_xy_fraction: NR
+      warmup_s: NR
+      dwell_s: NR
+      prior_pattern_and_duration: NR
+      ambient_lux: NR
+      temperature_C: NR
+      viewing_angle_deg: NR
+      meter_geometry_and_spot: NR
+      instrument_and_correction: NR
+      uncertainty: NR
+      calibrated_profile_fit: NR
+    interpolation: &id002
+      method: none
+      evidence: not_applicable
+    support:
+      range: not_applicable
+      unit: not_applicable
+      outside: reject
+    notes: Generic synthetic preset metadata; not an identification of a measured TV.
+  technology:
+    value: va_lcd
+    evidence: P
+    source:
+      locator: sim/profiles/generic_va_fald_miniled.yaml#technology
+      sample: NR
+    conditions: *id001
+    interpolation: *id002
+    support:
+      range: not_applicable
+      unit: not_applicable
+      outside: reject
+    notes: Generic synthetic preset metadata; not an identification of a measured TV.
+  description:
+    value: 'Placeholder VA mini-LED FALD set. Contrast is high on axis and falls off quickly with angle. Zone grid
+      and PSF are round numbers, not a zone map from a shipping set.
+
+      '
+    evidence: P
+    source:
+      locator: sim/profiles/generic_va_fald_miniled.yaml#description
+      sample: NR
+    conditions: *id001
+    interpolation: *id002
+    support:
+      range: not_applicable
+      unit: not_applicable
+      outside: reject
+    notes: Generic synthetic preset metadata; not an identification of a measured TV.
+  input.eotf:
+    value: srgb
+    evidence: P
+    source:
+      locator: sim/profiles/generic_va_fald_miniled.yaml#input.eotf
+      sample: NR
+    conditions: *id001
+    interpolation: *id002
+    support:
+      range: not_applicable
+      unit: not_applicable
+      outside: reject
+    notes: Synthetic encoding/preview convention, not a measured TV or host-display calibration (research/m6-profile-wiring.md
+      §§6,7).
+  input.sdr_white_nits:
+    value: 100.0
+    evidence: P
+    source:
+      locator: sim/profiles/generic_va_fald_miniled.yaml#input.sdr_white_nits
+      sample: NR
+    conditions: *id001
+    interpolation: *id002
+    support:
+      range: NR
+      unit: cd/m2
+      outside: reject
+    notes: Synthetic encoding/preview convention, not a measured TV or host-display calibration (research/m6-profile-wiring.md
+      §§6,7).
+  input.hlg_peak_nits:
+    value: 1000.0
+    evidence: P
+    source:
+      locator: sim/profiles/generic_va_fald_miniled.yaml#input.hlg_peak_nits
+      sample: NR
+    conditions: *id001
+    interpolation: *id002
+    support:
+      range: NR
+      unit: cd/m2
+      outside: reject
+    notes: Synthetic encoding/preview convention, not a measured TV or host-display calibration (research/m6-profile-wiring.md
+      §§6,7).
+  processing.scale_factor:
+    value: 1.0
+    evidence: P
+    source:
+      locator: sim/profiles/generic_va_fald_miniled.yaml#processing.scale_factor
+      sample: NR
+    conditions: *id001
+    interpolation: *id002
+    support:
+      range: NR
+      unit: ratio
+      outside: reject
+    notes: Synthetic image-processing choice, not a vendor algorithm or measured setting (research/m6-profile-wiring.md
+      §6).
+  processing.scale_mode:
+    value: bilinear
+    evidence: P
+    source:
+      locator: sim/profiles/generic_va_fald_miniled.yaml#processing.scale_mode
+      sample: NR
+    conditions: *id001
+    interpolation: *id002
+    support:
+      range: not_applicable
+      unit: not_applicable
+      outside: reject
+    notes: Synthetic image-processing choice, not a vendor algorithm or measured setting (research/m6-profile-wiring.md
+      §6).
+  processing.sharpen_amount:
+    value: 0.25
+    evidence: P
+    source:
+      locator: sim/profiles/generic_va_fald_miniled.yaml#processing.sharpen_amount
+      sample: NR
+    conditions: *id001
+    interpolation: *id002
+    support:
+      range: NR
+      unit: ratio
+      outside: reject
+    notes: Synthetic image-processing choice, not a vendor algorithm or measured setting (research/m6-profile-wiring.md
+      §6).
+  processing.sharpen_sigma:
+    value: 0.8
+    evidence: P
+    source:
+      locator: sim/profiles/generic_va_fald_miniled.yaml#processing.sharpen_sigma
+      sample: NR
+    conditions: *id001
+    interpolation: *id002
+    support:
+      range: NR
+      unit: working_raster_pixels
+      outside: reject
+    notes: Synthetic image-processing choice, not a vendor algorithm or measured setting (research/m6-profile-wiring.md
+      §6).
+  backlight.mode:
+    value: fald
+    evidence: P
+    source:
+      locator: sim/profiles/generic_va_fald_miniled.yaml#backlight.mode
+      sample: NR
+    conditions: *id001
+    interpolation: *id002
+    support:
+      range: not_applicable
+      unit: not_applicable
+      outside: reject
+    notes: Synthetic drive topology/controller choice; no matched zone map or controller measurement (research/m5-fidelity.md
+      §3).
+  backlight.zones_x:
+    value: 16
+    evidence: P
+    source:
+      locator: sim/profiles/generic_va_fald_miniled.yaml#backlight.zones_x
+      sample: NR
+    conditions: *id001
+    interpolation: *id002
+    support:
+      range: NR
+      unit: count
+      outside: reject
+    notes: Synthetic drive topology/controller choice; no matched zone map or controller measurement (research/m5-fidelity.md
+      §3).
+  backlight.zones_y:
+    value: 12
+    evidence: P
+    source:
+      locator: sim/profiles/generic_va_fald_miniled.yaml#backlight.zones_y
+      sample: NR
+    conditions: *id001
+    interpolation: *id002
+    support:
+      range: NR
+      unit: count
+      outside: reject
+    notes: Synthetic drive topology/controller choice; no matched zone map or controller measurement (research/m5-fidelity.md
+      §3).
+  backlight.psf_sigma_zones:
+    value: 0.75
+    evidence: P
+    source:
+      locator: sim/profiles/generic_va_fald_miniled.yaml#backlight.psf_sigma_zones
+      sample: NR
+    conditions: *id001
+    interpolation: *id002
+    support:
+      range: NR
+      unit: zone_pitches
+      outside: reject
+    notes: Synthetic optical choice or compatibility default; no matched retail-TV optical LSF identifies this value
+      (research/m6-profile-wiring.md §§4,6). Null axis overrides inherit the horizontal setting.
+  backlight.psf_sigma_y_zones:
+    value: 0.75
+    evidence: P
+    source:
+      locator: sim/profiles/generic_va_fald_miniled.yaml#backlight.psf_sigma_y_zones
+      sample: NR
+    conditions: *id001
+    interpolation: *id002
+    support:
+      range: NR
+      unit: zone_pitches
+      outside: reject
+    notes: Synthetic optical choice or compatibility default; no matched retail-TV optical LSF identifies this value
+      (research/m6-profile-wiring.md §§4,6). Null axis overrides inherit the horizontal setting.
+  backlight.psf_tail_sigma_zones:
+    value: 2.0
+    evidence: P
+    source:
+      locator: sim/profiles/generic_va_fald_miniled.yaml#backlight.psf_tail_sigma_zones
+      sample: NR
+    conditions: *id001
+    interpolation: *id002
+    support:
+      range: NR
+      unit: zone_pitches
+      outside: reject
+    notes: Synthetic optical choice or compatibility default; no matched retail-TV optical LSF identifies this value
+      (research/m6-profile-wiring.md §§4,6). Null axis overrides inherit the horizontal setting.
+  backlight.psf_tail_sigma_y_zones:
+    value: 2.0
+    evidence: P
+    source:
+      locator: sim/profiles/generic_va_fald_miniled.yaml#backlight.psf_tail_sigma_y_zones
+      sample: NR
+    conditions: *id001
+    interpolation: *id002
+    support:
+      range: NR
+      unit: zone_pitches
+      outside: reject
+    notes: Synthetic optical choice or compatibility default; no matched retail-TV optical LSF identifies this value
+      (research/m6-profile-wiring.md §§4,6). Null axis overrides inherit the horizontal setting.
+  backlight.psf_tail_weight:
+    value: 0.08
+    evidence: P
+    source:
+      locator: sim/profiles/generic_va_fald_miniled.yaml#backlight.psf_tail_weight
+      sample: NR
+    conditions: *id001
+    interpolation: *id002
+    support:
+      range: NR
+      unit: fraction
+      outside: reject
+    notes: Synthetic optical choice or compatibility default; no matched retail-TV optical LSF identifies this value
+      (research/m6-profile-wiring.md §§4,6). Null axis overrides inherit the horizontal setting.
+  backlight.psf_shape:
+    value: gaussian
+    evidence: P
+    source:
+      locator: sim/profile.py#BacklightParams.psf_shape
+      sample: NR
+    conditions: *id001
+    interpolation: *id002
+    support:
+      range: not_applicable
+      unit: not_applicable
+      outside: reject
+    notes: Synthetic optical choice or compatibility default; no matched retail-TV optical LSF identifies this value
+      (research/m6-profile-wiring.md §§4,6). Null axis overrides inherit the horizontal setting.
+  backlight.psf_boundary:
+    value: reflect
+    evidence: P
+    source:
+      locator: sim/profile.py#BacklightParams.psf_boundary
+      sample: NR
+    conditions: *id001
+    interpolation: *id002
+    support:
+      range: not_applicable
+      unit: not_applicable
+      outside: reject
+    notes: Synthetic optical choice or compatibility default; no matched retail-TV optical LSF identifies this value
+      (research/m6-profile-wiring.md §§4,6). Null axis overrides inherit the horizontal setting.
+  backlight.psf_profile:
+    value: null
+    evidence: P
+    source:
+      locator: sim/profile.py#BacklightParams.psf_profile
+      sample: NR
+    conditions: *id001
+    interpolation: *id002
+    support:
+      range: not_applicable
+      unit: not_applicable
+      outside: reject
+    notes: No measured half-LSF is supplied. Null deliberately keeps the parametric placeholder; matched optical
+      data are NR (research/m6-profile-wiring.md §4).
+  backlight.zone_percentile:
+    value: 100.0
+    evidence: P
+    source:
+      locator: sim/profiles/generic_va_fald_miniled.yaml#backlight.zone_percentile
+      sample: NR
+    conditions: *id001
+    interpolation: *id002
+    support:
+      range: NR
+      unit: percent
+      outside: reject
+    notes: Synthetic drive topology/controller choice; no matched zone map or controller measurement (research/m5-fidelity.md
+      §3).
+  backlight.peak_nits:
+    value: 2000.0
+    evidence: P
+    source:
+      locator: sim/profiles/generic_va_fald_miniled.yaml#backlight.peak_nits
+      sample: NR
+    conditions: *id001
+    interpolation: *id002
+    support:
+      range: NR
+      unit: cd/m2
+      outside: reject
+    notes: Synthetic capacity/curve setting, not a calibrated fit to the separate named-sample measurement dataset
+      (research/m6-profile-wiring.md §§2,6).
+  backlight.floor_nits:
+    value: 0.0
+    evidence: P
+    source:
+      locator: sim/profiles/generic_va_fald_miniled.yaml#backlight.floor_nits
+      sample: NR
+    conditions: *id001
+    interpolation: *id002
+    support:
+      range: NR
+      unit: cd/m2
+      outside: reject
+    notes: Synthetic model/compatibility setting; matched-device numerical identification is NR (research/m6-profile-wiring.md
+      §6).
+  panel.native_contrast:
+    value: 4000.0
+    evidence: P
+    source:
+      locator: sim/profiles/generic_va_fald_miniled.yaml#panel.native_contrast
+      sample: NR
+    conditions: *id001
+    interpolation: *id002
+    support:
+      range: NR
+      unit: ratio
+      outside: reject
+    notes: Synthetic model/compatibility setting; matched-device numerical identification is NR (research/m6-profile-wiring.md
+      §6).
+  panel.subpixel:
+    value: rgb_stripe
+    evidence: P
+    source:
+      locator: sim/profiles/generic_va_fald_miniled.yaml#panel.subpixel
+      sample: NR
+    conditions: *id001
+    interpolation: *id002
+    support:
+      range: not_applicable
+      unit: not_applicable
+      outside: reject
+    notes: Synthetic geometry/topology stand-in. Published layout observations do not identify aperture dimensions,
+      generation or RGBW allocation for this generic preset (research/m5-fidelity.md §4).
+  panel.viewing_angle_deg:
+    value: 0.0
+    evidence: P
+    source:
+      locator: sim/profiles/generic_va_fald_miniled.yaml#panel.viewing_angle_deg
+      sample: NR
+    conditions: *id001
+    interpolation: *id002
+    support:
+      range: NR
+      unit: degrees
+      outside: reject
+    notes: Synthetic view/chroma-law setting; does not identify angular white gain or black leakage (research/m6-profile-wiring.md
+      §3).
+  panel.angle_loss_per_deg:
+    value: 0.08
+    evidence: P
+    source:
+      locator: sim/profiles/generic_va_fald_miniled.yaml#panel.angle_loss_per_deg
+      sample: NR
+    conditions: *id001
+    interpolation: *id002
+    support:
+      range: NR
+      unit: per_degree
+      outside: reject
+    notes: Synthetic view/chroma-law setting; does not identify angular white gain or black leakage (research/m6-profile-wiring.md
+      §3).
+  panel.color_matrix:
+    value:
+    - - 1.0
+      - 0.0
+      - 0.0
+    - - 0.0
+      - 1.0
+      - 0.0
+    - - 0.0
+      - 0.0
+      - 1.0
+    evidence: P
+    source:
+      locator: sim/profiles/generic_va_fald_miniled.yaml#panel.color_matrix
+      sample: NR
+    conditions: *id001
+    interpolation: *id002
+    support:
+      range: NR
+      unit: dimensionless_matrix
+      outside: reject
+    notes: Identity is a synthetic compatibility choice; measured spectra and gamut mapping are NR (research/m5-fidelity.md
+      §§4,7).
+  hdr.tone_map:
+    value: soft_clip
+    evidence: P
+    source:
+      locator: sim/profiles/generic_va_fald_miniled.yaml#hdr.tone_map
+      sample: NR
+    conditions: *id001
+    interpolation: *id002
+    support:
+      range: not_applicable
+      unit: not_applicable
+      outside: reject
+    notes: Synthetic model/compatibility setting; matched-device numerical identification is NR (research/m6-profile-wiring.md
+      §6).
+  hdr.panel_peak_nits:
+    value: 2000.0
+    evidence: P
+    source:
+      locator: sim/profiles/generic_va_fald_miniled.yaml#hdr.panel_peak_nits
+      sample: NR
+    conditions: *id001
+    interpolation: *id002
+    support:
+      range: NR
+      unit: cd/m2
+      outside: reject
+    notes: Synthetic capacity/curve setting, not a calibrated fit to the separate named-sample measurement dataset
+      (research/m6-profile-wiring.md §§2,6).
+  hdr.knee_ratio:
+    value: 0.7
+    evidence: P
+    source:
+      locator: sim/profiles/generic_va_fald_miniled.yaml#hdr.knee_ratio
+      sample: NR
+    conditions: *id001
+    interpolation: *id002
+    support:
+      range: NR
+      unit: fraction
+      outside: reject
+    notes: Synthetic model/compatibility setting; matched-device numerical identification is NR (research/m6-profile-wiring.md
+      §6).
+  hdr.abl_enabled:
+    value: true
+    evidence: P
+    source:
+      locator: sim/profiles/generic_va_fald_miniled.yaml#hdr.abl_enabled
+      sample: NR
+    conditions: *id001
+    interpolation: *id002
+    support:
+      range: not_applicable
+      unit: not_applicable
+      outside: reject
+    notes: Synthetic limiter choice or compatibility default, not a measured power/attack/release constant; weighted
+      nits are not watts (research/m6-profile-wiring.md §§1,5,6).
+  hdr.abl_full_field_nits:
+    value: 620.0
+    evidence: P
+    source:
+      locator: sim/profiles/generic_va_fald_miniled.yaml#hdr.abl_full_field_nits
+      sample: NR
+    conditions: *id001
+    interpolation: *id002
+    support:
+      range: NR
+      unit: cd/m2
+      outside: reject
+    notes: Synthetic capacity/curve setting, not a calibrated fit to the separate named-sample measurement dataset
+      (research/m6-profile-wiring.md §§2,6).
+  hdr.abl_gamma:
+    value: 1.0
+    evidence: P
+    source:
+      locator: sim/profiles/generic_va_fald_miniled.yaml#hdr.abl_gamma
+      sample: NR
+    conditions: *id001
+    interpolation: *id002
+    support:
+      range: NR
+      unit: dimensionless
+      outside: reject
+    notes: Synthetic capacity/curve setting, not a calibrated fit to the separate named-sample measurement dataset
+      (research/m6-profile-wiring.md §§2,6).
+  hdr.abl_source:
+    value: emitted
+    evidence: P
+    source:
+      locator: sim/profile.py#HdrParams.abl_source
+      sample: NR
+    conditions: *id001
+    interpolation: *id002
+    support:
+      range: not_applicable
+      unit: not_applicable
+      outside: reject
+    notes: Synthetic limiter choice or compatibility default, not a measured power/attack/release constant; weighted
+      nits are not watts (research/m6-profile-wiring.md §§1,5,6).
+  hdr.abl_reference_nits:
+    value: 0.0
+    evidence: P
+    source:
+      locator: sim/profile.py#HdrParams.abl_reference_nits
+      sample: NR
+    conditions: *id001
+    interpolation: *id002
+    support:
+      range: NR
+      unit: cd/m2
+      outside: reject
+    notes: Synthetic limiter choice or compatibility default, not a measured power/attack/release constant; weighted
+      nits are not watts (research/m6-profile-wiring.md §§1,5,6).
+  hdr.abl_response_ms:
+    value: 0.0
+    evidence: P
+    source:
+      locator: sim/profile.py#HdrParams.abl_response_ms
+      sample: NR
+    conditions: *id001
+    interpolation: *id002
+    support:
+      range: NR
+      unit: milliseconds
+      outside: reject
+    notes: Synthetic limiter choice or compatibility default, not a measured power/attack/release constant; weighted
+      nits are not watts (research/m6-profile-wiring.md §§1,5,6).
+  hdr.abl_backlight_tracking:
+    value: 0.0
+    evidence: P
+    source:
+      locator: sim/profile.py#HdrParams.abl_backlight_tracking
+      sample: NR
+    conditions: *id001
+    interpolation: *id002
+    support:
+      range: NR
+      unit: fraction
+      outside: reject
+    notes: Synthetic limiter choice or compatibility default, not a measured power/attack/release constant; weighted
+      nits are not watts (research/m6-profile-wiring.md §§1,5,6).
+  hdr.abl_power_budget_nits:
+    value: 0.0
+    evidence: P
+    source:
+      locator: sim/profiles/generic_va_fald_miniled.yaml#hdr.abl_power_budget_nits
+      sample: NR
+    conditions: *id001
+    interpolation: *id002
+    support:
+      range: NR
+      unit: weighted_nits_not_watts
+      outside: reject
+    notes: Synthetic limiter choice or compatibility default, not a measured power/attack/release constant; weighted
+      nits are not watts (research/m6-profile-wiring.md §§1,5,6).
+  hdr.abl_channel_weights:
+    value:
+    - 1.0
+    - 1.0
+    - 1.0
+    evidence: P
+    source:
+      locator: sim/profiles/generic_va_fald_miniled.yaml#hdr.abl_channel_weights
+      sample: NR
+    conditions: *id001
+    interpolation: *id002
+    support:
+      range: NR
+      unit: dimensionless_weights
+      outside: reject
+    notes: Synthetic limiter choice or compatibility default, not a measured power/attack/release constant; weighted
+      nits are not watts (research/m6-profile-wiring.md §§1,5,6).
+  ambient.lux:
+    value: 0.0
+    evidence: P
+    source:
+      locator: sim/profiles/generic_va_fald_miniled.yaml#ambient.lux
+      sample: NR
+    conditions: *id001
+    interpolation: *id002
+    support:
+      range: NR
+      unit: lux
+      outside: reject
+    notes: Synthetic room/reflection setting; diffuse reflectance/BRDF and QD ambient excitation are not identified
+      by the separate published ambient-black examples (research/m5-fidelity.md §6).
+  ambient.reflectance:
+    value: 0.02
+    evidence: P
+    source:
+      locator: sim/profiles/generic_va_fald_miniled.yaml#ambient.reflectance
+      sample: NR
+    conditions: *id001
+    interpolation: *id002
+    support:
+      range: NR
+      unit: fraction
+      outside: reject
+    notes: Synthetic room/reflection setting; diffuse reflectance/BRDF and QD ambient excitation are not identified
+      by the separate published ambient-black examples (research/m5-fidelity.md §6).
+  temporal.response_time_ms:
+    value: 8.0
+    evidence: P
+    source:
+      locator: sim/profiles/generic_va_fald_miniled.yaml#temporal.response_time_ms
+      sample: NR
+    conditions: *id001
+    interpolation: *id002
+    support:
+      range: NR
+      unit: milliseconds_e_fold
+      outside: reject
+    notes: Synthetic response/hold/OD/BFI setting or compatibility default; no matched measured response LUT or
+      emission waveform. Response_time_ms is an e-fold tau, not measured t10–90 or device MPRT (research/m5-fidelity.md
+      §5; research/m6-profile-wiring.md §6).
+  temporal.frame_time_ms:
+    value: 16.666
+    evidence: P
+    source:
+      locator: sim/profiles/generic_va_fald_miniled.yaml#temporal.frame_time_ms
+      sample: NR
+    conditions: *id001
+    interpolation: *id002
+    support:
+      range: NR
+      unit: milliseconds
+      outside: reject
+    notes: Synthetic response/hold/OD/BFI setting or compatibility default; no matched measured response LUT or
+      emission waveform. Response_time_ms is an e-fold tau, not measured t10–90 or device MPRT (research/m5-fidelity.md
+      §5; research/m6-profile-wiring.md §6).
+  temporal.sample_and_hold:
+    value: true
+    evidence: P
+    source:
+      locator: sim/profiles/generic_va_fald_miniled.yaml#temporal.sample_and_hold
+      sample: NR
+    conditions: *id001
+    interpolation: *id002
+    support:
+      range: not_applicable
+      unit: not_applicable
+      outside: reject
+    notes: Synthetic response/hold/OD/BFI setting or compatibility default; no matched measured response LUT or
+      emission waveform. Response_time_ms is an e-fold tau, not measured t10–90 or device MPRT (research/m5-fidelity.md
+      §5; research/m6-profile-wiring.md §6).
+  temporal.motion_px_per_frame:
+    value: 0.0
+    evidence: P
+    source:
+      locator: sim/profiles/generic_va_fald_miniled.yaml#temporal.motion_px_per_frame
+      sample: NR
+    conditions: *id001
+    interpolation: *id002
+    support:
+      range: NR
+      unit: working_raster_pixels_per_frame
+      outside: reject
+    notes: Synthetic response/hold/OD/BFI setting or compatibility default; no matched measured response LUT or
+      emission waveform. Response_time_ms is an e-fold tau, not measured t10–90 or device MPRT (research/m5-fidelity.md
+      §5; research/m6-profile-wiring.md §6).
+  temporal.overdrive_gain:
+    value: 0.0
+    evidence: P
+    source:
+      locator: sim/profiles/generic_va_fald_miniled.yaml#temporal.overdrive_gain
+      sample: NR
+    conditions: *id001
+    interpolation: *id002
+    support:
+      range: NR
+      unit: ratio
+      outside: reject
+    notes: Synthetic response/hold/OD/BFI setting or compatibility default; no matched measured response LUT or
+      emission waveform. Response_time_ms is an e-fold tau, not measured t10–90 or device MPRT (research/m5-fidelity.md
+      §5; research/m6-profile-wiring.md §6).
+  temporal.overdrive_ms:
+    value: 2.0
+    evidence: P
+    source:
+      locator: sim/profiles/generic_va_fald_miniled.yaml#temporal.overdrive_ms
+      sample: NR
+    conditions: *id001
+    interpolation: *id002
+    support:
+      range: NR
+      unit: milliseconds
+      outside: reject
+    notes: Synthetic response/hold/OD/BFI setting or compatibility default; no matched measured response LUT or
+      emission waveform. Response_time_ms is an e-fold tau, not measured t10–90 or device MPRT (research/m5-fidelity.md
+      §5; research/m6-profile-wiring.md §6).
+  temporal.overdrive_ceiling_nits:
+    value: 0.0
+    evidence: P
+    source:
+      locator: sim/profiles/generic_va_fald_miniled.yaml#temporal.overdrive_ceiling_nits
+      sample: NR
+    conditions: *id001
+    interpolation: *id002
+    support:
+      range: NR
+      unit: cd/m2
+      outside: reject
+    notes: Synthetic response/hold/OD/BFI setting or compatibility default; no matched measured response LUT or
+      emission waveform. Response_time_ms is an e-fold tau, not measured t10–90 or device MPRT (research/m5-fidelity.md
+      §5; research/m6-profile-wiring.md §6).
+  temporal.bfi_duty:
+    value: 1.0
+    evidence: P
+    source:
+      locator: sim/profiles/generic_va_fald_miniled.yaml#temporal.bfi_duty
+      sample: NR
+    conditions: *id001
+    interpolation: *id002
+    support:
+      range: NR
+      unit: fraction
+      outside: reject
+    notes: Synthetic response/hold/OD/BFI setting or compatibility default; no matched measured response LUT or
+      emission waveform. Response_time_ms is an e-fold tau, not measured t10–90 or device MPRT (research/m5-fidelity.md
+      §5; research/m6-profile-wiring.md §6).
+  temporal.bfi_preserve_mean:
+    value: false
+    evidence: P
+    source:
+      locator: sim/profiles/generic_va_fald_miniled.yaml#temporal.bfi_preserve_mean
+      sample: NR
+    conditions: *id001
+    interpolation: *id002
+    support:
+      range: not_applicable
+      unit: not_applicable
+      outside: reject
+    notes: Synthetic response/hold/OD/BFI setting or compatibility default; no matched measured response LUT or
+      emission waveform. Response_time_ms is an e-fold tau, not measured t10–90 or device MPRT (research/m5-fidelity.md
+      §5; research/m6-profile-wiring.md §6).
+  temporal.integration_samples:
+    value: 1
+    evidence: P
+    source:
+      locator: sim/profile.py#TemporalParams.integration_samples
+      sample: NR
+    conditions: *id001
+    interpolation: *id002
+    support:
+      range: NR
+      unit: count
+      outside: reject
+    notes: Synthetic response/hold/OD/BFI setting or compatibility default; no matched measured response LUT or
+      emission waveform. Response_time_ms is an e-fold tau, not measured t10–90 or device MPRT (research/m5-fidelity.md
+      §5; research/m6-profile-wiring.md §6).
+  output.eotf:
+    value: srgb
+    evidence: P
+    source:
+      locator: sim/profiles/generic_va_fald_miniled.yaml#output.eotf
+      sample: NR
+    conditions: *id001
+    interpolation: *id002
+    support:
+      range: not_applicable
+      unit: not_applicable
+      outside: reject
+    notes: Synthetic encoding/preview convention, not a measured TV or host-display calibration (research/m6-profile-wiring.md
+      §§6,7).
+  output.reference_nits:
+    value: 100.0
+    evidence: P
+    source:
+      locator: sim/profiles/generic_va_fald_miniled.yaml#output.reference_nits
+      sample: NR
+    conditions: *id001
+    interpolation: *id002
+    support:
+      range: NR
+      unit: cd/m2
+      outside: reject
+    notes: Synthetic encoding/preview convention, not a measured TV or host-display calibration (research/m6-profile-wiring.md
+      §§6,7).
+datasets:
+  x955_98_theatre_hdr_peak:
+    kind: window_curve
+    specimen:
+      manufacturer: TCL
+      model: 98X955
+      diagonal_in: 98
+      region_panel_variant: NR
+      firmware: NR
+    conditions:
+      picture_mode: Theatre HDR
+      dynamic_tone_mapping: NR
+      input_mode: NR
+      local_dimming: NR
+      refresh_hz: NR
+      vrr: NR
+      white_xy: NR
+      source_encoding: NR
+      requested_window_nits: NR
+      source_rgb_primaries: NR
+      stimulus: neutral_white_window_on_black
+      stimulus_rgb_code: NR
+      pattern_aspect_ratio: NR
+      position_xy_fraction: NR
+      warmup_s: NR
+      dwell_s: NR
+      prior_pattern_and_duration: NR
+      ambient_lux: NR
+      temperature_C: NR
+      viewing_angle_deg: NR
+      meter_geometry_and_spot: NR
+      instrument_and_correction: NR
+    source:
+      url: https://www.lbtechreviews.com/test/tcl-x955
+      locator: Measurements table, TCL 98X955 column, Brightness rows
+      extraction: published_table_values
+      source_check_date: '2026-10-16'
+      uncertainty_nits: NR
+      repeat_count: NR
+    axis:
+      kind: window_fraction
+      unit: screen_area_fraction
+    metric: peak_center_luminance_nits
+    nodes:
+    - fraction: 0.01
+      luminance_nits: NR
+      evidence: NR
+    - fraction: 0.02
+      luminance_nits: 1675
+      evidence: M
+    - fraction: 0.05
+      luminance_nits: 3000
+      evidence: M
+    - fraction: 0.1
+      luminance_nits: 3200
+      evidence: M
+    - fraction: 0.25
+      luminance_nits: 3200
+      evidence: M
+    - fraction: 0.5
+      luminance_nits: 1800
+      evidence: M
+    - fraction: 0.75
+      luminance_nits: 1100
+      evidence: M
+    - fraction: 1.0
+      luminance_nits: 896
+      evidence: M
+    interpolation:
+      method: piecewise_linear
+      evidence: P
+    support:
+      range:
+      - 0.02
+      - 1.0
+      unit: screen_area_fraction
+      outside: reject
+    calibrated_profile_fit: NR
+    timed_sustained_trace: NR
+    notes: Named-sample context only; no runtime profile binding, replay, or fitted generic-device claim. Measurement
+      conditions not reported by the documented source remain NR. Source records inherited from research/m5-fidelity.md
+      §1 and research/m6-profile-wiring.md §2; no new measurement or verification performed for M8. Preserve low-area
+      suppression; do not impose a nonincreasing curve. No 1% measurement is supplied and lookups below 2% are out
+      of support. These 98-inch readings do not identify another size.
