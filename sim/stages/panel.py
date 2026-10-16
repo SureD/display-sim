@@ -5,10 +5,19 @@ to ``[1/contrast, 1]``. Where local dimming spills light onto a dark pixel, the
 cell is already at its floor and the spill is visible as a halo
 (``backlight / contrast``).
 
-OLED path. There is no shutter. The target is clipped to the emitter peak and
-passed on. Subpixel layout still runs so the mosaic can be inspected; the
-box-filtered mosaic is energy-preserving for a flat color, which keeps the
-rest of the pipeline at the original resolution.
+OLED path. There is no shutter. The target is clipped to the emitter peak,
+then an optional emission PSF spreads each channel: this is the near-field
+glow of the stack, encapsulation and front glass, so unlike an LCD halo it
+acts on emitted RGB rather than on a shared backlight. ``emission_psf``
+carries the ``per_pixel`` sigmas from the backlight profile section (pixels,
+not zone pitches) because that is where they are declared. The kernel is
+unit-sum, so a flat field is unchanged and no light is created. There is
+still no measured OLED PSF behind those numbers.
+
+Subpixel layout still runs so the mosaic can be inspected; the box-filtered
+mosaic is energy-preserving for a flat color, which keeps the rest of the
+pipeline at the original resolution. A macro view of the same mosaic
+geometry, with a black matrix and fill factor, lives in :mod:`sim.macro`.
 
 Viewing angle is a placeholder, not a measured BRDF. Off axis, RGB is mixed
 toward the pixel luminance so chroma falls:
@@ -21,7 +30,8 @@ import numpy as np
 
 from sim.color import apply_matrix, luminance
 from sim.frame import Frame
-from sim.profile import PanelParams
+from sim.profile import BacklightParams, PanelParams
+from sim.stages.backlight import apply_light_spread, psf_pixel_sigmas
 
 
 def lcd_transmit(target: np.ndarray, backlight: np.ndarray, contrast: float) -> np.ndarray:
@@ -89,6 +99,31 @@ def composite_subpixels(mosaic: np.ndarray, layout: str) -> np.ndarray:
     raise ValueError(f"Unknown subpixel layout {layout!r}")
 
 
+def emission_psf_pixels(params: BacklightParams) -> tuple[float, float, float, float, float]:
+    """Per-pixel emission sigmas in pixels: ``(x, y, tail_x, tail_y, weight)``."""
+
+    core_x, core_y, tail_x, tail_y = psf_pixel_sigmas(
+        params, zone_pitch_y=1.0, zone_pitch_x=1.0, per_pixel=True
+    )
+    return core_x, core_y, tail_x, tail_y, float(params.psf_tail_weight)
+
+
+def spread_emission(
+    rgb: np.ndarray,
+    psf: tuple[float, float, float, float, float],
+) -> np.ndarray:
+    """Blur emitted RGB per channel with the unit-sum emission PSF."""
+
+    sigma_x, sigma_y, tail_x, tail_y, weight = psf
+    if weight < 0.0:
+        raise ValueError("emission PSF tail weight must be >= 0")
+    if max(sigma_x, sigma_y, tail_x * weight, tail_y * weight) <= 1e-6:
+        return np.asarray(rgb, dtype=np.float32)
+    return apply_light_spread(
+        np.asarray(rgb, dtype=np.float32), sigma_x, sigma_y, tail_x, tail_y, weight
+    )
+
+
 def _matrix(values: list[float] | np.ndarray) -> np.ndarray:
     mat = np.asarray(values, dtype=np.float64)
     if mat.shape == (9,):
@@ -113,6 +148,7 @@ def simulate_panel(
     *,
     self_emissive: bool,
     peak_nits: float,
+    emission_psf: tuple[float, float, float, float, float] | None = None,
 ) -> Frame:
     """Turn the target picture plus backlight into emitted linear light."""
 
@@ -120,6 +156,8 @@ def simulate_panel(
         raise ValueError("panel stage requires a backlight map")
     if self_emissive:
         emitted = np.clip(frame.rgb, 0.0, np.float32(peak_nits))
+        if emission_psf is not None:
+            emitted = spread_emission(emitted, emission_psf)
     else:
         emitted = lcd_transmit(frame.rgb, frame.backlight, params.native_contrast)
     emitted = apply_matrix(emitted, _matrix(params.color_matrix))

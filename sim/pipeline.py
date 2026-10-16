@@ -3,10 +3,14 @@
 decode → image processing → backlight / local dimming → panel →
 HDR tone map / ABL → ambient reflection → temporal → encode.
 
+The ABL load is read between image processing and the backlight, on the
+picture the content requests: see :mod:`sim.load`.
+
 Not in this pipeline: MEMC, a spectral or measured subpixel model, CRT and
 plasma profiles, and a GPU backend. Overdrive and BFI are optional hooks
 with placeholder parameters; duty 1 and overdrive gain 0 leave lag plus
-sample-and-hold.
+sample-and-hold. The subpixel macro view in :mod:`sim.macro` is a separate
+renderer, not a pipeline stage.
 """
 
 from __future__ import annotations
@@ -20,7 +24,7 @@ from sim.stages.ambient import add_ambient
 from sim.stages.backlight import simulate_backlight
 from sim.stages.decode import decode_encoded
 from sim.stages.encode import encode_frame
-from sim.stages.panel import simulate_panel
+from sim.stages.panel import emission_psf_pixels, simulate_panel
 from sim.stages.process import process_image
 from sim.stages.temporal import TemporalState, apply_temporal
 from sim.stages.tonemap import tone_map
@@ -67,6 +71,9 @@ class Pipeline:
             profile.panel,
             self_emissive=profile.self_emissive,
             peak_nits=profile.backlight.peak_nits,
+            emission_psf=(
+                emission_psf_pixels(profile.backlight) if profile.self_emissive else None
+            ),
         )
         frame = tone_map(frame, profile.hdr, demand_apl_nits=apl)
         frame = add_ambient(frame, profile.ambient)

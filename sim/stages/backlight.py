@@ -21,7 +21,11 @@ Assumptions, none of them measurements:
   not a 0–1 code, and there is no separate backlight spectrum.
 * ``psf_sigma_*_zones`` are core sigmas in zone-pitch units. Pixel sigma is
   that value times the zone pitch along the same axis. ``per_pixel`` skips
-  the grid and reads the same fields as pixel sigmas; 0 is no bloom.
+  the grid and reads the same fields as pixel sigmas; 0 is no bloom. On the
+  ``per_pixel`` path the map stored here is the emitter drive, and the
+  spread is applied to emitted RGB in :mod:`sim.stages.panel` instead:
+  blurring a max-channel map and then throwing it away (which is what this
+  stage used to do) moved no light at all.
 * Tail weight ``a`` defaults to 0 (single Gaussian). The research prior for
   a synthetic direct-lit profile is core 0.2–0.8 pitches, tail 1–3 pitches,
   ``a`` in 0–0.15. Those ranges are modeling choices.
@@ -168,23 +172,22 @@ def simulate_backlight(
         raise ValueError("psf_tail_weight must be >= 0")
     drive = np.max(frame.rgb, axis=-1).astype(np.float32)
     height, width = drive.shape
-    per_pixel = params.mode == "per_pixel"
-    if per_pixel:
-        backlight = drive
-        zone_h = zone_w = 1.0
-    else:
-        # ``edge`` with zones_y == 1 is one full-height strip per column.
-        zones, y_edges, x_edges = pool_zones(
-            drive, params.zones_y, params.zones_x, params.zone_percentile
-        )
-        backlight = upsample_zones(zones, y_edges, x_edges, (height, width))
-        zone_h = height / zones.shape[0]
-        zone_w = width / zones.shape[1]
+    if params.mode == "per_pixel":
+        floor = np.float32(params.floor_nits)
+        peak = np.float32(float(params.peak_nits) * float(peak_scale))
+        return Frame(frame.rgb, np.clip(np.maximum(drive, floor), 0.0, peak))
+    # ``edge`` with zones_y == 1 is one full-height strip per column.
+    zones, y_edges, x_edges = pool_zones(
+        drive, params.zones_y, params.zones_x, params.zone_percentile
+    )
+    backlight = upsample_zones(zones, y_edges, x_edges, (height, width))
+    zone_h = height / zones.shape[0]
+    zone_w = width / zones.shape[1]
     sigma_x, sigma_y, tail_x, tail_y = psf_pixel_sigmas(
         params,
         zone_pitch_y=zone_h,
         zone_pitch_x=zone_w,
-        per_pixel=per_pixel,
+        per_pixel=False,
     )
     weight = float(params.psf_tail_weight)
     if max(sigma_x, sigma_y, tail_x * weight, tail_y * weight) > 1e-6:
