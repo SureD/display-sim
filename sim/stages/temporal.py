@@ -28,7 +28,8 @@ is ``d / refresh``. ``bfi_preserve_mean`` raises the pulse toward
 ``1 / d`` and then clips to ``overdrive_ceiling_nits`` when that ceiling is
 positive, so the time average stays near the unstrobed level until the clip.
 Duty 1 is ordinary sample-and-hold. This is not a scanout or PWM waveform.
-MEMC is not implemented.
+Opt-in synthetic MEMC reconstruction runs earlier on requested content in
+``sim.sequence``; response state here is never used as a source picture.
 
 ``integration_samples > 1`` opts into a time-resolved exposure instead of
 the legacy endpoint plus seven-shift approximation above. Analytic samples
