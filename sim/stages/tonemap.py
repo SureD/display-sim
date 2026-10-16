@@ -14,12 +14,14 @@ pixel is pulled toward equal-channel white at the shoulder luminance until
 it fits in ``[0, P]``. That is a documented desaturation, not ICtCp.
 
 ABL uses average picture level as the mean of linear BT.709 luminance in
-nits, not the mean of a PQ code. The peak-versus-APL curve
+nits, not the mean of a PQ code. The peak-versus-APL curve lives in
+:mod:`sim.load`; which picture its APL comes from is set by ``abl_source``.
+``emitted`` reads the frame this stage was handed, which on an LCD is already
+past the panel. ``demand`` requires the caller to pass the APL of the
+requested picture, which is what :class:`sim.pipeline.Pipeline` does.
 
-``P(APL) = full + (panel_peak - full) * (1 - clip(APL / panel_peak))^gamma``
-
-is a monotone placeholder, not a measured window table. An optional second
-limiter follows research/03's channel-power proxy (weighted nits, not watts):
+An optional second limiter follows research/03's channel-power proxy
+(weighted nits, not watts):
 
 ``P_req = mean_i Σ_c k_c e_ic``, ``g = min(1, budget / P_req)``, ``e *= g``.
 
@@ -32,6 +34,7 @@ import numpy as np
 
 from sim.color import luminance
 from sim.frame import Frame
+from sim.load import abl_capacity, demand_apl
 from sim.profile import HdrParams
 
 _EXP_CLIP = np.float32(40.0)
@@ -40,24 +43,39 @@ _EXP_CLIP = np.float32(40.0)
 def average_picture_level(rgb: np.ndarray) -> float:
     """Mean linear luminance in nits. This is not a mean PQ code."""
 
-    return float(np.mean(luminance(rgb), dtype=np.float64))
+    return demand_apl(rgb)
 
 
-def effective_peak(rgb: np.ndarray, params: HdrParams) -> float:
-    """Nit ceiling after the optional APL curve."""
+def effective_peak(
+    rgb: np.ndarray,
+    params: HdrParams,
+    *,
+    demand_apl_nits: float | None = None,
+) -> float:
+    """Nit ceiling after the optional APL curve.
 
-    peak = float(params.panel_peak_nits)
-    if peak <= 0.0 or not np.isfinite(peak):
-        raise ValueError("panel_peak_nits must be a positive finite value")
+    With ``abl_source == "demand"`` the APL has to arrive from upstream;
+    reading it off ``rgb`` here would measure the limiter's own output.
+    """
+
     if not params.abl_enabled:
+        peak = float(params.panel_peak_nits)
+        if peak <= 0.0 or not np.isfinite(peak):
+            raise ValueError("panel_peak_nits must be a positive finite value")
         return peak
-    apl = average_picture_level(rgb)
-    frac = float(np.clip(apl / peak, 0.0, 1.0))
-    full = float(params.abl_full_field_nits)
-    allowed = full + (peak - full) * (1.0 - frac) ** float(params.abl_gamma)
-    if not np.isfinite(allowed) or allowed <= 0.0:
-        raise ValueError("ABL produced a non-positive peak")
-    return float(allowed)
+    source = str(params.abl_source).lower()
+    if source == "demand":
+        if demand_apl_nits is None:
+            raise ValueError(
+                "abl_source='demand' needs the requested picture's APL; pass "
+                "demand_apl_nits (sim.pipeline.Pipeline does this)"
+            )
+        apl = float(demand_apl_nits)
+    elif source == "emitted":
+        apl = average_picture_level(rgb)
+    else:
+        raise ValueError(f"Unknown abl_source {params.abl_source!r}. Use emitted or demand.")
+    return abl_capacity(apl, params)
 
 
 def soft_shoulder(y: np.ndarray, peak: float, knee_ratio: float) -> np.ndarray:
@@ -111,14 +129,19 @@ def _channel_power_gain(rgb: np.ndarray, params: HdrParams) -> np.ndarray:
     return (rgb * gain).astype(np.float32)
 
 
-def tone_map(frame: Frame, params: HdrParams) -> Frame:
+def tone_map(
+    frame: Frame,
+    params: HdrParams,
+    *,
+    demand_apl_nits: float | None = None,
+) -> Frame:
     """Compress highlights into the panel budget and optionally limit load."""
 
     if params.tone_map != "soft_clip":
         raise ValueError(
             f"Unsupported tone_map {params.tone_map!r}. This build implements soft_clip."
         )
-    peak = effective_peak(frame.rgb, params)
+    peak = effective_peak(frame.rgb, params, demand_apl_nits=demand_apl_nits)
     y = luminance(frame.rgb).astype(np.float32)
     y_out = soft_shoulder(y, peak, float(params.knee_ratio))
     scale = np.ones_like(y, dtype=np.float32)

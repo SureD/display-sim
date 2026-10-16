@@ -54,11 +54,15 @@ def test_pipeline_on_white_window(tmp_path):
         linear["generic_va_fald_miniled"].rgb,
         linear["generic_ips_edge"].rgb,
     )
-    # QD-OLED crosstalk moves light; WOLED with sigma 0 does not.
-    assert not np.allclose(
+    # The per-pixel map is emitter drive, so both OLEDs read the same demand.
+    assert np.allclose(
         linear["generic_woled"].backlight,
         linear["generic_qdoled"].backlight,
     )
+    # QD-OLED's emission PSF moves light onto black pixels next to the
+    # window; WOLED with sigma 0 leaves them dark.
+    assert float(linear["generic_qdoled"].rgb[near].max()) > 1e-3
+    assert float(linear["generic_woled"].rgb[near].max()) == 0.0
     from sim.cli import main
 
     src = tmp_path / "in.png"
