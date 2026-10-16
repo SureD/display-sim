@@ -62,3 +62,36 @@ python3 -m sim provenance --check
 
 See [profile provenance](docs/PROVENANCE.md) for the evidence convention,
 schema, named-sample measurement records, and strict lookup support rules.
+
+M9 adds **opt-in window replay / drive fitting**. This example uses explicit
+exploratory assumptions because the M8 C2 record has unknown requested
+amplitude, primaries and timing:
+
+```sh
+python3 -m sim fit-windows --profile generic_woled \
+  --source-dataset c2_42_hdr_standard_peak --dataset-id c2_exploratory_drive_v1 \
+  --level-nits 1000 --settle-ms 100 --hold-ms 100 --exploratory \
+  --out reports/window-fits/c2_exploratory_drive_v1.fit.json
+```
+
+Without `--exploratory`, amplitude/color/time and geometry must match known
+source conditions. Known mismatches always fail. Sources outside numeric
+window support, including the unlocated IPS peak, cannot be fitted.
+`--fractions` selects supported windows; by default only numeric source nodes
+are fitted. The source snapshot retains every `NR` node, and requested gap
+interpolation remains `P`. Placeholder targets remain `P`.
+
+The separate `.fit.json` dataset records source evidence, assumptions,
+requested/rasterized areas and APL, timing, residuals, and independent `P`
+internal-drive fits. Files are created exclusively, outside `sim/profiles`;
+the original generic YAMLs remain the comparison baseline. Python callers
+can explicitly use `sim.window_replay.load_fit` and `replay_fit` to reproduce
+the saved experiments. No ordinary pipeline, validation, gallery or motion
+call loads or activates these files.
+
+Each forward trial applies the existing pipeline limits once, comparing its
+final peak-center hold luminance with the target. The target never becomes
+an extra ABL/output limiter. These fits identify a proposed per-window drive
+normalization, not a calibrated TV or arbitrary-content response. See the
+[M9 contract](docs/PROVENANCE.md#m9-window-replay-and-drive-fitting) for the
+amplitude, color, time and no-double-limiting rules.

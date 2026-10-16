@@ -134,7 +134,101 @@ below 0.02 fails, and the IPS unlocated peak cannot be looked up at any
 window fraction.
 
 Interpolation here is exploratory. It does not fill missing requested
-amplitudes or timing, certify condition-matched replay, or activate the
-future runtime replay proposed in M6. M8 implements the sidecars
-and validation from §8 item 1; runtime fitting and replay remain separate
-work.
+amplitudes or timing, certify condition-matched replay, or activate replay.
+M8 implements the sidecars and validation from §8 item 1; the separate M9
+entry point below implements §8 item 2.
+
+## M9 window replay and drive fitting
+
+`python3 -m sim fit-windows --help` explicitly selects a source measurement
+dataset, a **new** fitted dataset ID and a new `.fit.json` file. No defaults,
+profile dataclasses or generic YAMLs change. Ordinary rendering, validation,
+gallery generation and MEMC-off sequences never discover or load a fit file.
+Fits are written outside the runtime profile directory and never overwrite
+an existing file. A baseline hash over all effective profile values prevents
+reusing drives after the baseline changes.
+
+`sim.window_replay.fit_windows` performs strict M8 lookup before any fitting.
+Both nominal and rasterized fractions must be inside source support. Numeric
+source nodes are selected by default; `NR` nodes are skipped and retained in
+the complete embedded source record. Explicit gap queries use the existing
+piecewise-linear `P` lookup, including at an `NR` position. No extrapolation,
+unlocated-peak substitution, monotonic-curve assumption, or fit-scale
+interpolation is allowed. The saved fit supports only its listed experiments.
+
+The matching rules are explicit:
+
+- **Amplitude:** `level_nits` is requested max-channel linear nits in `(0,
+  10000]`, independently of measured output. Neutral white has equal RGB
+  channels at this level, so its requested Y equals the level. For a colored
+  window, requested Y uses the simulator's BT.709 coefficients. Input is
+  float PQ, with no preview quantization. Requested APL is computed on the
+  actual raster before processing; processed source APL and internal drive
+  APL are recorded separately. Measured output never supplies requested APL.
+- **Color:** linear BT.709 `color_rgb` has three components in `[0,1]` with
+  maximum 1. Source encoding, primaries, stimulus identity and PQ RGB codes
+  must match. A known white-window sweep cannot supply colored targets,
+  even in exploratory mode. Other primaries/encodings require a separate
+  implementation and dataset.
+- **Geometry:** a centered window retains the raster aspect ratio, with
+  each extent rounded up to whole pixels. The intended fraction, actual
+  fraction and raster resolution are retained. Source aspect ratio and
+  intended position must match. Strict mode requires actual and nominal
+  area fractions to agree within `1e-12`; exploratory mode records any
+  difference as a separate `P` raster assumption. Each window must span at
+  least two pixels per axis so the center probe lies within it. The aspect
+  ratio matching field describes the intended window/screen ratio; rounded
+  pixel extents are the declared `P` rasterization choice.
+  Spatial scale must be 1 and eye motion 0 for the static center metric.
+- **Time:** pre-roll is at least one black tick. Settling is zero or more
+  ticks; hold is at least one tick. All durations must be integral multiples
+  of the declared frame time. One fresh pipeline is initialized per trial,
+  then the same panel and load histories advance throughout pre-roll,
+  settling and hold. Dwell is settling plus hold, excluding black pre-roll.
+  The metric is the **maximum center luminance over hold frame outputs**,
+  matching M8's peak-center metric; the center is the central one/two pixels
+  on each axis. Every hold sample is retained. The profile's temporal
+  exposure/integration model applies; these are discrete frame outputs,
+  not a measured continuous peak or a sustained-output trace.
+
+Strict mode requires known matching values for these fields, refresh rate,
+ambient lux and viewing angle. Numeric comparisons allow `1e-6` relative or
+`1e-7` absolute tolerance. Timing requires `dwell_s`, `settling_s`, `hold_s`,
+`hold_statistic: max_center_over_hold_frame_outputs` and a
+`prior_pattern_and_duration: {stimulus: black, duration_s: ...}` record.
+`measurement_conditions()` returns the canonical field representation for
+synthetic experiments. Missing fields are `NR`; only an explicit
+`--exploratory` / `exploratory=True` permits them, recording every assumed
+value as `P` without changing the source. A known mismatch always rejects.
+Other specimen/source conditions are retained; passing this match does not
+certify complete laboratory equivalence. All shipped M8 records need the
+exploratory option because their amplitude and timing are unknown.
+
+The model `per_window_normalized_drive_v1` fits one positive scalar per
+experiment using bracketed geometric bisection in `[1e-6, 1e4]`. That scalar
+multiplies processed internal drive, backlight peak/floor, HDR peak/full-field/
+reference/power budget and the temporal drive ceiling. Zero disable/fallback
+sentinels stay zero. Optical shapes, contrast, dimensionless ABL parameters,
+time constants and ambient light remain those of the baseline. This
+normalization is deliberately a **P model**: scalar center targets cannot
+uniquely identify physical peak limits, electrical power or vendor controls.
+It can preserve nonmonotonic X955 window targets through independent fits.
+
+**No double limiting:** each trial drives the original backlight → panel →
+tone map/ABL → ambient → temporal path exactly once per tick, with all active
+generic limits included in the forward model. The measured target enters
+only the residual against final output. No measured output curve, target
+gain, or second ABL/peak/local-dimming operation follows that output.
+In particular, measured 717/152-nit values are never copied into generic
+peak/full-field parameters and then limited again. ABL is evaluated on the
+appropriate internal request/emitted picture according to the unchanged
+baseline's `abl_source`; its configuration and histories are not silently
+disabled. Unreachable targets or nonconvergence fail explicitly.
+
+Fitted drive scales, assumptions and model/raster choices are `P`. Source
+targets retain `M`, `D` or `P`; placeholder targets and interpolated targets
+stay `P`. Raw `NR` nodes remain `NR`. Forward outputs, APL and residuals are
+`D` calculations under the stated `P` model, not measurements.
+`calibrated_profile_fit` and `timed_sustained_trace` remain `NR`. A low fitting
+residual does not establish dynamics, color power, sustained capability,
+arbitrary-content replay, or a calibrated named television.

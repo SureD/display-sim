@@ -1,0 +1,77 @@
+{
+  "source_revision": "e6b1872c68adc8f77711b7edab8197276665cb1e",
+  "source": "Committed HEAD sim/ extracted with git archive; width=160 height=96; no M9 code imported.",
+  "gallery": {
+    "manifest_json_sha256": "43ca11121ea218bbcd5959e45d9c15f27e2de7dca98bedcb634578b3b12e0623",
+    "additional_sheets": [
+      {
+        "id": "motion_memc",
+        "title": "24p repeat vs analytic reconstruction (P)",
+        "description": "Matched output time: repeat holds a 24p source position; known-layer reconstruction creates an intermediate position. Static views cannot establish perceived smoothness.",
+        "file": "motion_memc.png",
+        "rows": [
+          {
+            "title": "24p repeat at 60 Hz / 3:2 cadence (D)",
+            "note": "Output PTS 11/60 s; source 4 held at 80 px; 100-nit exposure; zero pursuit blur",
+            "reference_nits": 100.0,
+            "statistics": [
+              {
+                "peak_channel_nits": 94.0838851928711,
+                "mean_luminance_nits": 4.6974382400512695
+              },
+              {
+                "peak_channel_nits": 48.74946594238281,
+                "mean_luminance_nits": 3.4517924785614014
+              },
+              {
+                "peak_channel_nits": 99.9999771118164,
+                "mean_luminance_nits": 5.486949443817139
+              },
+              {
+                "peak_channel_nits": 99.9999771118164,
+                "mean_luminance_nits": 5.486949443817139
+              }
+            ],
+            "captions": null
+          },
+          {
+            "title": "Analytic layer reconstruction (P)",
+            "note": "Same PTS 11/60 s; source 4 + phase 2/5 at 88 px; known masks; no vendor algorithm claim",
+            "reference_nits": 100.0,
+            "statistics": [
+              {
+                "peak_channel_nits": 92.81121063232422,
+                "mean_luminance_nits": 4.7341461181640625
+              },
+              {
+                "peak_channel_nits": 56.69767379760742,
+                "mean_luminance_nits": 3.9553632736206055
+              },
+              {
+                "peak_channel_nits": 100.0,
+                "mean_luminance_nits": 5.486949443817139
+              },
+              {
+                "peak_channel_nits": 100.0,
+                "mean_luminance_nits": 5.486949443817139
+              }
+            ],
+            "captions": null
+          }
+        ]
+      }
+    ],
+    "decoded_previews": {
+      "motion_memc.png": {
+        "shape": [
+          516,
+          700,
+          3
+        ],
+        "dtype": "uint8",
+        "sha256": "4adc6549bcefa69654b169a7b4641cfb2ca82df96bcc9b03c93d88d7542acdea"
+      }
+    },
+    "memc_trace_json_sha256": "25eda2e73d10a1581f8d3409273a6deca321843036adc802489cea4f1a4f1db3"
+  }
+}

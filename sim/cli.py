@@ -19,6 +19,10 @@ Schedule a numbered-image motion experiment (default MEMC off)::
 Check profile provenance without changing runtime settings::
 
     python -m sim provenance --check
+
+Fit separate, opt-in window replay datasets::
+
+    python -m sim fit-windows --help
 """
 
 from __future__ import annotations
@@ -64,7 +68,7 @@ def build_parser() -> argparse.ArgumentParser:
         default=None,
         help="Sample-and-hold eye motion in pixels per frame",
     )
-    parser.epilog = (parser.epilog or "") + " Commands: python -m sim {validate,gallery,motion,provenance} --help"
+    parser.epilog = (parser.epilog or "") + " Commands: python -m sim {validate,gallery,motion,provenance,fit-windows} --help"
     return parser
 
 
@@ -73,6 +77,11 @@ def main(argv: list[str] | None = None) -> None:
         argv = sys.argv[1:]
     else:
         argv = list(argv)
+    if argv and argv[0] == "fit-windows":
+        from sim.window_replay import main as fit_windows_main
+
+        fit_windows_main(argv[1:])
+        return
     if argv and argv[0] == "motion":
         from sim.motion_cli import main as motion_main
 
