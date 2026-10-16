@@ -1,30 +1,31 @@
-# Status — 2026-10-16 12:25 CST
+# Status — 2026-10-16 15:30 CST
 
 ## Milestone progress
 - **M1 research docs**: DONE (`37cc504`).
 - **M2 pipeline skeleton + TV profiles**: DONE (merge `f0d7e05`).
 - **M3 local dimming + HDR + temporal**: DONE (merge `477685d`).
 - **M4 validation + report**: DONE (merge `c7dbf01` + REPORT refresh `cc71643`).
-- **M5 mechanism fidelity**: DONE this cycle (merge `1baa2e1`).
-  - Cursor `cursor/m5-fidelity`: source-demand ABL load (`sim/load.py`), OLED emissive PSF in panel stage, shaped zone PSFs / LSF table hook / edge policies (reflect|zero|all-on-norm). Defaults keep prior profile output.
-  - Codex wrote `research/m5-fidelity.md` (ABL curves, angle leakage, halo/PSF, subpixel, temporal, perceptual params; NR marked; 34+ sources).
-  - PM merged + **79/79 pytest** on main (was 47).
+- **M5 mechanism fidelity**: DONE (merge `1baa2e1` + fidelity research).
+- **M5 macOS EDR research**: DONE this cycle (`research/m5-mac-display.md`, Codex run7).
+- **M6 visual gallery**: IN PROGRESS (Cursor `cursor/m6-gallery`; prior run7 stalled with no commits).
 
 ## Workers (this cycle)
-- Codex (`codex_run6.log`): **finished / idle**. Delivered uncommitted `research/m5-fidelity.md`; PM committed.
-- Codex (`codex_run5.log`): **finished early / incomplete**. Mac EDR research task; no `research/m5-mac-display.md` left behind.
-- Cursor (`cursor_run6.log` / worktree `cursor/m5-fidelity`): **finished code then stalled** (connection stalled ~10:32 CST after 3 commits). Work was already committed on the branch; merge succeeded.
-- Cursor (`cursor_run5.log`): empty / no useful output.
-- No `codex exec` or `agent -p` processes running at check time. **Not starting new long-running workers** until the user picks the next milestone.
+- Codex (`codex_run7.log`): **finished**. Delivered `research/m5-mac-display.md` (EDR/Metal/XDR, calibration, host-limit strategies, MPS caveats, Mac validation protocol; 39 sources; left uncommitted → PM committed).
+- Cursor (`cursor_run7.log` / `cursor/m6-gallery`): **failed** — connection stalled repeatedly ~13:21 CST; branch still at `1a533de` with no gallery code.
+- TV-sim `codex exec` / `agent -p`: **idle** at check time. Unrelated Codex jobs (`theory_last.md`, `embed_last.md`) are running elsewhere and are not part of this project.
+- **Restarting workers**: Cursor → M6 gallery (retry); Codex → M5 follow-through parameter wiring research.
+
+## Tests
+- **79/79 pytest** on `main` at check time.
 
 ## Drift / risks
 - Profile numbers remain placeholders; do not present as emulating a specific TV.
 - M5 knobs default off / Gaussian+reflect so M4 harness numbers should still match unless profiles opt in.
-- Still stubbed: MEMC, measured OD/BFI/PWM waveforms, measured PSFs/zone maps wired into YAML, spectral subpixels, gamut mapping, glare, CRT/plasma, GPU path, zone temporal smoothing, full backlight/LCD watt solver, angular leakage LUTs.
-- No remote origin configured; all work is local.
-- Cursor agent transport remains flaky (stalls on long runs).
+- Still stubbed: MEMC, measured OD/BFI/PWM waveforms, measured PSFs/zone maps wired into YAML, spectral subpixels, gamut mapping, glare, CRT/plasma, GPU path, zone temporal smoothing, full backlight/LCD watt solver, angular leakage LUTs, gallery/subpixel macro view.
+- Cursor agent transport remains flaky (stalls on long runs); gallery needs a successful retry.
+- GPU path on `dscs2pc` (RTX 3070) still **blocked on user OK** + local-machine approval.
 
-## Next (assigned — awaiting user OK before kicking workers)
-1. **GPU path (PyTorch) on RTX 3070 box `dscs2pc`**: realtime preview + numerical parity vs CPU harness. Needs user confirm + local machine approval.
-2. **M5 follow-through from research**: wire measured window tables / provenance, angular leakage model, consume LSF/PSF tables in profiles, attack/release ABL on OLED profiles — research-only until prioritized.
-3. **Optional**: finish macOS EDR preview research (`m5-mac-display.md`) that Codex run5 did not deliver.
+## Next (assigned this cycle)
+1. **M6 gallery (Cursor, `cursor/m6-gallery`)**: subpixel macro view + longer temporal histories; `python3 -m sim gallery` → `reports/gallery/` PNG contact sheets + HTML; pytest green; small commits.
+2. **M5 follow-through research (Codex)**: from `research/m5-fidelity.md`, write `research/m6-profile-wiring.md` — concrete YAML/parameter tables to wire measured window tables, angular leakage, LSF/PSF hooks, attack/release ABL into profiles (mark NR; no code required).
+3. **GPU path (PyTorch on dscs2pc)**: still awaiting user confirm before kicking that worker.
