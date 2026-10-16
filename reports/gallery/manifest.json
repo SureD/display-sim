@@ -1,0 +1,926 @@
+{
+  "disclaimer": "PLACEHOLDER PARAMETERS - synthetic mechanisms, not measured TVs.",
+  "source_encoding": "float PQ from procedural absolute-nit RGB",
+  "resolution": [
+    320,
+    180
+  ],
+  "ambient_lux": 0,
+  "viewing_angle_deg": 0,
+  "preview": "shared row exposure, then sRGB; no per-TV normalization",
+  "profile_overrides": {
+    "input_eotf": "pq",
+    "viewing_angle_deg": 0,
+    "ambient_lux": 0,
+    "integration_samples": 16,
+    "motion_px_per_frame": {
+      "stills": 0,
+      "pan": 8.0
+    }
+  },
+  "temporal_protocol": {
+    "pre_roll_frames": 12,
+    "pan_frames": 36,
+    "pan_px_per_frame": 8.0,
+    "integration_samples": 16,
+    "overdrive_probe": {
+      "gain": 0.8,
+      "prefix_ms": 4,
+      "lcd_only": true
+    },
+    "bfi_probe": {
+      "duty": 0.25,
+      "preserve_mean": false
+    }
+  },
+  "profiles": [
+    {
+      "name": "generic_va_fald_miniled",
+      "technology": "va_lcd",
+      "description": "Placeholder VA mini-LED FALD set. Contrast is high on axis and falls off quickly with angle. Zone grid and PSF are round numbers, not a zone map from a shipping set.\n",
+      "input": {
+        "eotf": "srgb",
+        "sdr_white_nits": 100.0,
+        "hlg_peak_nits": 1000.0
+      },
+      "processing": {
+        "scale_factor": 1.0,
+        "scale_mode": "bilinear",
+        "sharpen_amount": 0.25,
+        "sharpen_sigma": 0.8
+      },
+      "backlight": {
+        "mode": "fald",
+        "zones_x": 16,
+        "zones_y": 12,
+        "psf_sigma_zones": 0.75,
+        "psf_sigma_y_zones": 0.75,
+        "psf_tail_sigma_zones": 2.0,
+        "psf_tail_sigma_y_zones": 2.0,
+        "psf_tail_weight": 0.08,
+        "psf_shape": "gaussian",
+        "psf_boundary": "reflect",
+        "psf_profile": null,
+        "zone_percentile": 100.0,
+        "peak_nits": 2000.0,
+        "floor_nits": 0.0
+      },
+      "panel": {
+        "native_contrast": 4000.0,
+        "subpixel": "rgb_stripe",
+        "viewing_angle_deg": 0.0,
+        "angle_loss_per_deg": 0.08,
+        "color_matrix": [
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ]
+      },
+      "hdr": {
+        "tone_map": "soft_clip",
+        "panel_peak_nits": 2000.0,
+        "knee_ratio": 0.7,
+        "abl_enabled": true,
+        "abl_full_field_nits": 620.0,
+        "abl_gamma": 1.0,
+        "abl_source": "emitted",
+        "abl_reference_nits": 0.0,
+        "abl_response_ms": 0.0,
+        "abl_backlight_tracking": 0.0,
+        "abl_power_budget_nits": 0.0,
+        "abl_channel_weights": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "ambient": {
+        "lux": 0.0,
+        "reflectance": 0.02
+      },
+      "temporal": {
+        "response_time_ms": 8.0,
+        "frame_time_ms": 16.666,
+        "sample_and_hold": true,
+        "motion_px_per_frame": 0.0,
+        "overdrive_gain": 0.0,
+        "overdrive_ms": 2.0,
+        "overdrive_ceiling_nits": 0.0,
+        "bfi_duty": 1.0,
+        "bfi_preserve_mean": false,
+        "integration_samples": 1
+      },
+      "output": {
+        "eotf": "srgb",
+        "reference_nits": 100.0
+      },
+      "yaml_sha256": "bee4a76b147110ba8d8cb4c21d4be5dd6e5728ecfaa9c00a68206882f7b64f32"
+    },
+    {
+      "name": "generic_ips_edge",
+      "technology": "ips_lcd",
+      "description": "Placeholder edge-lit IPS set. Native contrast is lower than VA, viewing angle is wider, and the backlight is a single row of segments whose light is spread by a wide PSF. Each segment drives a full-height column before the blur; that is a stand-in, not a light-guide simulation.\n",
+      "input": {
+        "eotf": "srgb",
+        "sdr_white_nits": 100.0,
+        "hlg_peak_nits": 1000.0
+      },
+      "processing": {
+        "scale_factor": 1.0,
+        "scale_mode": "bilinear",
+        "sharpen_amount": 0.2,
+        "sharpen_sigma": 0.8
+      },
+      "backlight": {
+        "mode": "edge",
+        "zones_x": 8,
+        "zones_y": 1,
+        "psf_sigma_zones": 1.5,
+        "psf_sigma_y_zones": 0.15,
+        "psf_tail_sigma_zones": 2.5,
+        "psf_tail_sigma_y_zones": null,
+        "psf_tail_weight": 0.0,
+        "psf_shape": "gaussian",
+        "psf_boundary": "reflect",
+        "psf_profile": null,
+        "zone_percentile": 100.0,
+        "peak_nits": 400.0,
+        "floor_nits": 0.0
+      },
+      "panel": {
+        "native_contrast": 1200.0,
+        "subpixel": "rgb_stripe",
+        "viewing_angle_deg": 0.0,
+        "angle_loss_per_deg": 0.015,
+        "color_matrix": [
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ]
+      },
+      "hdr": {
+        "tone_map": "soft_clip",
+        "panel_peak_nits": 400.0,
+        "knee_ratio": 0.85,
+        "abl_enabled": false,
+        "abl_full_field_nits": 350.0,
+        "abl_gamma": 2.0,
+        "abl_source": "emitted",
+        "abl_reference_nits": 0.0,
+        "abl_response_ms": 0.0,
+        "abl_backlight_tracking": 0.0,
+        "abl_power_budget_nits": 0.0,
+        "abl_channel_weights": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "ambient": {
+        "lux": 0.0,
+        "reflectance": 0.025
+      },
+      "temporal": {
+        "response_time_ms": 12.0,
+        "frame_time_ms": 16.666,
+        "sample_and_hold": true,
+        "motion_px_per_frame": 0.0,
+        "overdrive_gain": 0.0,
+        "overdrive_ms": 2.0,
+        "overdrive_ceiling_nits": 0.0,
+        "bfi_duty": 1.0,
+        "bfi_preserve_mean": false,
+        "integration_samples": 1
+      },
+      "output": {
+        "eotf": "srgb",
+        "reference_nits": 100.0
+      },
+      "yaml_sha256": "eaf893126a59bf17ff44cd90d9120d8912c21e56498da8b7ca0eeed6da331a85"
+    },
+    {
+      "name": "generic_woled",
+      "technology": "woled",
+      "description": "Placeholder WOLED. Emission is per pixel (no zone grid). The WRGB mosaic is energy-preserving when box-filtered, so it does not change a flat color. ABL pulls the allowed peak down toward the full-field figure as APL rises. Spectral white-subpixel mixing beyond that mosaic is not modeled.\n",
+      "input": {
+        "eotf": "srgb",
+        "sdr_white_nits": 100.0,
+        "hlg_peak_nits": 1000.0
+      },
+      "processing": {
+        "scale_factor": 1.0,
+        "scale_mode": "bilinear",
+        "sharpen_amount": 0.15,
+        "sharpen_sigma": 0.7
+      },
+      "backlight": {
+        "mode": "per_pixel",
+        "zones_x": 1,
+        "zones_y": 1,
+        "psf_sigma_zones": 0.0,
+        "psf_sigma_y_zones": null,
+        "psf_tail_sigma_zones": 2.0,
+        "psf_tail_sigma_y_zones": null,
+        "psf_tail_weight": 0.0,
+        "psf_shape": "gaussian",
+        "psf_boundary": "reflect",
+        "psf_profile": null,
+        "zone_percentile": 100.0,
+        "peak_nits": 850.0,
+        "floor_nits": 0.0
+      },
+      "panel": {
+        "native_contrast": 1000000.0,
+        "subpixel": "wrgb",
+        "viewing_angle_deg": 0.0,
+        "angle_loss_per_deg": 0.005,
+        "color_matrix": [
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ]
+      },
+      "hdr": {
+        "tone_map": "soft_clip",
+        "panel_peak_nits": 850.0,
+        "knee_ratio": 0.85,
+        "abl_enabled": true,
+        "abl_full_field_nits": 170.0,
+        "abl_gamma": 2.4,
+        "abl_source": "emitted",
+        "abl_reference_nits": 0.0,
+        "abl_response_ms": 0.0,
+        "abl_backlight_tracking": 0.0,
+        "abl_power_budget_nits": 0.0,
+        "abl_channel_weights": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "ambient": {
+        "lux": 0.0,
+        "reflectance": 0.015
+      },
+      "temporal": {
+        "response_time_ms": 0.2,
+        "frame_time_ms": 16.666,
+        "sample_and_hold": true,
+        "motion_px_per_frame": 0.0,
+        "overdrive_gain": 0.0,
+        "overdrive_ms": 0.0,
+        "overdrive_ceiling_nits": 0.0,
+        "bfi_duty": 1.0,
+        "bfi_preserve_mean": false,
+        "integration_samples": 1
+      },
+      "output": {
+        "eotf": "srgb",
+        "reference_nits": 100.0
+      },
+      "yaml_sha256": "e89d82029dfdcfaba1b229011f7c0bcd177445e9d3d823839b084c6549532ba7"
+    },
+    {
+      "name": "generic_qdoled",
+      "technology": "qdoled",
+      "description": "Placeholder QD-OLED. The triangular subpixel buffer is a geometric stand-in that box-filters back to the source color. A little per-pixel PSF stands in for optical crosstalk. Quantum-dot spectra and a real gamut matrix are not modeled; color_matrix stays identity.\n",
+      "input": {
+        "eotf": "srgb",
+        "sdr_white_nits": 100.0,
+        "hlg_peak_nits": 1000.0
+      },
+      "processing": {
+        "scale_factor": 1.0,
+        "scale_mode": "bilinear",
+        "sharpen_amount": 0.15,
+        "sharpen_sigma": 0.7
+      },
+      "backlight": {
+        "mode": "per_pixel",
+        "zones_x": 1,
+        "zones_y": 1,
+        "psf_sigma_zones": 0.45,
+        "psf_sigma_y_zones": null,
+        "psf_tail_sigma_zones": 2.0,
+        "psf_tail_sigma_y_zones": null,
+        "psf_tail_weight": 0.0,
+        "psf_shape": "gaussian",
+        "psf_boundary": "reflect",
+        "psf_profile": null,
+        "zone_percentile": 100.0,
+        "peak_nits": 1100.0,
+        "floor_nits": 0.0
+      },
+      "panel": {
+        "native_contrast": 1000000.0,
+        "subpixel": "qd_oled",
+        "viewing_angle_deg": 0.0,
+        "angle_loss_per_deg": 0.004,
+        "color_matrix": [
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ]
+      },
+      "hdr": {
+        "tone_map": "soft_clip",
+        "panel_peak_nits": 1100.0,
+        "knee_ratio": 0.85,
+        "abl_enabled": true,
+        "abl_full_field_nits": 199.0,
+        "abl_gamma": 1.0,
+        "abl_source": "emitted",
+        "abl_reference_nits": 0.0,
+        "abl_response_ms": 0.0,
+        "abl_backlight_tracking": 0.0,
+        "abl_power_budget_nits": 0.0,
+        "abl_channel_weights": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "ambient": {
+        "lux": 0.0,
+        "reflectance": 0.012
+      },
+      "temporal": {
+        "response_time_ms": 0.1,
+        "frame_time_ms": 16.666,
+        "sample_and_hold": true,
+        "motion_px_per_frame": 0.0,
+        "overdrive_gain": 0.0,
+        "overdrive_ms": 0.0,
+        "overdrive_ceiling_nits": 0.0,
+        "bfi_duty": 1.0,
+        "bfi_preserve_mean": false,
+        "integration_samples": 1
+      },
+      "output": {
+        "eotf": "srgb",
+        "reference_nits": 100.0
+      },
+      "yaml_sha256": "d4b377b346eec1506f80ce58ae8034b48b06d1b0dc40ab420373e91b7209527e"
+    }
+  ],
+  "sheets": [
+    {
+      "id": "starfield",
+      "title": "Starfield",
+      "description": "Sparse 600-2,000-nit stars expose highlight retention, local LCD leakage and optical softness.",
+      "file": "starfield.png",
+      "rows": [
+        {
+          "title": "Shared HDR exposure",
+          "note": "2,000 simulated nits -> SDR white; no per-TV normalization",
+          "reference_nits": 2000.0,
+          "statistics": [
+            {
+              "peak_channel_nits": 680.1118774414062,
+              "mean_luminance_nits": 0.2501349151134491
+            },
+            {
+              "peak_channel_nits": 377.92724609375,
+              "mean_luminance_nits": 0.5431077480316162
+            },
+            {
+              "peak_channel_nits": 802.574951171875,
+              "mean_luminance_nits": 0.4434131681919098
+            },
+            {
+              "peak_channel_nits": 1038.9495849609375,
+              "mean_luminance_nits": 0.5853528380393982
+            }
+          ],
+          "captions": null
+        },
+        {
+          "title": "Shadow diagnostic / amplified exposure",
+          "note": "10 simulated nits -> white (200x HDR exposure); highlights clip",
+          "reference_nits": 10.0,
+          "statistics": [
+            {
+              "peak_channel_nits": 680.1118774414062,
+              "mean_luminance_nits": 0.2501349151134491
+            },
+            {
+              "peak_channel_nits": 377.92724609375,
+              "mean_luminance_nits": 0.5431077480316162
+            },
+            {
+              "peak_channel_nits": 802.574951171875,
+              "mean_luminance_nits": 0.4434131681919098
+            },
+            {
+              "peak_channel_nits": 1038.9495849609375,
+              "mean_luminance_nits": 0.5853528380393982
+            }
+          ],
+          "captions": null
+        }
+      ]
+    },
+    {
+      "id": "subtitles",
+      "title": "Subtitles on black",
+      "description": "1,000-nit subtitle glyphs reveal local FALD halos versus the IPS full-height strip lift.",
+      "file": "subtitles.png",
+      "rows": [
+        {
+          "title": "Shared HDR exposure",
+          "note": "2,000 simulated nits -> SDR white; no per-TV normalization",
+          "reference_nits": 2000.0,
+          "statistics": [
+            {
+              "peak_channel_nits": 736.4625854492188,
+              "mean_luminance_nits": 6.32652473449707
+            },
+            {
+              "peak_channel_nits": 377.92724609375,
+              "mean_luminance_nits": 4.758522033691406
+            },
+            {
+              "peak_channel_nits": 793.1109008789062,
+              "mean_luminance_nits": 8.348175048828125
+            },
+            {
+              "peak_channel_nits": 991.4749145507812,
+              "mean_luminance_nits": 9.700610160827637
+            }
+          ],
+          "captions": null
+        },
+        {
+          "title": "Shadow diagnostic / amplified exposure",
+          "note": "10 simulated nits -> white (200x HDR exposure); highlights clip",
+          "reference_nits": 10.0,
+          "statistics": [
+            {
+              "peak_channel_nits": 736.4625854492188,
+              "mean_luminance_nits": 6.32652473449707
+            },
+            {
+              "peak_channel_nits": 377.92724609375,
+              "mean_luminance_nits": 4.758522033691406
+            },
+            {
+              "peak_channel_nits": 793.1109008789062,
+              "mean_luminance_nits": 8.348175048828125
+            },
+            {
+              "peak_channel_nits": 991.4749145507812,
+              "mean_luminance_nits": 9.700610160827637
+            }
+          ],
+          "captions": null
+        }
+      ]
+    },
+    {
+      "id": "bright_window",
+      "title": "Bright window on dark",
+      "description": "2,000-nit windows at roughly 12% and 56% area show brightness limits and area dependence.",
+      "file": "bright_window.png",
+      "rows": [
+        {
+          "title": "Shared HDR exposure",
+          "note": "2,000 simulated nits -> SDR white; no per-TV normalization",
+          "reference_nits": 2000.0,
+          "statistics": [
+            {
+              "peak_channel_nits": 1687.185791015625,
+              "mean_luminance_nits": 187.8309783935547
+            },
+            {
+              "peak_channel_nits": 377.92724609375,
+              "mean_luminance_nits": 45.64447784423828
+            },
+            {
+              "peak_channel_nits": 664.1461791992188,
+              "mean_luminance_nits": 79.6975326538086
+            },
+            {
+              "peak_channel_nits": 965.4161376953125,
+              "mean_luminance_nits": 116.20449829101562
+            }
+          ],
+          "captions": null
+        },
+        {
+          "title": "Larger window / same 2,000-nit request",
+          "note": "About 56% area, versus about 12% above; shared HDR exposure",
+          "reference_nits": 2000.0,
+          "statistics": [
+            {
+              "peak_channel_nits": 1257.173583984375,
+              "mean_luminance_nits": 697.1268920898438
+            },
+            {
+              "peak_channel_nits": 377.92724609375,
+              "mean_luminance_nits": 212.7299346923828
+            },
+            {
+              "peak_channel_nits": 263.5096130371094,
+              "mean_luminance_nits": 148.22413635253906
+            },
+            {
+              "peak_channel_nits": 593.0775146484375,
+              "mean_luminance_nits": 334.64178466796875
+            }
+          ],
+          "captions": null
+        },
+        {
+          "title": "Shadow diagnostic / amplified exposure",
+          "note": "10 simulated nits -> white (200x HDR exposure); highlights clip",
+          "reference_nits": 10.0,
+          "statistics": [
+            {
+              "peak_channel_nits": 1687.185791015625,
+              "mean_luminance_nits": 187.8309783935547
+            },
+            {
+              "peak_channel_nits": 377.92724609375,
+              "mean_luminance_nits": 45.64447784423828
+            },
+            {
+              "peak_channel_nits": 664.1461791992188,
+              "mean_luminance_nits": 79.6975326538086
+            },
+            {
+              "peak_channel_nits": 965.4161376953125,
+              "mean_luminance_nits": 116.20449829101562
+            }
+          ],
+          "captions": null
+        }
+      ]
+    },
+    {
+      "id": "gradients",
+      "title": "Gradients",
+      "description": "Top to bottom: neutral 0-100, 0-2,000, 0-2 nits, then a synthetic RGB mixture. No gamut calibration.",
+      "file": "gradients.png",
+      "rows": [
+        {
+          "title": "Shared HDR exposure",
+          "note": "2,000 simulated nits -> SDR white; no per-TV normalization",
+          "reference_nits": 2000.0,
+          "statistics": [
+            {
+              "peak_channel_nits": 1606.6640625,
+              "mean_luminance_nits": 338.7268981933594
+            },
+            {
+              "peak_channel_nits": 400.0,
+              "mean_luminance_nits": 177.43069458007812
+            },
+            {
+              "peak_channel_nits": 406.9374694824219,
+              "mean_luminance_nits": 197.5307159423828
+            },
+            {
+              "peak_channel_nits": 824.0198364257812,
+              "mean_luminance_nits": 300.05487060546875
+            }
+          ],
+          "captions": null
+        },
+        {
+          "title": "Shadow diagnostic / amplified exposure",
+          "note": "10 simulated nits -> white (200x HDR exposure); highlights clip",
+          "reference_nits": 10.0,
+          "statistics": [
+            {
+              "peak_channel_nits": 1606.6640625,
+              "mean_luminance_nits": 338.7268981933594
+            },
+            {
+              "peak_channel_nits": 400.0,
+              "mean_luminance_nits": 177.43069458007812
+            },
+            {
+              "peak_channel_nits": 406.9374694824219,
+              "mean_luminance_nits": 197.5307159423828
+            },
+            {
+              "peak_channel_nits": 824.0198364257812,
+              "mean_luminance_nits": 300.05487060546875
+            }
+          ],
+          "captions": null
+        }
+      ]
+    },
+    {
+      "id": "motion_pan",
+      "title": "Motion pan",
+      "description": "Compare final-frame pursuit views after a long persistent history. Slow response adds trails; even fast OLED has full-hold blur.",
+      "file": "motion_pan.png",
+      "rows": [
+        {
+          "title": "Settled final position / no eye motion",
+          "note": "100 simulated nits -> SDR white for every motion row",
+          "reference_nits": 100.0,
+          "statistics": [
+            {
+              "peak_channel_nits": 104.52365112304688,
+              "mean_luminance_nits": 7.805643081665039
+            },
+            {
+              "peak_channel_nits": 109.01374053955078,
+              "mean_luminance_nits": 9.525238990783691
+            },
+            {
+              "peak_channel_nits": 107.11542510986328,
+              "mean_luminance_nits": 9.582931518554688
+            },
+            {
+              "peak_channel_nits": 100.86077117919922,
+              "mean_luminance_nits": 9.582931518554688
+            }
+          ],
+          "captions": null
+        },
+        {
+          "title": "Pan / profile response + full sample-and-hold",
+          "note": "36 pan frames after 12 settled frames; 8 px/frame, 16 subframe samples",
+          "reference_nits": 100.0,
+          "statistics": [
+            {
+              "peak_channel_nits": 67.106201171875,
+              "mean_luminance_nits": 7.571375370025635
+            },
+            {
+              "peak_channel_nits": 89.90655517578125,
+              "mean_luminance_nits": 9.5285005569458
+            },
+            {
+              "peak_channel_nits": 103.35589599609375,
+              "mean_luminance_nits": 9.582931518554688
+            },
+            {
+              "peak_channel_nits": 100.37238311767578,
+              "mean_luminance_nits": 9.582931518554688
+            }
+          ],
+          "captions": null
+        },
+        {
+          "title": "Pan / synthetic LCD overdrive probe",
+          "note": "LCD gain 0.8 for 4 ms; OLED repeats full hold (user OD not assumed)",
+          "reference_nits": 100.0,
+          "statistics": [
+            {
+              "peak_channel_nits": 74.1180191040039,
+              "mean_luminance_nits": 8.22497272491455
+            },
+            {
+              "peak_channel_nits": 96.19501495361328,
+              "mean_luminance_nits": 10.363932609558105
+            },
+            {
+              "peak_channel_nits": 103.35589599609375,
+              "mean_luminance_nits": 9.582931518554688
+            },
+            {
+              "peak_channel_nits": 100.37238311767578,
+              "mean_luminance_nits": 9.582931518554688
+            }
+          ],
+          "captions": [
+            "OD probe: gain 0.8 / 4 ms",
+            "OD probe: gain 0.8 / 4 ms",
+            "OD not modeled; full hold",
+            "OD not modeled; full hold"
+          ]
+        },
+        {
+          "title": "Pan / synthetic 25%-duty BFI probe",
+          "note": "Fixed peak, no mean boost: shorter persistence and lower brightness",
+          "reference_nits": 100.0,
+          "statistics": [
+            {
+              "peak_channel_nits": 20.34962272644043,
+              "mean_luminance_nits": 1.9016824960708618
+            },
+            {
+              "peak_channel_nits": 22.601703643798828,
+              "mean_luminance_nits": 2.3822102546691895
+            },
+            {
+              "peak_channel_nits": 26.302074432373047,
+              "mean_luminance_nits": 2.395732879638672
+            },
+            {
+              "peak_channel_nits": 25.110151290893555,
+              "mean_luminance_nits": 2.395733118057251
+            }
+          ],
+          "captions": null
+        }
+      ]
+    },
+    {
+      "id": "motion_history",
+      "title": "Motion history",
+      "description": "The same persistent pipelines at pan frames 1, 12 and 36. Translation wraps at the image boundary; each source frame is a new position.",
+      "file": "motion_history.png",
+      "rows": [
+        {
+          "title": "Full hold / pan frame 1",
+          "note": "12 settled pre-roll frames; common 100-nit exposure",
+          "reference_nits": 100.0,
+          "statistics": [
+            {
+              "peak_channel_nits": 69.41207122802734,
+              "mean_luminance_nits": 7.510377407073975
+            },
+            {
+              "peak_channel_nits": 101.62480926513672,
+              "mean_luminance_nits": 9.399404525756836
+            },
+            {
+              "peak_channel_nits": 103.35589599609375,
+              "mean_luminance_nits": 9.582931518554688
+            },
+            {
+              "peak_channel_nits": 100.37238311767578,
+              "mean_luminance_nits": 9.582931518554688
+            }
+          ],
+          "captions": null
+        },
+        {
+          "title": "Full hold / pan frame 12",
+          "note": "12 settled pre-roll frames; common 100-nit exposure",
+          "reference_nits": 100.0,
+          "statistics": [
+            {
+              "peak_channel_nits": 78.68653869628906,
+              "mean_luminance_nits": 7.68638801574707
+            },
+            {
+              "peak_channel_nits": 91.8877944946289,
+              "mean_luminance_nits": 9.228857040405273
+            },
+            {
+              "peak_channel_nits": 103.35589599609375,
+              "mean_luminance_nits": 9.58068561553955
+            },
+            {
+              "peak_channel_nits": 100.37238311767578,
+              "mean_luminance_nits": 9.581806182861328
+            }
+          ],
+          "captions": null
+        },
+        {
+          "title": "Full hold / pan frame 36",
+          "note": "12 settled pre-roll frames; common 100-nit exposure",
+          "reference_nits": 100.0,
+          "statistics": [
+            {
+              "peak_channel_nits": 67.106201171875,
+              "mean_luminance_nits": 7.571375370025635
+            },
+            {
+              "peak_channel_nits": 89.90655517578125,
+              "mean_luminance_nits": 9.5285005569458
+            },
+            {
+              "peak_channel_nits": 103.35589599609375,
+              "mean_luminance_nits": 9.582931518554688
+            },
+            {
+              "peak_channel_nits": 100.37238311767578,
+              "mean_luminance_nits": 9.582931518554688
+            }
+          ],
+          "captions": null
+        }
+      ]
+    },
+    {
+      "id": "macro_subpixel",
+      "title": "Macro subpixel crop",
+      "description": "A 16x8 logical-pixel crop enlarged at equal pitch. Neutral top and RGBW bars below expose RGB stripes, white allocation and QD triangular geometry.",
+      "file": "macro_subpixel.png",
+      "rows": [
+        {
+          "title": "Logical output / nearest-neighbor enlargement",
+          "note": "20 preview pixels per logical pixel; common 100-nit exposure",
+          "reference_nits": 100,
+          "statistics": [
+            {
+              "peak_channel_nits": 90.97907257080078,
+              "mean_luminance_nits": 61.75861358642578
+            },
+            {
+              "peak_channel_nits": 84.05420684814453,
+              "mean_luminance_nits": 57.75825119018555
+            },
+            {
+              "peak_channel_nits": 107.56478118896484,
+              "mean_luminance_nits": 69.80164337158203
+            },
+            {
+              "peak_channel_nits": 100.79634857177734,
+              "mean_luminance_nits": 69.46742248535156
+            }
+          ],
+          "captions": null
+        },
+        {
+          "title": "Synthetic subpixel apertures / black matrix",
+          "note": "Area-normalized aperture energy; 1,000 -> white, arbitrary fill and geometry",
+          "reference_nits": 1000.0,
+          "statistics": [
+            {
+              "peak_channel_nits": 389.21527099609375,
+              "mean_luminance_nits": 61.75861358642578
+            },
+            {
+              "peak_channel_nits": 359.5901794433594,
+              "mean_luminance_nits": 57.75825119018555
+            },
+            {
+              "peak_channel_nits": 617.8401489257812,
+              "mean_luminance_nits": 69.80164337158203
+            },
+            {
+              "peak_channel_nits": 502.4117126464844,
+              "mean_luminance_nits": 69.46742248535156
+            }
+          ],
+          "captions": [
+            "RGB stripes / synthetic",
+            "RGB stripes / synthetic",
+            "R/W/B/G + white allocation / synthetic",
+            "Staggered triangular RGB / synthetic"
+          ]
+        }
+      ]
+    }
+  ],
+  "macro": {
+    "crop_yxhw": [
+      86,
+      152,
+      8,
+      16
+    ],
+    "scale": 20,
+    "fill_factor": 0.72,
+    "white_fraction": 0.65,
+    "geometry_status": "synthetic, unmeasured"
+  }
+}
