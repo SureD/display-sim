@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TV simulator · visual gallery</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#0c1118;color:#e8eef5;font:16px/1.6 system-ui,sans-serif}
+main{max-width:1500px;margin:auto;padding:32px 24px}h1{font-size:36px;letter-spacing:-1px;margin:8px 0}
+h2{font-size:24px;margin-bottom:4px}p{max-width:1000px;color:#bac7d5}a{color:#7edbd3}
+.notice{border-left:3px solid #efb773;padding:12px 20px;background:#192029;color:#f4d4ab}
+nav{display:flex;gap:18px;flex-wrap:wrap;margin:24px 0}section{padding:12px 0 28px;border-top:1px solid #283442}
+img{width:100%;height:auto;display:block;border:1px solid #2d3c4c;border-radius:6px}table{border-collapse:collapse}
+td,th{text-align:left;border-bottom:1px solid #283442;padding:8px 20px 8px 0}code{color:#c5e5e1}
+</style><main>
+<small>TV DISPLAY SIMULATOR / CPU NUMPY REFERENCE</small><h1>Four TVs, one source.</h1>
+<p class="notice"><strong>Placeholder parameters, not measurements or retail-TV emulations.</strong>
+HDR is scaled into an SDR sRGB preview. Your screen cannot reproduce the simulated peak or black level.
+Every comparison row uses a shared exposure; there is no per-TV auto-normalization.</p>
+<p>Click a contact sheet for its full-size PNG. This folder works offline with relative image paths.
+The default columns are VA mini-LED, IPS edge LCD, WOLED, QD-OLED. All receive identical float PQ sources;
+ambient is 0 lux, on-axis, and profile spatial processing stays enabled.</p>
+<nav><a href="#starfield">Starfield</a><a href="#subtitles">Subtitles on black</a><a href="#bright_window">Bright window on dark</a><a href="#gradients">Gradients</a><a href="#motion_pan">Motion pan</a><a href="#motion_history">Motion history</a><a href="#macro_subpixel">Macro subpixel crop</a></nav>
+<details><summary>Protocol, scales and profile settings</summary>
+<p>HDR rows: 2,000 simulated nits maps to preview white. Shadow diagnostics: 10 nits maps to white
+(200× exposure); brighter pixels clip. Motion: 100 nits maps to white. Macro apertures: 1,000 maps to white.
+These are exposure choices, not a calibrated observer model or HDR encoding.</p>
+<table><tr><th>Placeholder profile</th><th>Response tau (not GtG)</th><th>Emitter/backlight peak</th><th>Layout</th></tr><tr><td>VA mini-LED / FALD</td><td>8.0 ms</td><td>2000.0 nit</td><td>rgb_stripe</td></tr><tr><td>IPS / edge strips</td><td>12.0 ms</td><td>400.0 nit</td><td>rgb_stripe</td></tr><tr><td>WOLED / RGBW</td><td>0.2 ms</td><td>850.0 nit</td><td>wrgb</td></tr><tr><td>QD-OLED / triangular</td><td>0.1 ms</td><td>1100.0 nit</td><td>qd_oled</td></tr></table>
+<p>Motion uses 12 settled pre-roll frames plus 36 advancing pan frames at approximately 60 Hz,
+8 pixels/frame (~480 pixels/s), 16 subframe integration samples. Each mode starts with fresh state.
+The final-frame snapshots model pursuit integration, not a stationary-camera photograph.
+OD is an explicit LCD-only probe (gain 0.8, 4-ms prefix); OLED columns repeat full hold.
+BFI is an assumed centered 25%-duty single pulse at fixed peak, without brightness compensation.
+Neither probe claims a supported retail mode. No MEMC, scanout, PWM or measured response LUT is modeled.</p>
+<p>Macro masks have a black matrix, equal logical-pixel pitch and arbitrary aperture dimensions.
+RGBW allocation and staggered triangular QD geometry are synthetic, not micrographs or a measured
+Pentile resolution model. Aperture amplitudes are area-normalized, so their peaks are not measured emitter nits.
+QD-OLED has a placeholder 0.45-pixel optical PSF; WOLED has none. The two OLED previews can therefore differ in edge softness.</p>
+<p>Exact settings, YAML hashes, row scales and linear output statistics: <a href="manifest.json">manifest.json</a>.</p>
+</details><section id="starfield"><h2>Starfield</h2><p>Sparse 600-2,000-nit stars expose highlight retention, local LCD leakage and optical softness.</p><a href="starfield.png"><img src="starfield.png" alt="Starfield; all four TV profiles side by side" loading="lazy"></a></section>
+<section id="subtitles"><h2>Subtitles on black</h2><p>1,000-nit subtitle glyphs reveal local FALD halos versus the IPS full-height strip lift.</p><a href="subtitles.png"><img src="subtitles.png" alt="Subtitles on black; all four TV profiles side by side" loading="lazy"></a></section>
+<section id="bright_window"><h2>Bright window on dark</h2><p>2,000-nit windows at roughly 12% and 56% area show brightness limits and area dependence.</p><a href="bright_window.png"><img src="bright_window.png" alt="Bright window on dark; all four TV profiles side by side" loading="lazy"></a></section>
+<section id="gradients"><h2>Gradients</h2><p>Top to bottom: neutral 0-100, 0-2,000, 0-2 nits, then a synthetic RGB mixture. No gamut calibration.</p><a href="gradients.png"><img src="gradients.png" alt="Gradients; all four TV profiles side by side" loading="lazy"></a></section>
+<section id="motion_pan"><h2>Motion pan</h2><p>Compare final-frame pursuit views after a long persistent history. Slow response adds trails; even fast OLED has full-hold blur.</p><a href="motion_pan.png"><img src="motion_pan.png" alt="Motion pan; all four TV profiles side by side" loading="lazy"></a></section>
+<section id="motion_history"><h2>Motion history</h2><p>The same persistent pipelines at pan frames 1, 12 and 36. Translation wraps at the image boundary; each source frame is a new position.</p><a href="motion_history.png"><img src="motion_history.png" alt="Motion history; all four TV profiles side by side" loading="lazy"></a></section>
+<section id="macro_subpixel"><h2>Macro subpixel crop</h2><p>A 16x8 logical-pixel crop enlarged at equal pitch. Neutral top and RGBW bars below expose RGB stripes, white allocation and QD triangular geometry.</p><a href="macro_subpixel.png"><img src="macro_subpixel.png" alt="Macro subpixel crop; all four TV profiles side by side" loading="lazy"></a></section>
+<p>Reproduce: <code>python3 -m sim gallery</code>. In the source repository, docs/REPORT.md
+and research/m5-fidelity.md describe validation and model boundaries.</p></main></html>

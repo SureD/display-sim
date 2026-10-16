@@ -16,8 +16,8 @@ still no measured OLED PSF behind those numbers.
 
 Subpixel layout still runs so the mosaic can be inspected; the box-filtered
 mosaic is energy-preserving for a flat color, which keeps the rest of the
-pipeline at the original resolution. A macro view of the same mosaic
-geometry, with a black matrix and fill factor, lives in :mod:`sim.macro`.
+pipeline at the original resolution. A separate illustration of these layout
+families, with synthetic apertures and a black matrix, lives in :mod:`sim.macro`.
 
 Viewing angle is a placeholder, not a measured BRDF. Off axis, RGB is mixed
 toward the pixel luminance so chroma falls:

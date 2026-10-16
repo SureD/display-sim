@@ -1,6 +1,9 @@
 """Response-time lag and sample-and-hold blur."""
 
+from dataclasses import replace
+
 import numpy as np
+import pytest
 
 from sim.frame import Frame
 from sim.profile import TemporalParams
@@ -141,3 +144,101 @@ def test_bfi_dims_a_still_and_shortens_pursuit_blur():
     # Duty scales both the level and the blur width, so the dark side of the
     # edge stays closer to black than a full-hold blur of the same motion.
     assert strobed.rgb[4, 12, 0] < full.rgb[4, 12, 0]
+
+
+def test_subframe_exposure_matches_integrated_step_and_retains_endpoint_state():
+    params = TemporalParams(
+        response_time_ms=12,
+        frame_time_ms=16,
+        sample_and_hold=False,
+        integration_samples=64,
+    )
+    state = TemporalState()
+    black = np.zeros((2, 3, 3), np.float32)
+    white = np.full_like(black, 100)
+    apply_temporal(Frame(black), params, state)
+    shown = apply_temporal(Frame(white), params, state)
+    # Exact average of 100*(1-exp(-t/tau)), distinct from the endpoint.
+    average = 100 * (1 - 12 / 16 * (1 - np.exp(-16 / 12)))
+    endpoint = 100 * (1 - np.exp(-16 / 12))
+    assert np.allclose(shown.rgb, average, atol=0.002)
+    assert np.allclose(state.previous, endpoint, atol=0.001)
+    assert shown.rgb.mean() < state.previous.mean()
+
+
+def test_subframe_bfi_samples_centered_pulse_and_preserves_panel_history():
+    params = TemporalParams(
+        response_time_ms=12,
+        frame_time_ms=16,
+        sample_and_hold=False,
+        bfi_duty=0.25,
+        integration_samples=64,
+    )
+    black = np.zeros((2, 3, 3), np.float32)
+    white = np.full_like(black, 100)
+    state = TemporalState()
+    apply_temporal(Frame(black), params, state)
+    shown = apply_temporal(Frame(white), params, state)
+    # A centered quarter-frame pulse emits over t=[6, 10] ms.
+    expected = 100 / 16 * (4 + 12 * (np.exp(-10 / 12) - np.exp(-6 / 12)))
+    assert np.allclose(shown.rgb, expected, atol=0.001)
+    assert np.allclose(state.previous, 100 * (1 - np.exp(-16 / 12)), atol=0.001)
+    # The emission gate never dims the stored response state.
+    assert state.previous.mean() > 5 * shown.rgb.mean()
+
+
+def test_subframe_hold_converges_and_bfi_narrows_ideal_pursuit_edge():
+    from sim.metrics import moving_edge_blur_px
+
+    edge = np.zeros((2, 128, 3), np.float32)
+    edge[:, 64:] = 100
+    params = TemporalParams(response_time_ms=0, motion_px_per_frame=16, integration_samples=16)
+    full = apply_temporal(Frame(edge), params)
+    refined = apply_temporal(Frame(edge), replace(params, integration_samples=128))
+    bfi = apply_temporal(Frame(edge), replace(params, bfi_duty=0.25))
+    full_width = moving_edge_blur_px(full.rgb[0, :, 0])
+    refined_width = moving_edge_blur_px(refined.rgb[0, :, 0])
+    bfi_width = moving_edge_blur_px(bfi.rgb[0, :, 0])
+    # Ideal rectangular hold: 10-90% width = .8 * speed * visible_time.
+    assert abs(full_width - 12.8) < 0.2
+    assert abs(full_width - refined_width) < 0.2
+    # Bilinear image sampling adds a small footprint at this narrow width.
+    assert abs(bfi_width - 3.2) < 0.25
+    assert np.allclose(bfi.rgb[:, -1], 25)
+
+
+def test_long_pan_distinguishes_response_overdrive_and_hold():
+    params = TemporalParams(
+        response_time_ms=12,
+        frame_time_ms=16,
+        motion_px_per_frame=4,
+        integration_samples=24,
+    )
+    modes = {
+        "lcd": params,
+        "oled": replace(params, response_time_ms=0.2),
+        "od": replace(params, overdrive_gain=0.8, overdrive_ms=4),
+        "no_hold": replace(params, response_time_ms=0.2, sample_and_hold=False),
+    }
+    states = {key: TemporalState() for key in modes}
+    output = {}
+    for index in range(37):
+        bar = np.zeros((2, 192, 3), np.float32)
+        left = 16 + 4 * max(0, index - 12)  # 12 settled pre-roll frames.
+        bar[:, left:left + 12] = 100
+        for key, mode in modes.items():
+            output[key] = apply_temporal(Frame(bar), mode, states[key]).rgb
+    left = 16 + 4 * 24
+    # Slow response carries light into older pan positions. OD increases
+    # the newly arrived bar's exposure; instantaneous response still blurs
+    # in tracking-eye coordinates when the source is held for a frame.
+    assert output["lcd"][:, left - 5:left - 2].mean() > output["oled"][:, left - 5:left - 2].mean() + 1
+    assert output["od"][:, left + 9:left + 12].mean() > output["lcd"][:, left + 9:left + 12].mean() + 2
+    assert output["oled"][:, left + 12].mean() > 1
+    assert np.allclose(output["no_hold"][:, left + 12], 0)
+
+
+@pytest.mark.parametrize("samples", [0, -1, 2.5, True])
+def test_subframe_sample_count_requires_positive_integer(samples):
+    with pytest.raises(ValueError, match="integration_samples"):
+        apply_temporal(Frame(np.zeros((1, 1, 3))), TemporalParams(integration_samples=samples))

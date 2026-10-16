@@ -7,6 +7,10 @@ Preview one still::
 Run the pattern harness (metrics JSON/CSV, comparison.md, and preview PNGs)::
 
     python -m sim validate [--profiles NAME ...] [--out reports/]
+
+Build the offline visual gallery::
+
+    python -m sim gallery [--out reports/gallery/]
 """
 
 from __future__ import annotations
@@ -52,7 +56,7 @@ def build_parser() -> argparse.ArgumentParser:
         default=None,
         help="Sample-and-hold eye motion in pixels per frame",
     )
-    parser.epilog = (parser.epilog or "") + " Validation: python -m sim validate --help"
+    parser.epilog = (parser.epilog or "") + " Commands: python -m sim {validate,gallery} --help"
     return parser
 
 
@@ -65,6 +69,11 @@ def main(argv: list[str] | None = None) -> None:
         from sim.validate import main as validate_main
 
         validate_main(argv[1:])
+        return
+    if argv and argv[0] == "gallery":
+        from sim.gallery import main as gallery_main
+
+        gallery_main(argv[1:])
         return
     args = build_parser().parse_args(argv)
     profile = load_profile(args.profile).with_overrides(

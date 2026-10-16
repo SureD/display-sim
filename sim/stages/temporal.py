@@ -29,6 +29,17 @@ is ``d / refresh``. ``bfi_preserve_mean`` raises the pulse toward
 positive, so the time average stays near the unstrobed level until the clip.
 Duty 1 is ordinary sample-and-hold. This is not a scanout or PWM waveform.
 MEMC is not implemented.
+
+``integration_samples > 1`` opts into a time-resolved exposure instead of
+the legacy endpoint plus seven-shift approximation above. Analytic samples
+of the response/overdrive trace are averaged during a centered rectangular
+BFI pulse. The tracking eye advances continuously, so each sample is shifted
+by ``-motion_px_per_frame * (t / frame_time - 0.5)``. Both fast OLEDs and
+slower LCDs therefore show hold blur; LCDs additionally retain the preceding
+pan positions through the response state. The end-of-frame panel level is
+stored separately, so longer clips retain response tails without feeding
+pursuit blur or emission gating back into the panel. This remains emitted
+RGB filtering, not a measured transmission/voltage or scanout model.
 """
 
 from __future__ import annotations
@@ -130,19 +141,72 @@ def apply_bfi(rgb: np.ndarray, params: TemporalParams) -> tuple[np.ndarray, floa
     return (np.asarray(rgb, dtype=np.float32) * np.float32(duty)).astype(np.float32), duty
 
 
+def _integrate_exposure(
+    previous: np.ndarray,
+    target: np.ndarray,
+    params: TemporalParams,
+    samples: int,
+) -> np.ndarray:
+    """Midpoint quadrature of emission in tracking-eye coordinates.
+
+    Sample only the illuminated part of the frame, then retain the duty
+    factor in ``apply_bfi``. This avoids missing a narrow pulse between
+    quadrature points and gives a shorter temporal aperture at any sample
+    count. The BFI pulse is centered; its phase/waveform is a synthetic
+    experiment setting, not a measured TV capability.
+    """
+
+    frame_ms = float(params.frame_time_ms)
+    if not np.isfinite(frame_ms) or frame_ms <= 0:
+        raise ValueError("frame_time_ms must be positive for subframe integration")
+    # Validate the duty even when no prior frame exists.
+    _, duty = apply_bfi(target, params)
+    start = (1.0 - duty) / 2.0
+    drive_ms = min(float(params.overdrive_ms), frame_ms)
+    driven = params.overdrive_gain > 0 and drive_ms > 0
+    command = _overdrive_command(previous, target, params) if driven else target
+    mid = (
+        _approach(previous, command, params.response_time_ms, drive_ms)
+        if driven else previous
+    )
+    acc = np.zeros(target.shape, dtype=np.float64)
+    for index in range(samples):
+        phase = start + duty * ((index + 0.5) / samples)
+        time_ms = phase * frame_ms
+        if driven and time_ms > drive_ms:
+            panel = _approach(mid, target, params.response_time_ms, time_ms - drive_ms)
+        else:
+            panel = _approach(previous, command, params.response_time_ms, time_ms)
+        emitted, _ = apply_bfi(panel, params)
+        if params.sample_and_hold:
+            emitted = shift_x(emitted, -float(params.motion_px_per_frame) * (phase - 0.5))
+        acc += emitted
+    return (acc / samples).astype(np.float32)
+
+
 def apply_temporal(
     frame: Frame,
     params: TemporalParams,
     state: TemporalState | None = None,
 ) -> Frame:
-    """Lag toward the new target, then apply the emission gate and hold blur."""
+    """Keep response history and render an endpoint or subframe exposure."""
 
     target = np.asarray(frame.rgb, dtype=np.float32)
+    samples = params.integration_samples
+    if isinstance(samples, bool) or not isinstance(samples, (int, np.integer)) or samples < 1:
+        raise ValueError("integration_samples must be a positive integer")
     if state is None or state.previous is None or state.previous.shape != target.shape:
         # No history: a still (and the first frame of a clip) is fully settled.
+        previous = target
         lagged = target
     else:
-        lagged = respond(state.previous, target, params)
+        previous = state.previous
+        lagged = respond(previous, target, params)
+    if samples > 1:
+        shown = _integrate_exposure(previous, target, params, samples)
+        if state is not None:
+            state.previous = np.asarray(lagged, dtype=np.float32).copy()
+        return Frame(shown, frame.backlight)
     if state is not None:
         state.previous = np.asarray(lagged, dtype=np.float32).copy()
     visible, motion_scale = apply_bfi(lagged, params)
