@@ -82,6 +82,14 @@ class HdrParams:
     mean linear luminance (APL) slides that peak toward
     ``abl_full_field_nits``. ``abl_power_budget_nits`` is a separate global
     gain on weighted channel drive; 0 leaves it off.
+
+    ``abl_source`` picks which picture the APL comes from. ``emitted`` is the
+    frame handed to the tone map, which on an LCD is already past the panel.
+    ``demand`` is the requested picture before the panel and before any
+    limiting, which is the contract in ``research/m3-hdr-abl-params.md``.
+    ``abl_reference_nits`` is ``P0`` in that contract; 0 uses
+    ``panel_peak_nits``. ``abl_response_ms`` and ``abl_backlight_tracking``
+    are described in :mod:`sim.load`; both default to off.
     """
 
     tone_map: str = "soft_clip"
@@ -90,6 +98,10 @@ class HdrParams:
     abl_enabled: bool = False
     abl_full_field_nits: float = 1000.0
     abl_gamma: float = 2.0
+    abl_source: str = "emitted"
+    abl_reference_nits: float = 0.0
+    abl_response_ms: float = 0.0
+    abl_backlight_tracking: float = 0.0
     # Channel-power proxy in weighted nits (not watts). 0 disables the gain.
     # Weights are a placeholder, not a measured current budget.
     abl_power_budget_nits: float = 0.0

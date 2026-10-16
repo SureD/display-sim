@@ -148,9 +148,20 @@ def apply_light_spread(
     return mixed.astype(np.float32)
 
 
-def simulate_backlight(frame: Frame, params: BacklightParams) -> Frame:
-    """Attach a nit backlight map. The linear image is left as the target picture."""
+def simulate_backlight(
+    frame: Frame,
+    params: BacklightParams,
+    *,
+    peak_scale: float = 1.0,
+) -> Frame:
+    """Attach a nit backlight map. The linear image is left as the target picture.
 
+    ``peak_scale`` derates the drive cap, which is how :mod:`sim.load` passes
+    an LCD power limit down to the backlight. 1 leaves the profile cap alone.
+    """
+
+    if not 0.0 < float(peak_scale) <= 1.0:
+        raise ValueError("peak_scale must be in (0, 1]")
     if params.mode not in {"fald", "edge", "per_pixel"}:
         raise ValueError(f"Unknown backlight mode {params.mode!r}")
     if params.psf_tail_weight < 0.0:
@@ -181,6 +192,6 @@ def simulate_backlight(frame: Frame, params: BacklightParams) -> Frame:
             backlight, sigma_x, sigma_y, tail_x, tail_y, params.psf_tail_weight
         )
     floor = np.float32(params.floor_nits)
-    peak = np.float32(params.peak_nits)
+    peak = np.float32(float(params.peak_nits) * float(peak_scale))
     backlight = np.clip(np.maximum(backlight, floor), 0.0, peak)
     return Frame(frame.rgb, backlight)
