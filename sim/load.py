@@ -114,4 +114,6 @@ def backlight_derate(apl_nits: float, params: HdrParams) -> float:
     if tracking > 1.0:
         raise ValueError("abl_backlight_tracking must be in [0, 1]")
     ratio = abl_capacity(apl_nits, params) / float(params.panel_peak_nits)
-    return float(1.0 - tracking * (1.0 - ratio))
+    # F + (P - F) can round a fraction of an ulp above P at zero load.
+    # Keep the documented (0, 1] scale contract; valid scales are unchanged.
+    return float(min(1.0, 1.0 - tracking * (1.0 - ratio)))

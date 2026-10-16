@@ -1,4 +1,4 @@
-# Status — 2026-10-17 03:30 CST
+# Status — 2026-10-17 (M9 branch)
 
 ## Milestone progress
 - **M1 research docs**: DONE (`37cc504`).
@@ -12,27 +12,29 @@
 - **M7 MEMC/motion research**: DONE (`research/m7-memc-motion.md`).
 - **M8 profile provenance sidecar**: DONE (merge `94f248b` of `codex/m8-provenance`, commit `d0ca06f`). Four versioned `sim/profiles/*.provenance.yaml` sidecars cover all 220 effective profile values (M/D/P/NR, source locators, conditions, support ranges); strict lookup fails out of support; `python3 -m sim provenance --check`; schema in `docs/PROVENANCE.md`. Runtime YAMLs unchanged, parity tested.
 - **M7 MEMC implementation phase 1**: DONE (merge `c311510` of `codex/m7-memc`, commit `1600d8a`). Captured pre-change hashes; independent rational source/output PTS and repeat cadence (D); analytic translation/known-layer reconstruction (P), exact endpoints, declared cuts and safe source-hold fallback; separate opt-in `motion` CLI/runtime configuration, default off. Added a 24p repeat/interpolated gallery comparison with exact position traces. TV profile YAMLs unchanged; vendor algorithms/calibration remain NR.
-- **M9 opt-in window replay / drive fitting**: IN PROGRESS — **reassigned to Codex** (worktree `/workspace/tv-sim-codex`, branch `codex/m9-window-replay`) because Cursor run11 died at start (4th connection-stall failure: runs 6, 8, 10, 11).
+- **M9 opt-in window replay / drive fitting**: DONE in branch `codex/m9-window-replay`. `python3 -m sim fit-windows` fits independent `P` internal-drive scales against final pipeline luminance using strict M8 lookup. Explicit amplitude/color/settling/hold matching, black pre-roll, `P` exploratory assumptions for `NR` conditions, separate new `.fit.json` dataset IDs, preserved source evidence/placeholders, baseline fingerprints and no double limiting. Generic profile YAMLs and sidecars are unchanged. Default pipeline, validation, complete gallery and MEMC-off parity are protected by static goldens, including a current-main gallery capture.
 
 ## Workers (this cycle)
 - Cursor run10: **failed at start** (`RetriableError: Connection stalled repeatedly`), no work done; stale empty `cursor/m7-memc` branch deleted.
 - Codex run10: **finished** M8 (uncommitted → PM committed + merged).
 - Codex run11: **finished** M7 MEMC phase 1 (uncommitted → PM committed + merged).
 - Cursor run11: **failed at start** (`RetriableError: Connection stalled repeatedly`), no work done. Cursor worker paused until the CLI connection is fixed.
-- Started: Codex run12 → M9 window replay.
+- Codex run12: **finished** M9 window replay / drive fitting in this worktree.
 
 ## Tests
-- **315/315 pytest** on `main` after the M7 merge; provenance check OK.
+- **387/387 pytest** in `codex/m9-window-replay`: `python3 -m pytest -q` → `387 passed in 57.66s`. Temporary outputs were confined to this worktree.
+- `python3 -m sim provenance --check` → **OK**, all four profiles, schema version 1.
+- Coverage includes synthetic fit convergence with active demand/emitted ABL, strict amplitude/color/time/support rejection, preserved `P`/`NR` targets, dataset/file separation, one limiter pass per display tick, timing/history, malformed/stale fit rejection and CLI behavior. Default pipeline/validation/gallery/MEMC-off static goldens remain bit-identical after fit save/load/replay; current-main gallery manifest and M7 timing trace hashes also match.
 
 ## Drift / risks
 - Profile numbers remain placeholders; do not present as emulating a specific TV.
 - MEMC must be off by default and leave the MEMC-off path bit-identical.
-- M9 must be opt-in with a separate dataset ID; defaults and original generic YAMLs unchanged; no double limiting.
+- M9 is opt-in with separate fitted dataset IDs. Shipped records have `NR` amplitude/timing, so exploratory assumptions are required; low fitting residuals do not establish a calibrated TV, sustained capability or arbitrary-content replay. Strict geometry rejects raster area mismatch; exploratory rounding remains `P`.
 - Cursor CLI connection stalls are recurring (4 of the last 6 runs); all work now goes to Codex until Cursor connectivity is fixed.
 - Still stubbed: measured OD/BFI/PWM waveforms, measured PSFs/zone maps, spectral subpixels, gamut mapping, glare, CRT/plasma, GPU path, zone temporal smoothing, full watt solver, angular leakage LUTs, OLED attack/release, block-estimation MEMC.
 - GPU path on `dscs2pc` (RTX 3070) still **blocked on user OK** + local-machine approval.
 
 ## Next (assigned this cycle)
 1. **M7 follow-ups (deferred)**: block estimation, automatic cut detection, vendor calibration, video/audio plumbing and full observer integration remain deferred per the research boundary.
-2. **M9 window replay (Codex, `codex/m9-window-replay`)**: per `research/m6-profile-wiring.md` §8 item 2 — opt-in window replay/drive fitting using M8 provenance measurement records, explicit amplitude/color/time matching, separate dataset ID, no double limiting; defaults unchanged; tests.
+2. **Measurement follow-ups**: acquire matched amplitude/color/time and sustained traces before any named-TV calibration or independent dynamics fit; current source gaps remain `NR`.
 3. **GPU path (PyTorch on dscs2pc)**: still awaiting user confirm.
