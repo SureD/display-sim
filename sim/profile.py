@@ -28,7 +28,7 @@ class InputParams:
 
 @dataclass
 class ProcessingParams:
-    """Spatial image processing before the panel. MEMC is not modeled."""
+    """Spatial image processing before source reconstruction and the panel."""
 
     scale_factor: float = 1.0
     scale_mode: str = "bilinear"

@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import argparse
 from dataclasses import asdict, dataclass, replace
+from fractions import Fraction
 from hashlib import sha256
 from html import escape
 import json
@@ -35,6 +36,11 @@ PRE_ROLL = 12
 PAN_FRAMES = 36
 PAN_SPEED = 8.0
 INTEGRATION_SAMPLES = 16
+MEMC_SOURCE_FRAMES = 6
+MEMC_SOURCE_FPS = 24
+MEMC_OUTPUT_FPS = 60
+MEMC_TRANSLATION_PX = 20
+MEMC_SNAPSHOT_INDEX = 11
 
 
 def preview(rgb: np.ndarray, reference_nits: float) -> np.ndarray:
@@ -153,6 +159,63 @@ def render_pan(profile: TVProfile, source: np.ndarray, mode: str) -> dict[int, n
     return captures
 
 
+def memc_pan_fixture(width: int, height: int) -> tuple[list[np.ndarray], dict]:
+    """P: known bounded moving layers, with no inferred or vendor motion."""
+    from sim.motion import AnalyticLayer, LayerScene
+
+    background = np.ones((height, width, 3), dtype=np.float32)
+    foreground = np.full_like(background, 100)
+    foreground[height//2:] = (20, 70, 100)
+    initial_mask = np.zeros((height, width), dtype=bool)
+    for start, end in ((8, 10), (16, 20), (26, 38)):
+        initial_mask[height//4:height*3//4, start:end] = True
+
+    scenes = {}
+    encoded = []
+    for index in range(MEMC_SOURCE_FRAMES):
+        # The fixture fits even at the gallery's minimum width (160 pixels).
+        # Roll moves only a bounded mask; no layer reaches the wrap boundary.
+        mask = np.roll(initial_mask, index * MEMC_TRANSLATION_PX, axis=1)
+        scene = LayerScene(background, layers=(AnalyticLayer(
+            foreground, mask, velocity=(MEMC_TRANSLATION_PX, 0), depth=0,
+        ),))
+        if index < MEMC_SOURCE_FRAMES - 1:
+            scenes[index] = scene
+        encoded.append(pq_oetf(scene.render(0).rgb))
+    return encoded, scenes
+
+
+def render_memc_pan(profile: TVProfile, width: int, height: int, mode: str) -> tuple[np.ndarray, list[dict]]:
+    """P: natural-playback targets through one persistent display pipeline."""
+    from sim.sequence import MotionConfig
+
+    encoded, scenes = memc_pan_fixture(width, height)
+    configured = _gallery_profile(profile)
+    # The analytic layer is declared in the prepared source domain. Disable
+    # sharpening only for this new fixture, so its exact masks stay valid.
+    configured = replace(configured, processing=replace(configured.processing, sharpen_amount=0))
+    outputs = list(Pipeline(configured).run_sequence(
+        encoded, MotionConfig(mode=mode, source_fps=MEMC_SOURCE_FPS, output_fps=MEMC_OUTPUT_FPS), scenes=scenes,
+    ))
+    return outputs[MEMC_SNAPSHOT_INDEX].frame.rgb, [output.diagnostics for output in outputs]
+
+
+def memc_position_trace(diagnostics: list[dict]) -> list[dict]:
+    """Positions derived from the actual scheduler's rational trace (D/P)."""
+    trace = []
+    for tick in diagnostics:
+        source_index, phase = tick["source_index"], Fraction(tick["phase"])
+        analytic_phase = phase if source_index < MEMC_SOURCE_FRAMES - 1 else Fraction(0)
+        trace.append({
+            "output_index": tick["output_index"], "output_pts_seconds": tick["output_pts"],
+            "source_index": source_index,
+            "source_pts_seconds": tick["source_pts"], "phase": tick["phase"],
+            "repeat_position_px": str(Fraction(source_index * MEMC_TRANSLATION_PX)),
+            "analytic_position_px": str((source_index + analytic_phase) * MEMC_TRANSLATION_PX),
+        })
+    return trace
+
+
 @dataclass
 class Row:
     title: str
@@ -255,7 +318,13 @@ These are exposure choices, not a calibrated observer model or HDR encoding.</p>
 The final-frame snapshots model pursuit integration, not a stationary-camera photograph.
 OD is an explicit LCD-only probe (gain 0.8, 4-ms prefix); OLED columns repeat full hold.
 BFI is an assumed centered 25%-duty single pulse at fixed peak, without brightness compensation.
-Neither probe claims a supported retail mode. No MEMC, scanout, PWM or measured response LUT is modeled.</p>
+Neither probe claims a supported retail mode. These motion rows have no MEMC, scanout, PWM or measured response LUT.</p>
+<p>The separate 24p comparison repeats six source pictures at 60 Hz with exact 3:2 cadence (D),
+then reconstructs known moving layers at the same output times (P). Its 480-pixel/s motion,
+layer masks and zero-sharpening override are synthetic; vendor algorithms remain NR.
+Zero pursuit blur keeps each target suitable for natural playback. A static contact sheet shows
+different positions, but cannot demonstrate perceived smoothness. Exact PTS, phases and positions:
+<a href="memc_trace.json">memc_trace.json</a>.</p>
 <p>Macro masks have a black matrix, equal logical-pixel pitch and arbitrary aperture dimensions.
 RGBW allocation and staggered triangular QD geometry are synthetic, not micrographs or a measured
 Pentile resolution model. Aperture amplitudes are area-normalized, so their peaks are not measured emitter nits.
@@ -340,6 +409,38 @@ def generate_gallery(out: Path, width: int = 320, height: int = 180) -> dict:
     ])
     manifest["macro"] = {"crop_yxhw": [cy, cx, 8, 16], "scale": scale, "fill_factor": .72,
                          "white_fraction": .65, "geometry_status": "synthetic, unmeasured"}
+    memc_pan = {
+        mode: [render_memc_pan(p, width, height, mode) for p in profiles]
+        for mode in ("repeat", "analytic")
+    }
+    save("motion_memc", "24p repeat vs analytic reconstruction (P)",
+         "Matched output time: repeat holds a 24p source position; known-layer reconstruction creates an intermediate position. Static views cannot establish perceived smoothness.", [
+        Row("24p repeat at 60 Hz / 3:2 cadence (D)",
+            "Output PTS 11/60 s; source 4 held at 80 px; 100-nit exposure; zero pursuit blur",
+            [result[0] for result in memc_pan["repeat"]], MOTION_REFERENCE),
+        Row("Analytic layer reconstruction (P)",
+            "Same PTS 11/60 s; source 4 + phase 2/5 at 88 px; known masks; no vendor algorithm claim",
+            [result[0] for result in memc_pan["analytic"]], MOTION_REFERENCE),
+    ])
+    traces = {
+        p.name: {mode: memc_pan[mode][index][1] for mode in ("repeat", "analytic")}
+        for index, p in enumerate(profiles)
+    }
+    memc_trace = {
+        "timing_evidence": "D", "reconstruction_evidence": "P", "vendor_algorithm": "NR",
+        "source_fps": f"{MEMC_SOURCE_FPS}/1", "output_fps": f"{MEMC_OUTPUT_FPS}/1",
+        "source_frames": MEMC_SOURCE_FRAMES,
+        "source_interval_translation_px": [MEMC_TRANSLATION_PX, 0],
+        "velocity_px_per_second": [MEMC_TRANSLATION_PX * MEMC_SOURCE_FPS, 0],
+        "snapshot_output_index": MEMC_SNAPSHOT_INDEX, "observer": "natural playback; zero pursuit blur",
+        "processing_override": {"sharpen_amount": 0},
+        "limitations": "Known bounded synthetic layers; no inferred flow or vendor calibration. Static contact sheets cannot establish perceived smoothness.",
+        "position_trace": memc_position_trace(memc_pan["repeat"][0][1]),
+        "profiles": traces,
+    }
+    (out / "memc_trace.json").write_text(json.dumps(memc_trace, indent=2, allow_nan=False)+"\n", encoding="utf-8")
+    manifest["memc_pan"] = {key: value for key, value in memc_trace.items() if key not in ("position_trace", "profiles")}
+    manifest["memc_pan"]["trace_file"] = "memc_trace.json"
     (out / "manifest.json").write_text(json.dumps(manifest, indent=2, allow_nan=False)+"\n", encoding="utf-8")
     _html(out, manifest)
     return manifest

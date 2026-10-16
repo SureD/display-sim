@@ -12,6 +12,10 @@ Build the offline visual gallery::
 
     python -m sim gallery [--out reports/gallery/]
 
+Schedule a numbered-image motion experiment (default MEMC off)::
+
+    python -m sim motion --profile NAME --input-frames 'clip/*.png' --source-fps 24
+
 Check profile provenance without changing runtime settings::
 
     python -m sim provenance --check
@@ -60,7 +64,7 @@ def build_parser() -> argparse.ArgumentParser:
         default=None,
         help="Sample-and-hold eye motion in pixels per frame",
     )
-    parser.epilog = (parser.epilog or "") + " Commands: python -m sim {validate,gallery,provenance} --help"
+    parser.epilog = (parser.epilog or "") + " Commands: python -m sim {validate,gallery,motion,provenance} --help"
     return parser
 
 
@@ -69,6 +73,11 @@ def main(argv: list[str] | None = None) -> None:
         argv = sys.argv[1:]
     else:
         argv = list(argv)
+    if argv and argv[0] == "motion":
+        from sim.motion_cli import main as motion_main
+
+        motion_main(argv[1:])
+        return
     if argv and argv[0] == "provenance":
         from sim.provenance import main as provenance_main
 

@@ -6,7 +6,10 @@ HDR tone map / ABL → ambient reflection → temporal → encode.
 The ABL load is read between image processing and the backlight, on the
 picture the content requests: see :mod:`sim.load`.
 
-Not in this pipeline: MEMC, a spectral or measured subpixel model, CRT and
+Opt-in sequence reconstruction is in :mod:`sim.sequence`; the one-image
+entry points retain their original timing and behavior.
+
+Not in this pipeline: a spectral or measured subpixel model, CRT and
 plasma profiles, and a GPU backend. Overdrive and BFI are optional hooks
 with placeholder parameters; duty 1 and overdrive gain 0 leave lag plus
 sample-and-hold. The subpixel macro view in :mod:`sim.macro` is a separate
@@ -14,6 +17,9 @@ renderer, not a pipeline stage.
 """
 
 from __future__ import annotations
+
+from dataclasses import replace
+from typing import TYPE_CHECKING, Iterable, Iterator
 
 import numpy as np
 
@@ -28,6 +34,9 @@ from sim.stages.panel import emission_psf, simulate_panel
 from sim.stages.process import process_image
 from sim.stages.temporal import TemporalState, apply_temporal
 from sim.stages.tonemap import tone_map
+
+if TYPE_CHECKING:
+    from sim.sequence import MotionConfig, SequenceOutput
 
 
 class Pipeline:
@@ -50,16 +59,32 @@ class Pipeline:
     def run_linear(self, encoded: np.ndarray) -> Frame:
         """Run every stage except output encode. RGB is linear nits."""
 
+        return self.display_content(self.prepare_content(encoded))
+
+    def prepare_content(self, encoded: np.ndarray) -> Frame:
+        """Decode and spatially process one source, without advancing histories."""
+
+        frame = decode_encoded(encoded, self.profile.input)
+        return process_image(frame, self.profile.processing)
+
+    def display_content(self, frame: Frame, *, frame_time_ms: float | None = None) -> Frame:
+        """Display prepared linear-nit content once; never decode/sharpen it again.
+
+        Sequence callers provide the output tick duration for both panel and
+        load dynamics. The legacy entry point uses the original profile object.
+        """
+
         profile = self.profile
-        frame = decode_encoded(encoded, profile.input)
-        frame = process_image(frame, profile.processing)
+        temporal = profile.temporal
+        if frame_time_ms is not None:
+            temporal = replace(temporal, frame_time_ms=frame_time_ms)
         # The requested picture, before the panel and before any limiting.
         # research/m3-hdr-abl-params.md requires the load to be read here.
         apl = smooth_apl(
             self.load_state,
             demand_apl(frame.rgb),
             profile.hdr,
-            profile.temporal.frame_time_ms,
+            temporal.frame_time_ms,
         )
         frame = simulate_backlight(
             frame,
@@ -75,7 +100,24 @@ class Pipeline:
         )
         frame = tone_map(frame, profile.hdr, demand_apl_nits=apl)
         frame = add_ambient(frame, profile.ambient)
-        return apply_temporal(frame, profile.temporal, self.state)
+        return apply_temporal(frame, temporal, self.state)
+
+    def run_sequence(
+        self,
+        encoded_frames: Iterable[np.ndarray],
+        config: MotionConfig | None = None,
+        **kwargs,
+    ) -> Iterator[SequenceOutput]:
+        """Run an explicitly configured sequence; default is the legacy bypass.
+
+        Optional ``source_pts``, ``last_duration``, ``cuts`` (indices with a
+        cut before them), and per-pair ``scenes`` are documented in
+        :func:`sim.sequence.render_sequence`.
+        """
+
+        from sim.sequence import render_sequence
+
+        return render_sequence(self, encoded_frames, config, **kwargs)
 
     def run(self, encoded: np.ndarray) -> np.ndarray:
         """Return a ``uint8`` preview image."""

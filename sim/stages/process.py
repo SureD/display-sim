@@ -1,6 +1,7 @@
 """Spatial processing: resize and an unsharp-mask sharpen.
 
-Motion-compensated frame interpolation (MEMC) is intentionally not implemented.
+Opt-in synthetic motion reconstruction follows this source stage in
+:mod:`sim.sequence`; this function remains purely spatial.
 """
 
 from __future__ import annotations

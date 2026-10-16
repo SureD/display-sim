@@ -14,6 +14,9 @@ class Frame:
     ``rgb`` is display-referred linear light in cd/m^2 (nits), not an encoded
     code value. ``backlight`` is a non-negative nit map (``H x W``) once the
     backlight stage has run; earlier stages leave it as ``None``.
+
+    Timing is separate: ``sim.sequence.SequenceOutput`` carries source and
+    presentation PTS so source buffers never share panel-response history.
     """
 
     rgb: np.ndarray

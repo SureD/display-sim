@@ -1,6 +1,7 @@
 """Gallery output is an offline comparison with reproducible shared exposure."""
 
 from html.parser import HTMLParser
+from fractions import Fraction
 import json
 
 import numpy as np
@@ -8,7 +9,11 @@ from PIL import Image
 import pytest
 
 from sim.cli import main
-from sim.gallery import PROFILE_NAMES, preview, scenes
+from sim.gallery import (
+    PROFILE_NAMES, MEMC_SNAPSHOT_INDEX, memc_position_trace, preview,
+    render_memc_pan, scenes,
+)
+from sim.profile import load_profile
 
 
 def test_preview_uses_absolute_shared_scale_and_declared_clipping():
@@ -55,7 +60,7 @@ def test_gallery_cli_renders_all_profiles_and_offline_contact_sheets(tmp_path):
     main(["gallery", "--out", str(tmp_path), "--width", "160", "--height", "96"])
     manifest = json.loads((tmp_path / "manifest.json").read_text())
     assert [p["name"] for p in manifest["profiles"]] == list(PROFILE_NAMES)
-    expected = {"starfield", "subtitles", "bright_window", "gradients", "motion_pan", "macro_subpixel", "motion_history"}
+    expected = {"starfield", "subtitles", "bright_window", "gradients", "motion_pan", "macro_subpixel", "motion_history", "motion_memc"}
     assert {sheet["id"] for sheet in manifest["sheets"]} == expected
     for sheet in manifest["sheets"]:
         with Image.open(tmp_path / sheet["file"]) as png:
@@ -77,6 +82,21 @@ def test_gallery_cli_renders_all_profiles_and_offline_contact_sheets(tmp_path):
     for h, b in zip(hold, bfi):
         assert b["mean_luminance_nits"] < .3 * h["mean_luminance_nits"]
 
+    memc = next(s for s in manifest["sheets"] if s["id"] == "motion_memc")
+    assert len(memc["rows"]) == 2
+    assert "3:2" in memc["rows"][0]["title"]
+    assert "(P)" in memc["rows"][1]["title"]
+    trace = json.loads((tmp_path / manifest["memc_pan"]["trace_file"]).read_text())
+    assert trace["timing_evidence"] == "D" and trace["reconstruction_evidence"] == "P"
+    assert trace["vendor_algorithm"] == "NR"
+    assert set(trace["profiles"]) == set(PROFILE_NAMES)
+    assert len(trace["position_trace"]) == 15
+    snapshot = trace["position_trace"][trace["snapshot_output_index"]]
+    assert Fraction(snapshot["output_pts_seconds"]) == Fraction(11, 60)
+    assert Fraction(snapshot["phase"]) == Fraction(2, 5)
+    assert Fraction(snapshot["repeat_position_px"]) == 80
+    assert Fraction(snapshot["analytic_position_px"]) == 88
+
     html = (tmp_path / "index.html").read_text()
     references = _LocalReferences()
     references.feed(html)
@@ -85,6 +105,33 @@ def test_gallery_cli_renders_all_profiles_and_offline_contact_sheets(tmp_path):
     assert all((tmp_path / name).is_file() for name in references.images)
     assert "Placeholder parameters" in html and "SDR sRGB preview" in html
     assert "25%-duty" in html and "not micrographs" in html
+    assert 'href="memc_trace.json"' in html
+    assert "cannot demonstrate perceived smoothness" in html
+
+
+def test_memc_gallery_compares_different_positions_at_matching_output_time():
+    profile = load_profile("generic_woled")
+    repeated, repeat_ticks = render_memc_pan(profile, 160, 96, "repeat")
+    reconstructed, analytic_ticks = render_memc_pan(profile, 160, 96, "analytic")
+    assert [tick["source_index"] for tick in repeat_ticks] == [
+        0, 0, 0, 1, 1, 2, 2, 2, 3, 3, 4, 4, 4, 5, 5,
+    ]
+    for repeated_tick, analytic_tick in zip(repeat_ticks, analytic_ticks):
+        for key in ("output_pts", "source_index", "source_pts", "phase"):
+            assert repeated_tick[key] == analytic_tick[key]
+    assert repeat_ticks[MEMC_SNAPSHOT_INDEX]["kind"] == "repeated"
+    assert analytic_ticks[MEMC_SNAPSHOT_INDEX]["kind"] == "interpolated"
+    assert analytic_ticks[MEMC_SNAPSHOT_INDEX]["fallback_fraction"] == 0
+    assert np.max(np.abs(reconstructed - repeated)) > 90
+    # At the known intermediate phase the model creates a displaced position,
+    # rather than merely changing metadata or crossfading two source pictures.
+    x = np.arange(160)
+    def centroid(rgb):
+        weight = np.maximum(rgb[..., 0] - 2, 0).sum(axis=0)
+        return (weight * x).sum() / weight.sum()
+    assert centroid(reconstructed) - centroid(repeated) == pytest.approx(8, abs=.3)
+    trace = memc_position_trace(repeat_ticks)
+    assert Fraction(trace[MEMC_SNAPSHOT_INDEX]["analytic_position_px"]) == 88
 
 
 def test_column_captions_stay_inside_their_tv(tmp_path):

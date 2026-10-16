@@ -1,0 +1,2192 @@
+{
+  "provenance": {
+    "description": "Pre-M7 current-tree outputs captured before implementation; static compatibility goldens, P synthetic test inputs, no TV calibration claim.",
+    "git_head": "4a6a42969ab9d91f7460637ba22649a3d9b9cb87",
+    "array_hash": "SHA-256 of C-contiguous array bytes; shape and dtype stored separately",
+    "pipeline_source_sha256": "ada4c8e3f5c509612f74665e34d59cd51d83953d08ee6645122935c7a02d7440",
+    "temporal_source_sha256": "07e43a8baaa83ec25856fdeac696c3ef74aee2f8583a5efc35e187a13db3bb15",
+    "validation_protocol": {
+      "width": 384,
+      "height": 216,
+      "edge_frames": 6,
+      "motion_px": 8.0
+    },
+    "gallery_protocol": {
+      "width": 160,
+      "height": 96
+    }
+  },
+  "pipeline": {
+    "generic_va_fald_miniled": {
+      "stills": [
+        {
+          "rgb": {
+            "shape": [
+              96,
+              48,
+              3
+            ],
+            "dtype": "float32",
+            "sha256": "4157ee14d62d4de4bbced247e9e002d30be0f0c22e2986607c52f3e47c4c3cc7"
+          },
+          "backlight": {
+            "shape": [
+              96,
+              48
+            ],
+            "dtype": "float32",
+            "sha256": "baba450abd1681e69bcf2713487b0ba6dc0a211dc4d87dca5e88032aa21b7a5b"
+          },
+          "preview": {
+            "shape": [
+              96,
+              48,
+              3
+            ],
+            "dtype": "uint8",
+            "sha256": "f5e4612f4c7ae5603943a68151a261f41d0abfb66bd977af0ab8592ed8c8a5c2"
+          },
+          "final_state": {
+            "panel_previous": {
+              "shape": [
+                96,
+                48,
+                3
+              ],
+              "dtype": "float32",
+              "sha256": "4157ee14d62d4de4bbced247e9e002d30be0f0c22e2986607c52f3e47c4c3cc7"
+            },
+            "load_apl_nits_hex": "0x1.3cb885238e38ep+3"
+          }
+        },
+        {
+          "rgb": {
+            "shape": [
+              48,
+              96,
+              3
+            ],
+            "dtype": "float32",
+            "sha256": "e692e7011cf74e9e7b0ccc07dc7aa16eceb91af9466f0d8d98b3332f16faa097"
+          },
+          "backlight": {
+            "shape": [
+              48,
+              96
+            ],
+            "dtype": "float32",
+            "sha256": "eaf07277031735f845fc981757579adae018548f5d9a5a34f7d6c2260cb388f6"
+          },
+          "preview": {
+            "shape": [
+              48,
+              96,
+              3
+            ],
+            "dtype": "uint8",
+            "sha256": "e57bf5b04076a7970690aa0d555bf00606699160488a10b254996df2f76dff43"
+          },
+          "final_state": {
+            "panel_previous": {
+              "shape": [
+                48,
+                96,
+                3
+              ],
+              "dtype": "float32",
+              "sha256": "e692e7011cf74e9e7b0ccc07dc7aa16eceb91af9466f0d8d98b3332f16faa097"
+            },
+            "load_apl_nits_hex": "0x1.e7d81af5c9e39p+4"
+          }
+        }
+      ],
+      "sequence": [
+        {
+          "rgb": {
+            "shape": [
+              48,
+              96,
+              3
+            ],
+            "dtype": "float32",
+            "sha256": "971cf727ffeef8ac15a70bab3e40c486dd5b3d37993e351478d3d5d4fe1d088c"
+          },
+          "backlight": {
+            "shape": [
+              48,
+              96
+            ],
+            "dtype": "float32",
+            "sha256": "f7b586904e3678145aa47e4232587c913139cef0102d6d8e9276fc80c35cbad3"
+          },
+          "preview": {
+            "shape": [
+              48,
+              96,
+              3
+            ],
+            "dtype": "uint8",
+            "sha256": "299407adb3f1bd645191cfecb3c33a47510b1dfba3c0a936d741bdd8513526c0"
+          }
+        },
+        {
+          "rgb": {
+            "shape": [
+              48,
+              96,
+              3
+            ],
+            "dtype": "float32",
+            "sha256": "78292e9c3c1e07a42a47d5728d04644d2b9fa8a5b821a4d969b3d2ff45822667"
+          },
+          "backlight": {
+            "shape": [
+              48,
+              96
+            ],
+            "dtype": "float32",
+            "sha256": "eaf07277031735f845fc981757579adae018548f5d9a5a34f7d6c2260cb388f6"
+          },
+          "preview": {
+            "shape": [
+              48,
+              96,
+              3
+            ],
+            "dtype": "uint8",
+            "sha256": "a3d023e4ed30cbc37e2834f99ab4758e9a9fb7d18e9bc840018ebc0444be0209"
+          }
+        },
+        {
+          "rgb": {
+            "shape": [
+              48,
+              96,
+              3
+            ],
+            "dtype": "float32",
+            "sha256": "e18c91ae5348701ea4c6b2aa0d1bcf47aad26b75c196eaa914b030b542936c7f"
+          },
+          "backlight": {
+            "shape": [
+              48,
+              96
+            ],
+            "dtype": "float32",
+            "sha256": "b1ce18cfab67e282c3087a9173077772cee8de26d2e5163d668b269f701dda4d"
+          },
+          "preview": {
+            "shape": [
+              48,
+              96,
+              3
+            ],
+            "dtype": "uint8",
+            "sha256": "b3c806be9dad91841f207e72544df60593d6a23857c02e428b680cb550dc9c12"
+          }
+        },
+        {
+          "rgb": {
+            "shape": [
+              48,
+              96,
+              3
+            ],
+            "dtype": "float32",
+            "sha256": "d9bd0da6a838d5f0848c589350067d49be844e7cedbd5ca47bfebe1b669e7f02"
+          },
+          "backlight": {
+            "shape": [
+              48,
+              96
+            ],
+            "dtype": "float32",
+            "sha256": "6b1cd3912068bd16afa5f8e13b611e942f612d5559641cc30afc132776c67089"
+          },
+          "preview": {
+            "shape": [
+              48,
+              96,
+              3
+            ],
+            "dtype": "uint8",
+            "sha256": "905384470110f014e95fe9ce0b198650351b01560e3d0ef99ec6d61047b2b9af"
+          }
+        },
+        {
+          "rgb": {
+            "shape": [
+              48,
+              96,
+              3
+            ],
+            "dtype": "float32",
+            "sha256": "0a0feb1333e8d9ad4354d8d5799645b19422aed9d5bc99336d832fdd3681ab4a"
+          },
+          "backlight": {
+            "shape": [
+              48,
+              96
+            ],
+            "dtype": "float32",
+            "sha256": "2560c0953ee456fad803f52545f5b7232140d3067ba661246cfaf9abdfd60fd2"
+          },
+          "preview": {
+            "shape": [
+              48,
+              96,
+              3
+            ],
+            "dtype": "uint8",
+            "sha256": "0ce50f07bae0de80b17d2b8956de8b60e7742bcadede12a0b9f07babb1839ca9"
+          }
+        },
+        {
+          "rgb": {
+            "shape": [
+              48,
+              96,
+              3
+            ],
+            "dtype": "float32",
+            "sha256": "e00e08d8c0729107b26db94c8dbf54a5ebf49ce225a54bdad8fdc443f60d1864"
+          },
+          "backlight": {
+            "shape": [
+              48,
+              96
+            ],
+            "dtype": "float32",
+            "sha256": "f7b586904e3678145aa47e4232587c913139cef0102d6d8e9276fc80c35cbad3"
+          },
+          "preview": {
+            "shape": [
+              48,
+              96,
+              3
+            ],
+            "dtype": "uint8",
+            "sha256": "c192668794eeff09162474848c2866844c43f5e90109339d5f000238908fe678"
+          }
+        }
+      ],
+      "final_state": {
+        "panel_previous": {
+          "shape": [
+            48,
+            96,
+            3
+          ],
+          "dtype": "float32",
+          "sha256": "e00e08d8c0729107b26db94c8dbf54a5ebf49ce225a54bdad8fdc443f60d1864"
+        },
+        "load_apl_nits_hex": "0x0.0p+0"
+      }
+    },
+    "generic_ips_edge": {
+      "stills": [
+        {
+          "rgb": {
+            "shape": [
+              96,
+              48,
+              3
+            ],
+            "dtype": "float32",
+            "sha256": "3dc377113173fde8232ec3270ab13f23e4de5e44d65a1489645543b1e406f257"
+          },
+          "backlight": {
+            "shape": [
+              96,
+              48
+            ],
+            "dtype": "float32",
+            "sha256": "ba8cd949447ee2ff6e150dedb25ed1c2360195e33149cf5229aad6c593b142bd"
+          },
+          "preview": {
+            "shape": [
+              96,
+              48,
+              3
+            ],
+            "dtype": "uint8",
+            "sha256": "85ccb069fc85e6bf09efcd8e19ea8d7e80b64d3b728fa50badc629fb475ade91"
+          },
+          "final_state": {
+            "panel_previous": {
+              "shape": [
+                96,
+                48,
+                3
+              ],
+              "dtype": "float32",
+              "sha256": "3dc377113173fde8232ec3270ab13f23e4de5e44d65a1489645543b1e406f257"
+            },
+            "load_apl_nits_hex": "0x1.3be06a9c71c72p+3"
+          }
+        },
+        {
+          "rgb": {
+            "shape": [
+              48,
+              96,
+              3
+            ],
+            "dtype": "float32",
+            "sha256": "4103a60988aa527a0bb862cd5eb186008749c20047b6fce6d3efac15a28dc1c0"
+          },
+          "backlight": {
+            "shape": [
+              48,
+              96
+            ],
+            "dtype": "float32",
+            "sha256": "984cd8900764fe9f5a72c039a19a7b50e380cbab3f9740fc0167430ead0b2c21"
+          },
+          "preview": {
+            "shape": [
+              48,
+              96,
+              3
+            ],
+            "dtype": "uint8",
+            "sha256": "fe11cabcd559aa8e73c0612027e280b72f50c22d1d12e7dd965cb663f82a02c1"
+          },
+          "final_state": {
+            "panel_previous": {
+              "shape": [
+                48,
+                96,
+                3
+              ],
+              "dtype": "float32",
+              "sha256": "4103a60988aa527a0bb862cd5eb186008749c20047b6fce6d3efac15a28dc1c0"
+            },
+            "load_apl_nits_hex": "0x1.e70dce63bfe39p+4"
+          }
+        }
+      ],
+      "sequence": [
+        {
+          "rgb": {
+            "shape": [
+              48,
+              96,
+              3
+            ],
+            "dtype": "float32",
+            "sha256": "95a70f22d00d107b222c55d719f8325c4784f1808a5a73fef69cc1c43ff00921"
+          },
+          "backlight": {
+            "shape": [
+              48,
+              96
+            ],
+            "dtype": "float32",
+            "sha256": "f7b586904e3678145aa47e4232587c913139cef0102d6d8e9276fc80c35cbad3"
+          },
+          "preview": {
+            "shape": [
+              48,
+              96,
+              3
+            ],
+            "dtype": "uint8",
+            "sha256": "299407adb3f1bd645191cfecb3c33a47510b1dfba3c0a936d741bdd8513526c0"
+          }
+        },
+        {
+          "rgb": {
+            "shape": [
+              48,
+              96,
+              3
+            ],
+            "dtype": "float32",
+            "sha256": "04497318df2c99394ce8923fb77949b4781235c75707d9881cd4a0b7c210231c"
+          },
+          "backlight": {
+            "shape": [
+              48,
+              96
+            ],
+            "dtype": "float32",
+            "sha256": "984cd8900764fe9f5a72c039a19a7b50e380cbab3f9740fc0167430ead0b2c21"
+          },
+          "preview": {
+            "shape": [
+              48,
+              96,
+              3
+            ],
+            "dtype": "uint8",
+            "sha256": "7c08e83248cd60ba841d2047ceb19b4b235cd5c37809813a9cdf2342c99c4ed0"
+          }
+        },
+        {
+          "rgb": {
+            "shape": [
+              48,
+              96,
+              3
+            ],
+            "dtype": "float32",
+            "sha256": "37dc50d45a96bf30cee5d0e33c516c52668193f89b98ad62bfa3fe283e2786a6"
+          },
+          "backlight": {
+            "shape": [
+              48,
+              96
+            ],
+            "dtype": "float32",
+            "sha256": "7a5ebcd7bb6c5662e6aec6299dfe7b84439620c7a93bb92e2c669e210dcca72c"
+          },
+          "preview": {
+            "shape": [
+              48,
+              96,
+              3
+            ],
+            "dtype": "uint8",
+            "sha256": "a8ab9c312808cec6de7cc6d946d5ba06b4f87d528393acfdef99f34d6fd4b84a"
+          }
+        },
+        {
+          "rgb": {
+            "shape": [
+              48,
+              96,
+              3
+            ],
+            "dtype": "float32",
+            "sha256": "ad7039f0279a36749e79e4a55d254f25589df68775517d7789968d532131e0aa"
+          },
+          "backlight": {
+            "shape": [
+              48,
+              96
+            ],
+            "dtype": "float32",
+            "sha256": "6b1cd3912068bd16afa5f8e13b611e942f612d5559641cc30afc132776c67089"
+          },
+          "preview": {
+            "shape": [
+              48,
+              96,
+              3
+            ],
+            "dtype": "uint8",
+            "sha256": "e2ba1f1f7c68a0ed1645b6ebbef4eded48f5765a0780b0cdca709575b015503f"
+          }
+        },
+        {
+          "rgb": {
+            "shape": [
+              48,
+              96,
+              3
+            ],
+            "dtype": "float32",
+            "sha256": "d4eb9ae264239d6ea55e51f84c5fc7ce119e80b5792c2e551b27d4a6f26403d5"
+          },
+          "backlight": {
+            "shape": [
+              48,
+              96
+            ],
+            "dtype": "float32",
+            "sha256": "a595cc785647f585ae916e70f34aefb3da00ec0615c4928babe53feb80ec23ba"
+          },
+          "preview": {
+            "shape": [
+              48,
+              96,
+              3
+            ],
+            "dtype": "uint8",
+            "sha256": "c9294959e42975f727969f85f7c0f916c25cddb7824daa728e8684bf8dfb7090"
+          }
+        },
+        {
+          "rgb": {
+            "shape": [
+              48,
+              96,
+              3
+            ],
+            "dtype": "float32",
+            "sha256": "1d27479b061d1a8343aeef81a0d8e2571ddf43442755184b46f581493acc2b94"
+          },
+          "backlight": {
+            "shape": [
+              48,
+              96
+            ],
+            "dtype": "float32",
+            "sha256": "f7b586904e3678145aa47e4232587c913139cef0102d6d8e9276fc80c35cbad3"
+          },
+          "preview": {
+            "shape": [
+              48,
+              96,
+              3
+            ],
+            "dtype": "uint8",
+            "sha256": "7b1c905c7236de33d044362495521e10921a75de4703ae8c525ec9a2cbca940b"
+          }
+        }
+      ],
+      "final_state": {
+        "panel_previous": {
+          "shape": [
+            48,
+            96,
+            3
+          ],
+          "dtype": "float32",
+          "sha256": "1d27479b061d1a8343aeef81a0d8e2571ddf43442755184b46f581493acc2b94"
+        },
+        "load_apl_nits_hex": "0x0.0p+0"
+      }
+    },
+    "generic_woled": {
+      "stills": [
+        {
+          "rgb": {
+            "shape": [
+              96,
+              48,
+              3
+            ],
+            "dtype": "float32",
+            "sha256": "c97da6ae53468fdba6d5a9b677255cb3dae333af18d19400767eb77d090644b5"
+          },
+          "backlight": {
+            "shape": [
+              96,
+              48
+            ],
+            "dtype": "float32",
+            "sha256": "98f5bcff101020d0ff366b7f4653adc8d29f9470e2586591d094c2e166716230"
+          },
+          "preview": {
+            "shape": [
+              96,
+              48,
+              3
+            ],
+            "dtype": "uint8",
+            "sha256": "f7b475f634922371e40a47653f741ee0ee0f1c228f427d4c7a2c3254825002a4"
+          },
+          "final_state": {
+            "panel_previous": {
+              "shape": [
+                96,
+                48,
+                3
+              ],
+              "dtype": "float32",
+              "sha256": "c97da6ae53468fdba6d5a9b677255cb3dae333af18d19400767eb77d090644b5"
+            },
+            "load_apl_nits_hex": "0x1.3a962928e38e4p+3"
+          }
+        },
+        {
+          "rgb": {
+            "shape": [
+              48,
+              96,
+              3
+            ],
+            "dtype": "float32",
+            "sha256": "c055e7c816f0fc595472477003f551a9e8a1ef78ebcb486a0ab30a8728403e42"
+          },
+          "backlight": {
+            "shape": [
+              48,
+              96
+            ],
+            "dtype": "float32",
+            "sha256": "8b76704dd84038e7d7062be9f1abb8850ddf635cf018ef4b59b3f3e07ecea45d"
+          },
+          "preview": {
+            "shape": [
+              48,
+              96,
+              3
+            ],
+            "dtype": "uint8",
+            "sha256": "843cb2c87a077526c81e9d72cb8005773cd91f2f946553f948ee4384d365a01f"
+          },
+          "final_state": {
+            "panel_previous": {
+              "shape": [
+                48,
+                96,
+                3
+              ],
+              "dtype": "float32",
+              "sha256": "c055e7c816f0fc595472477003f551a9e8a1ef78ebcb486a0ab30a8728403e42"
+            },
+            "load_apl_nits_hex": "0x1.e5f5e840fe555p+4"
+          }
+        }
+      ],
+      "sequence": [
+        {
+          "rgb": {
+            "shape": [
+              48,
+              96,
+              3
+            ],
+            "dtype": "float32",
+            "sha256": "35295da1d5eca0b6db3168c0a64a2d61ed3ae8ca283dd4aa6116aa04703dcb60"
+          },
+          "backlight": {
+            "shape": [
+              48,
+              96
+            ],
+            "dtype": "float32",
+            "sha256": "f7b586904e3678145aa47e4232587c913139cef0102d6d8e9276fc80c35cbad3"
+          },
+          "preview": {
+            "shape": [
+              48,
+              96,
+              3
+            ],
+            "dtype": "uint8",
+            "sha256": "299407adb3f1bd645191cfecb3c33a47510b1dfba3c0a936d741bdd8513526c0"
+          }
+        },
+        {
+          "rgb": {
+            "shape": [
+              48,
+              96,
+              3
+            ],
+            "dtype": "float32",
+            "sha256": "c055e7c816f0fc595472477003f551a9e8a1ef78ebcb486a0ab30a8728403e42"
+          },
+          "backlight": {
+            "shape": [
+              48,
+              96
+            ],
+            "dtype": "float32",
+            "sha256": "8b76704dd84038e7d7062be9f1abb8850ddf635cf018ef4b59b3f3e07ecea45d"
+          },
+          "preview": {
+            "shape": [
+              48,
+              96,
+              3
+            ],
+            "dtype": "uint8",
+            "sha256": "843cb2c87a077526c81e9d72cb8005773cd91f2f946553f948ee4384d365a01f"
+          }
+        },
+        {
+          "rgb": {
+            "shape": [
+              48,
+              96,
+              3
+            ],
+            "dtype": "float32",
+            "sha256": "98a360535a0ec21e02021d5b9032317fb9a93970a56c2e2b032cde1035591b51"
+          },
+          "backlight": {
+            "shape": [
+              48,
+              96
+            ],
+            "dtype": "float32",
+            "sha256": "d8c1a3c83652a5c2de4164d7749751e3d6507ad359ec46371710ee7d59d4a4e9"
+          },
+          "preview": {
+            "shape": [
+              48,
+              96,
+              3
+            ],
+            "dtype": "uint8",
+            "sha256": "270a7dcfbdecfc1fddc00c40519988ab5f553009dcf6f3ffd814e6c39d88fff1"
+          }
+        },
+        {
+          "rgb": {
+            "shape": [
+              48,
+              96,
+              3
+            ],
+            "dtype": "float32",
+            "sha256": "1d39b99d3b87c71569e5c652b8cc8bede6b369b4acf6dbef9ed7a01bbd7889e1"
+          },
+          "backlight": {
+            "shape": [
+              48,
+              96
+            ],
+            "dtype": "float32",
+            "sha256": "6b1cd3912068bd16afa5f8e13b611e942f612d5559641cc30afc132776c67089"
+          },
+          "preview": {
+            "shape": [
+              48,
+              96,
+              3
+            ],
+            "dtype": "uint8",
+            "sha256": "c76c905edcd84d2a6a8c92e4f736adff09d0e32bff579b521a08578ecb1b48ee"
+          }
+        },
+        {
+          "rgb": {
+            "shape": [
+              48,
+              96,
+              3
+            ],
+            "dtype": "float32",
+            "sha256": "c64976e349a934616bd2bc7788ec8d24894f2538b52ca15b0e7f3a2ea40a6757"
+          },
+          "backlight": {
+            "shape": [
+              48,
+              96
+            ],
+            "dtype": "float32",
+            "sha256": "8d6a09805c93fe28fa9c3d6d83c88579733432c2271d934995f37d3bbf7bc245"
+          },
+          "preview": {
+            "shape": [
+              48,
+              96,
+              3
+            ],
+            "dtype": "uint8",
+            "sha256": "b2eb07f32e03ab4499aca1da6207c101c10a4b5c706a0ee5bafde3d294f7c147"
+          }
+        },
+        {
+          "rgb": {
+            "shape": [
+              48,
+              96,
+              3
+            ],
+            "dtype": "float32",
+            "sha256": "35295da1d5eca0b6db3168c0a64a2d61ed3ae8ca283dd4aa6116aa04703dcb60"
+          },
+          "backlight": {
+            "shape": [
+              48,
+              96
+            ],
+            "dtype": "float32",
+            "sha256": "f7b586904e3678145aa47e4232587c913139cef0102d6d8e9276fc80c35cbad3"
+          },
+          "preview": {
+            "shape": [
+              48,
+              96,
+              3
+            ],
+            "dtype": "uint8",
+            "sha256": "299407adb3f1bd645191cfecb3c33a47510b1dfba3c0a936d741bdd8513526c0"
+          }
+        }
+      ],
+      "final_state": {
+        "panel_previous": {
+          "shape": [
+            48,
+            96,
+            3
+          ],
+          "dtype": "float32",
+          "sha256": "35295da1d5eca0b6db3168c0a64a2d61ed3ae8ca283dd4aa6116aa04703dcb60"
+        },
+        "load_apl_nits_hex": "0x0.0p+0"
+      }
+    },
+    "generic_qdoled": {
+      "stills": [
+        {
+          "rgb": {
+            "shape": [
+              96,
+              48,
+              3
+            ],
+            "dtype": "float32",
+            "sha256": "bb2a508d0faf43b853005168d838681f746976b3e47c53ffc9f8664e2e7f26d2"
+          },
+          "backlight": {
+            "shape": [
+              96,
+              48
+            ],
+            "dtype": "float32",
+            "sha256": "98f5bcff101020d0ff366b7f4653adc8d29f9470e2586591d094c2e166716230"
+          },
+          "preview": {
+            "shape": [
+              96,
+              48,
+              3
+            ],
+            "dtype": "uint8",
+            "sha256": "2c059905627f1cc4b217c234845b21cca10f4c8c9101485894c7ccab5e3a254d"
+          },
+          "final_state": {
+            "panel_previous": {
+              "shape": [
+                96,
+                48,
+                3
+              ],
+              "dtype": "float32",
+              "sha256": "bb2a508d0faf43b853005168d838681f746976b3e47c53ffc9f8664e2e7f26d2"
+            },
+            "load_apl_nits_hex": "0x1.3a962928e38e4p+3"
+          }
+        },
+        {
+          "rgb": {
+            "shape": [
+              48,
+              96,
+              3
+            ],
+            "dtype": "float32",
+            "sha256": "e9ba7bba6d14804c0899cdd9ab3112f3737289ddbfb8d21faff78dadb3db76b0"
+          },
+          "backlight": {
+            "shape": [
+              48,
+              96
+            ],
+            "dtype": "float32",
+            "sha256": "8b76704dd84038e7d7062be9f1abb8850ddf635cf018ef4b59b3f3e07ecea45d"
+          },
+          "preview": {
+            "shape": [
+              48,
+              96,
+              3
+            ],
+            "dtype": "uint8",
+            "sha256": "a42dd4696f2fbb9331c2f9c6800b7148963eb2a7af2ee80ab918711152cdd823"
+          },
+          "final_state": {
+            "panel_previous": {
+              "shape": [
+                48,
+                96,
+                3
+              ],
+              "dtype": "float32",
+              "sha256": "e9ba7bba6d14804c0899cdd9ab3112f3737289ddbfb8d21faff78dadb3db76b0"
+            },
+            "load_apl_nits_hex": "0x1.e5f5e840fe555p+4"
+          }
+        }
+      ],
+      "sequence": [
+        {
+          "rgb": {
+            "shape": [
+              48,
+              96,
+              3
+            ],
+            "dtype": "float32",
+            "sha256": "35295da1d5eca0b6db3168c0a64a2d61ed3ae8ca283dd4aa6116aa04703dcb60"
+          },
+          "backlight": {
+            "shape": [
+              48,
+              96
+            ],
+            "dtype": "float32",
+            "sha256": "f7b586904e3678145aa47e4232587c913139cef0102d6d8e9276fc80c35cbad3"
+          },
+          "preview": {
+            "shape": [
+              48,
+              96,
+              3
+            ],
+            "dtype": "uint8",
+            "sha256": "299407adb3f1bd645191cfecb3c33a47510b1dfba3c0a936d741bdd8513526c0"
+          }
+        },
+        {
+          "rgb": {
+            "shape": [
+              48,
+              96,
+              3
+            ],
+            "dtype": "float32",
+            "sha256": "e9ba7bba6d14804c0899cdd9ab3112f3737289ddbfb8d21faff78dadb3db76b0"
+          },
+          "backlight": {
+            "shape": [
+              48,
+              96
+            ],
+            "dtype": "float32",
+            "sha256": "8b76704dd84038e7d7062be9f1abb8850ddf635cf018ef4b59b3f3e07ecea45d"
+          },
+          "preview": {
+            "shape": [
+              48,
+              96,
+              3
+            ],
+            "dtype": "uint8",
+            "sha256": "a42dd4696f2fbb9331c2f9c6800b7148963eb2a7af2ee80ab918711152cdd823"
+          }
+        },
+        {
+          "rgb": {
+            "shape": [
+              48,
+              96,
+              3
+            ],
+            "dtype": "float32",
+            "sha256": "a7e8193a22f77ee89367e3c53f5d86e679412a89ea2c5cb3f0d027db7d82fdb8"
+          },
+          "backlight": {
+            "shape": [
+              48,
+              96
+            ],
+            "dtype": "float32",
+            "sha256": "d8c1a3c83652a5c2de4164d7749751e3d6507ad359ec46371710ee7d59d4a4e9"
+          },
+          "preview": {
+            "shape": [
+              48,
+              96,
+              3
+            ],
+            "dtype": "uint8",
+            "sha256": "b44d79f445f01270d3e9742338e3e3d8720a42c15bdb856a6090745c86e53c0a"
+          }
+        },
+        {
+          "rgb": {
+            "shape": [
+              48,
+              96,
+              3
+            ],
+            "dtype": "float32",
+            "sha256": "1d39b99d3b87c71569e5c652b8cc8bede6b369b4acf6dbef9ed7a01bbd7889e1"
+          },
+          "backlight": {
+            "shape": [
+              48,
+              96
+            ],
+            "dtype": "float32",
+            "sha256": "6b1cd3912068bd16afa5f8e13b611e942f612d5559641cc30afc132776c67089"
+          },
+          "preview": {
+            "shape": [
+              48,
+              96,
+              3
+            ],
+            "dtype": "uint8",
+            "sha256": "c76c905edcd84d2a6a8c92e4f736adff09d0e32bff579b521a08578ecb1b48ee"
+          }
+        },
+        {
+          "rgb": {
+            "shape": [
+              48,
+              96,
+              3
+            ],
+            "dtype": "float32",
+            "sha256": "a4d3c5784487c62cc96673d87d6970037214d0698459ca5d591dab6340e4c3eb"
+          },
+          "backlight": {
+            "shape": [
+              48,
+              96
+            ],
+            "dtype": "float32",
+            "sha256": "8d6a09805c93fe28fa9c3d6d83c88579733432c2271d934995f37d3bbf7bc245"
+          },
+          "preview": {
+            "shape": [
+              48,
+              96,
+              3
+            ],
+            "dtype": "uint8",
+            "sha256": "2b2a726120051578967d586698e484ac47cfff7a27fde723432cafe1ef3627d4"
+          }
+        },
+        {
+          "rgb": {
+            "shape": [
+              48,
+              96,
+              3
+            ],
+            "dtype": "float32",
+            "sha256": "35295da1d5eca0b6db3168c0a64a2d61ed3ae8ca283dd4aa6116aa04703dcb60"
+          },
+          "backlight": {
+            "shape": [
+              48,
+              96
+            ],
+            "dtype": "float32",
+            "sha256": "f7b586904e3678145aa47e4232587c913139cef0102d6d8e9276fc80c35cbad3"
+          },
+          "preview": {
+            "shape": [
+              48,
+              96,
+              3
+            ],
+            "dtype": "uint8",
+            "sha256": "299407adb3f1bd645191cfecb3c33a47510b1dfba3c0a936d741bdd8513526c0"
+          }
+        }
+      ],
+      "final_state": {
+        "panel_previous": {
+          "shape": [
+            48,
+            96,
+            3
+          ],
+          "dtype": "float32",
+          "sha256": "35295da1d5eca0b6db3168c0a64a2d61ed3ae8ca283dd4aa6116aa04703dcb60"
+        },
+        "load_apl_nits_hex": "0x0.0p+0"
+      }
+    }
+  },
+  "validation": {
+    "metrics_json_sha256": "42c38af82fcce2f2af3260624f57915bf3dbd0f6082115f76f370a5fd57fb7e1",
+    "metrics_csv_sha256": "f074968db3c55f30d60ac0a986fc33649dcebe4af6fd513e5481b1c6f56427e4",
+    "decoded_previews": {
+      "generic_ips_edge_checkerboard.png": {
+        "shape": [
+          216,
+          384,
+          3
+        ],
+        "dtype": "uint8",
+        "sha256": "13af9f42808ae52f1b44eb7b36a084a14697e3f2fcf8e16dfcf8e64aad9c31c4"
+      },
+      "generic_ips_edge_moving_edge.png": {
+        "shape": [
+          216,
+          384,
+          3
+        ],
+        "dtype": "uint8",
+        "sha256": "62a14709220be7da73b926712476616974799dcf28c92f39f5a7614638780775"
+      },
+      "generic_ips_edge_window_sweep.png": {
+        "shape": [
+          72,
+          896,
+          3
+        ],
+        "dtype": "uint8",
+        "sha256": "a9891ccbcc00b4f84a56821d705c49a46de6dbc1e1c52f6a04b02b4af3f495cd"
+      },
+      "generic_qdoled_checkerboard.png": {
+        "shape": [
+          216,
+          384,
+          3
+        ],
+        "dtype": "uint8",
+        "sha256": "28a7be2cda759203da610bd06b6d7fb58d0213362d1f51f1eb8833d063470687"
+      },
+      "generic_qdoled_moving_edge.png": {
+        "shape": [
+          216,
+          384,
+          3
+        ],
+        "dtype": "uint8",
+        "sha256": "82b3b38f4388183882a8e0dcc2fd16ff7ff83975f92c56f3bb4346127b934a3b"
+      },
+      "generic_qdoled_window_sweep.png": {
+        "shape": [
+          72,
+          896,
+          3
+        ],
+        "dtype": "uint8",
+        "sha256": "74b84f2c1fcee4f227556e1343badc424470cd1522aaa734c70c07ddecf9313e"
+      },
+      "generic_va_fald_miniled_checkerboard.png": {
+        "shape": [
+          216,
+          384,
+          3
+        ],
+        "dtype": "uint8",
+        "sha256": "07ee5d219f121e43f772da6f57eedfd2f61aa1a4caef4d7d184fcee62b8d1c61"
+      },
+      "generic_va_fald_miniled_moving_edge.png": {
+        "shape": [
+          216,
+          384,
+          3
+        ],
+        "dtype": "uint8",
+        "sha256": "00f43497166e65801940c348aacecfb25e216eb4c94c59ea975955584084dbf5"
+      },
+      "generic_va_fald_miniled_window_sweep.png": {
+        "shape": [
+          72,
+          896,
+          3
+        ],
+        "dtype": "uint8",
+        "sha256": "37bc2738442f9d2d83628503c5843f932e1192726b29bbc34ff4b9740a652119"
+      },
+      "generic_woled_checkerboard.png": {
+        "shape": [
+          216,
+          384,
+          3
+        ],
+        "dtype": "uint8",
+        "sha256": "03e7f7f4f17c81c895630fdda299f7f61ba9383e1c26c313f94e6af22df4a1ac"
+      },
+      "generic_woled_moving_edge.png": {
+        "shape": [
+          216,
+          384,
+          3
+        ],
+        "dtype": "uint8",
+        "sha256": "04ef5f02bac66be6a9a7645283f79ba01f7972c2cc9e87d67fb6dc62eac19fcd"
+      },
+      "generic_woled_window_sweep.png": {
+        "shape": [
+          72,
+          896,
+          3
+        ],
+        "dtype": "uint8",
+        "sha256": "f4de29eb810a2fea621ea6ed4763d0fb9f95a5afa73df7093450f4ed77503a5e"
+      }
+    }
+  },
+  "gallery": {
+    "manifest": {
+      "disclaimer": "PLACEHOLDER PARAMETERS - synthetic mechanisms, not measured TVs.",
+      "source_encoding": "float PQ from procedural absolute-nit RGB",
+      "resolution": [
+        160,
+        96
+      ],
+      "ambient_lux": 0,
+      "viewing_angle_deg": 0,
+      "preview": "shared row exposure, then sRGB; no per-TV normalization",
+      "profile_overrides": {
+        "input_eotf": "pq",
+        "viewing_angle_deg": 0,
+        "ambient_lux": 0,
+        "integration_samples": 16,
+        "motion_px_per_frame": {
+          "stills": 0,
+          "pan": 8.0
+        }
+      },
+      "temporal_protocol": {
+        "pre_roll_frames": 12,
+        "pan_frames": 36,
+        "pan_px_per_frame": 8.0,
+        "integration_samples": 16,
+        "overdrive_probe": {
+          "gain": 0.8,
+          "prefix_ms": 4,
+          "lcd_only": true
+        },
+        "bfi_probe": {
+          "duty": 0.25,
+          "preserve_mean": false
+        }
+      },
+      "profiles": [
+        {
+          "name": "generic_va_fald_miniled",
+          "technology": "va_lcd",
+          "description": "Placeholder VA mini-LED FALD set. Contrast is high on axis and falls off quickly with angle. Zone grid and PSF are round numbers, not a zone map from a shipping set.\n",
+          "input": {
+            "eotf": "srgb",
+            "sdr_white_nits": 100.0,
+            "hlg_peak_nits": 1000.0
+          },
+          "processing": {
+            "scale_factor": 1.0,
+            "scale_mode": "bilinear",
+            "sharpen_amount": 0.25,
+            "sharpen_sigma": 0.8
+          },
+          "backlight": {
+            "mode": "fald",
+            "zones_x": 16,
+            "zones_y": 12,
+            "psf_sigma_zones": 0.75,
+            "psf_sigma_y_zones": 0.75,
+            "psf_tail_sigma_zones": 2.0,
+            "psf_tail_sigma_y_zones": 2.0,
+            "psf_tail_weight": 0.08,
+            "psf_shape": "gaussian",
+            "psf_boundary": "reflect",
+            "psf_profile": null,
+            "zone_percentile": 100.0,
+            "peak_nits": 2000.0,
+            "floor_nits": 0.0
+          },
+          "panel": {
+            "native_contrast": 4000.0,
+            "subpixel": "rgb_stripe",
+            "viewing_angle_deg": 0.0,
+            "angle_loss_per_deg": 0.08,
+            "color_matrix": [
+              [
+                1.0,
+                0.0,
+                0.0
+              ],
+              [
+                0.0,
+                1.0,
+                0.0
+              ],
+              [
+                0.0,
+                0.0,
+                1.0
+              ]
+            ]
+          },
+          "hdr": {
+            "tone_map": "soft_clip",
+            "panel_peak_nits": 2000.0,
+            "knee_ratio": 0.7,
+            "abl_enabled": true,
+            "abl_full_field_nits": 620.0,
+            "abl_gamma": 1.0,
+            "abl_source": "emitted",
+            "abl_reference_nits": 0.0,
+            "abl_response_ms": 0.0,
+            "abl_backlight_tracking": 0.0,
+            "abl_power_budget_nits": 0.0,
+            "abl_channel_weights": [
+              1.0,
+              1.0,
+              1.0
+            ]
+          },
+          "ambient": {
+            "lux": 0.0,
+            "reflectance": 0.02
+          },
+          "temporal": {
+            "response_time_ms": 8.0,
+            "frame_time_ms": 16.666,
+            "sample_and_hold": true,
+            "motion_px_per_frame": 0.0,
+            "overdrive_gain": 0.0,
+            "overdrive_ms": 2.0,
+            "overdrive_ceiling_nits": 0.0,
+            "bfi_duty": 1.0,
+            "bfi_preserve_mean": false,
+            "integration_samples": 1
+          },
+          "output": {
+            "eotf": "srgb",
+            "reference_nits": 100.0
+          },
+          "yaml_sha256": "bee4a76b147110ba8d8cb4c21d4be5dd6e5728ecfaa9c00a68206882f7b64f32"
+        },
+        {
+          "name": "generic_ips_edge",
+          "technology": "ips_lcd",
+          "description": "Placeholder edge-lit IPS set. Native contrast is lower than VA, viewing angle is wider, and the backlight is a single row of segments whose light is spread by a wide PSF. Each segment drives a full-height column before the blur; that is a stand-in, not a light-guide simulation.\n",
+          "input": {
+            "eotf": "srgb",
+            "sdr_white_nits": 100.0,
+            "hlg_peak_nits": 1000.0
+          },
+          "processing": {
+            "scale_factor": 1.0,
+            "scale_mode": "bilinear",
+            "sharpen_amount": 0.2,
+            "sharpen_sigma": 0.8
+          },
+          "backlight": {
+            "mode": "edge",
+            "zones_x": 8,
+            "zones_y": 1,
+            "psf_sigma_zones": 1.5,
+            "psf_sigma_y_zones": 0.15,
+            "psf_tail_sigma_zones": 2.5,
+            "psf_tail_sigma_y_zones": null,
+            "psf_tail_weight": 0.0,
+            "psf_shape": "gaussian",
+            "psf_boundary": "reflect",
+            "psf_profile": null,
+            "zone_percentile": 100.0,
+            "peak_nits": 400.0,
+            "floor_nits": 0.0
+          },
+          "panel": {
+            "native_contrast": 1200.0,
+            "subpixel": "rgb_stripe",
+            "viewing_angle_deg": 0.0,
+            "angle_loss_per_deg": 0.015,
+            "color_matrix": [
+              [
+                1.0,
+                0.0,
+                0.0
+              ],
+              [
+                0.0,
+                1.0,
+                0.0
+              ],
+              [
+                0.0,
+                0.0,
+                1.0
+              ]
+            ]
+          },
+          "hdr": {
+            "tone_map": "soft_clip",
+            "panel_peak_nits": 400.0,
+            "knee_ratio": 0.85,
+            "abl_enabled": false,
+            "abl_full_field_nits": 350.0,
+            "abl_gamma": 2.0,
+            "abl_source": "emitted",
+            "abl_reference_nits": 0.0,
+            "abl_response_ms": 0.0,
+            "abl_backlight_tracking": 0.0,
+            "abl_power_budget_nits": 0.0,
+            "abl_channel_weights": [
+              1.0,
+              1.0,
+              1.0
+            ]
+          },
+          "ambient": {
+            "lux": 0.0,
+            "reflectance": 0.025
+          },
+          "temporal": {
+            "response_time_ms": 12.0,
+            "frame_time_ms": 16.666,
+            "sample_and_hold": true,
+            "motion_px_per_frame": 0.0,
+            "overdrive_gain": 0.0,
+            "overdrive_ms": 2.0,
+            "overdrive_ceiling_nits": 0.0,
+            "bfi_duty": 1.0,
+            "bfi_preserve_mean": false,
+            "integration_samples": 1
+          },
+          "output": {
+            "eotf": "srgb",
+            "reference_nits": 100.0
+          },
+          "yaml_sha256": "eaf893126a59bf17ff44cd90d9120d8912c21e56498da8b7ca0eeed6da331a85"
+        },
+        {
+          "name": "generic_woled",
+          "technology": "woled",
+          "description": "Placeholder WOLED. Emission is per pixel (no zone grid). The WRGB mosaic is energy-preserving when box-filtered, so it does not change a flat color. ABL pulls the allowed peak down toward the full-field figure as APL rises. Spectral white-subpixel mixing beyond that mosaic is not modeled.\n",
+          "input": {
+            "eotf": "srgb",
+            "sdr_white_nits": 100.0,
+            "hlg_peak_nits": 1000.0
+          },
+          "processing": {
+            "scale_factor": 1.0,
+            "scale_mode": "bilinear",
+            "sharpen_amount": 0.15,
+            "sharpen_sigma": 0.7
+          },
+          "backlight": {
+            "mode": "per_pixel",
+            "zones_x": 1,
+            "zones_y": 1,
+            "psf_sigma_zones": 0.0,
+            "psf_sigma_y_zones": null,
+            "psf_tail_sigma_zones": 2.0,
+            "psf_tail_sigma_y_zones": null,
+            "psf_tail_weight": 0.0,
+            "psf_shape": "gaussian",
+            "psf_boundary": "reflect",
+            "psf_profile": null,
+            "zone_percentile": 100.0,
+            "peak_nits": 850.0,
+            "floor_nits": 0.0
+          },
+          "panel": {
+            "native_contrast": 1000000.0,
+            "subpixel": "wrgb",
+            "viewing_angle_deg": 0.0,
+            "angle_loss_per_deg": 0.005,
+            "color_matrix": [
+              [
+                1.0,
+                0.0,
+                0.0
+              ],
+              [
+                0.0,
+                1.0,
+                0.0
+              ],
+              [
+                0.0,
+                0.0,
+                1.0
+              ]
+            ]
+          },
+          "hdr": {
+            "tone_map": "soft_clip",
+            "panel_peak_nits": 850.0,
+            "knee_ratio": 0.85,
+            "abl_enabled": true,
+            "abl_full_field_nits": 170.0,
+            "abl_gamma": 2.4,
+            "abl_source": "emitted",
+            "abl_reference_nits": 0.0,
+            "abl_response_ms": 0.0,
+            "abl_backlight_tracking": 0.0,
+            "abl_power_budget_nits": 0.0,
+            "abl_channel_weights": [
+              1.0,
+              1.0,
+              1.0
+            ]
+          },
+          "ambient": {
+            "lux": 0.0,
+            "reflectance": 0.015
+          },
+          "temporal": {
+            "response_time_ms": 0.2,
+            "frame_time_ms": 16.666,
+            "sample_and_hold": true,
+            "motion_px_per_frame": 0.0,
+            "overdrive_gain": 0.0,
+            "overdrive_ms": 0.0,
+            "overdrive_ceiling_nits": 0.0,
+            "bfi_duty": 1.0,
+            "bfi_preserve_mean": false,
+            "integration_samples": 1
+          },
+          "output": {
+            "eotf": "srgb",
+            "reference_nits": 100.0
+          },
+          "yaml_sha256": "e89d82029dfdcfaba1b229011f7c0bcd177445e9d3d823839b084c6549532ba7"
+        },
+        {
+          "name": "generic_qdoled",
+          "technology": "qdoled",
+          "description": "Placeholder QD-OLED. The triangular subpixel buffer is a geometric stand-in that box-filters back to the source color. A little per-pixel PSF stands in for optical crosstalk. Quantum-dot spectra and a real gamut matrix are not modeled; color_matrix stays identity.\n",
+          "input": {
+            "eotf": "srgb",
+            "sdr_white_nits": 100.0,
+            "hlg_peak_nits": 1000.0
+          },
+          "processing": {
+            "scale_factor": 1.0,
+            "scale_mode": "bilinear",
+            "sharpen_amount": 0.15,
+            "sharpen_sigma": 0.7
+          },
+          "backlight": {
+            "mode": "per_pixel",
+            "zones_x": 1,
+            "zones_y": 1,
+            "psf_sigma_zones": 0.45,
+            "psf_sigma_y_zones": null,
+            "psf_tail_sigma_zones": 2.0,
+            "psf_tail_sigma_y_zones": null,
+            "psf_tail_weight": 0.0,
+            "psf_shape": "gaussian",
+            "psf_boundary": "reflect",
+            "psf_profile": null,
+            "zone_percentile": 100.0,
+            "peak_nits": 1100.0,
+            "floor_nits": 0.0
+          },
+          "panel": {
+            "native_contrast": 1000000.0,
+            "subpixel": "qd_oled",
+            "viewing_angle_deg": 0.0,
+            "angle_loss_per_deg": 0.004,
+            "color_matrix": [
+              [
+                1.0,
+                0.0,
+                0.0
+              ],
+              [
+                0.0,
+                1.0,
+                0.0
+              ],
+              [
+                0.0,
+                0.0,
+                1.0
+              ]
+            ]
+          },
+          "hdr": {
+            "tone_map": "soft_clip",
+            "panel_peak_nits": 1100.0,
+            "knee_ratio": 0.85,
+            "abl_enabled": true,
+            "abl_full_field_nits": 199.0,
+            "abl_gamma": 1.0,
+            "abl_source": "emitted",
+            "abl_reference_nits": 0.0,
+            "abl_response_ms": 0.0,
+            "abl_backlight_tracking": 0.0,
+            "abl_power_budget_nits": 0.0,
+            "abl_channel_weights": [
+              1.0,
+              1.0,
+              1.0
+            ]
+          },
+          "ambient": {
+            "lux": 0.0,
+            "reflectance": 0.012
+          },
+          "temporal": {
+            "response_time_ms": 0.1,
+            "frame_time_ms": 16.666,
+            "sample_and_hold": true,
+            "motion_px_per_frame": 0.0,
+            "overdrive_gain": 0.0,
+            "overdrive_ms": 0.0,
+            "overdrive_ceiling_nits": 0.0,
+            "bfi_duty": 1.0,
+            "bfi_preserve_mean": false,
+            "integration_samples": 1
+          },
+          "output": {
+            "eotf": "srgb",
+            "reference_nits": 100.0
+          },
+          "yaml_sha256": "d4b377b346eec1506f80ce58ae8034b48b06d1b0dc40ab420373e91b7209527e"
+        }
+      ],
+      "sheets": [
+        {
+          "id": "starfield",
+          "title": "Starfield",
+          "description": "Sparse 600-2,000-nit stars expose highlight retention, local LCD leakage and optical softness.",
+          "file": "starfield.png",
+          "rows": [
+            {
+              "title": "Shared HDR exposure",
+              "note": "2,000 simulated nits -> SDR white; no per-TV normalization",
+              "reference_nits": 2000.0,
+              "statistics": [
+                {
+                  "peak_channel_nits": 816.5094604492188,
+                  "mean_luminance_nits": 1.2073489427566528
+                },
+                {
+                  "peak_channel_nits": 377.92724609375,
+                  "mean_luminance_nits": 1.1199874877929688
+                },
+                {
+                  "peak_channel_nits": 801.1339111328125,
+                  "mean_luminance_nits": 1.6598910093307495
+                },
+                {
+                  "peak_channel_nits": 1038.1793212890625,
+                  "mean_luminance_nits": 2.194606304168701
+                }
+              ],
+              "captions": null
+            },
+            {
+              "title": "Shadow diagnostic / amplified exposure",
+              "note": "10 simulated nits -> white (200x HDR exposure); highlights clip",
+              "reference_nits": 10.0,
+              "statistics": [
+                {
+                  "peak_channel_nits": 816.5094604492188,
+                  "mean_luminance_nits": 1.2073489427566528
+                },
+                {
+                  "peak_channel_nits": 377.92724609375,
+                  "mean_luminance_nits": 1.1199874877929688
+                },
+                {
+                  "peak_channel_nits": 801.1339111328125,
+                  "mean_luminance_nits": 1.6598910093307495
+                },
+                {
+                  "peak_channel_nits": 1038.1793212890625,
+                  "mean_luminance_nits": 2.194606304168701
+                }
+              ],
+              "captions": null
+            }
+          ]
+        },
+        {
+          "id": "subtitles",
+          "title": "Subtitles on black",
+          "description": "1,000-nit subtitle glyphs reveal local FALD halos versus the IPS full-height strip lift.",
+          "file": "subtitles.png",
+          "rows": [
+            {
+              "title": "Shared HDR exposure",
+              "note": "2,000 simulated nits -> SDR white; no per-TV normalization",
+              "reference_nits": 2000.0,
+              "statistics": [
+                {
+                  "peak_channel_nits": 939.10205078125,
+                  "mean_luminance_nits": 12.773016929626465
+                },
+                {
+                  "peak_channel_nits": 377.92724609375,
+                  "mean_luminance_nits": 8.390318870544434
+                },
+                {
+                  "peak_channel_nits": 785.3087158203125,
+                  "mean_luminance_nits": 14.387971878051758
+                },
+                {
+                  "peak_channel_nits": 980.4266357421875,
+                  "mean_luminance_nits": 16.965669631958008
+                }
+              ],
+              "captions": null
+            },
+            {
+              "title": "Shadow diagnostic / amplified exposure",
+              "note": "10 simulated nits -> white (200x HDR exposure); highlights clip",
+              "reference_nits": 10.0,
+              "statistics": [
+                {
+                  "peak_channel_nits": 939.10205078125,
+                  "mean_luminance_nits": 12.773016929626465
+                },
+                {
+                  "peak_channel_nits": 377.92724609375,
+                  "mean_luminance_nits": 8.390318870544434
+                },
+                {
+                  "peak_channel_nits": 785.3087158203125,
+                  "mean_luminance_nits": 14.387971878051758
+                },
+                {
+                  "peak_channel_nits": 980.4266357421875,
+                  "mean_luminance_nits": 16.965669631958008
+                }
+              ],
+              "captions": null
+            }
+          ]
+        },
+        {
+          "id": "bright_window",
+          "title": "Bright window on dark",
+          "description": "2,000-nit windows at roughly 12% and 56% area show brightness limits and area dependence.",
+          "file": "bright_window.png",
+          "rows": [
+            {
+              "title": "Shared HDR exposure",
+              "note": "2,000 simulated nits -> SDR white; no per-TV normalization",
+              "reference_nits": 2000.0,
+              "statistics": [
+                {
+                  "peak_channel_nits": 1687.688232421875,
+                  "mean_luminance_nits": 186.37583923339844
+                },
+                {
+                  "peak_channel_nits": 377.92724609375,
+                  "mean_luminance_nits": 45.172611236572266
+                },
+                {
+                  "peak_channel_nits": 665.7029418945312,
+                  "mean_luminance_nits": 79.0522232055664
+                },
+                {
+                  "peak_channel_nits": 966.2891845703125,
+                  "mean_luminance_nits": 115.42369079589844
+                }
+              ],
+              "captions": null
+            },
+            {
+              "title": "Larger window / same 2,000-nit request",
+              "note": "About 56% area, versus about 12% above; shared HDR exposure",
+              "reference_nits": 2000.0,
+              "statistics": [
+                {
+                  "peak_channel_nits": 1257.0408935546875,
+                  "mean_luminance_nits": 697.1173706054688
+                },
+                {
+                  "peak_channel_nits": 377.92724609375,
+                  "mean_luminance_nits": 212.72991943359375
+                },
+                {
+                  "peak_channel_nits": 263.5096130371094,
+                  "mean_luminance_nits": 148.22415161132812
+                },
+                {
+                  "peak_channel_nits": 593.0775146484375,
+                  "mean_luminance_nits": 335.59381103515625
+                }
+              ],
+              "captions": null
+            },
+            {
+              "title": "Shadow diagnostic / amplified exposure",
+              "note": "10 simulated nits -> white (200x HDR exposure); highlights clip",
+              "reference_nits": 10.0,
+              "statistics": [
+                {
+                  "peak_channel_nits": 1687.688232421875,
+                  "mean_luminance_nits": 186.37583923339844
+                },
+                {
+                  "peak_channel_nits": 377.92724609375,
+                  "mean_luminance_nits": 45.172611236572266
+                },
+                {
+                  "peak_channel_nits": 665.7029418945312,
+                  "mean_luminance_nits": 79.0522232055664
+                },
+                {
+                  "peak_channel_nits": 966.2891845703125,
+                  "mean_luminance_nits": 115.42369079589844
+                }
+              ],
+              "captions": null
+            }
+          ]
+        },
+        {
+          "id": "gradients",
+          "title": "Gradients",
+          "description": "Top to bottom: neutral 0-100, 0-2,000, 0-2 nits, then a synthetic RGB mixture. No gamut calibration.",
+          "file": "gradients.png",
+          "rows": [
+            {
+              "title": "Shared HDR exposure",
+              "note": "2,000 simulated nits -> SDR white; no per-TV normalization",
+              "reference_nits": 2000.0,
+              "statistics": [
+                {
+                  "peak_channel_nits": 1606.3212890625,
+                  "mean_luminance_nits": 338.0238952636719
+                },
+                {
+                  "peak_channel_nits": 400.0,
+                  "mean_luminance_nits": 176.99534606933594
+                },
+                {
+                  "peak_channel_nits": 407.24676513671875,
+                  "mean_luminance_nits": 197.31736755371094
+                },
+                {
+                  "peak_channel_nits": 824.1766357421875,
+                  "mean_luminance_nits": 300.2689514160156
+                }
+              ],
+              "captions": null
+            },
+            {
+              "title": "Shadow diagnostic / amplified exposure",
+              "note": "10 simulated nits -> white (200x HDR exposure); highlights clip",
+              "reference_nits": 10.0,
+              "statistics": [
+                {
+                  "peak_channel_nits": 1606.3212890625,
+                  "mean_luminance_nits": 338.0238952636719
+                },
+                {
+                  "peak_channel_nits": 400.0,
+                  "mean_luminance_nits": 176.99534606933594
+                },
+                {
+                  "peak_channel_nits": 407.24676513671875,
+                  "mean_luminance_nits": 197.31736755371094
+                },
+                {
+                  "peak_channel_nits": 824.1766357421875,
+                  "mean_luminance_nits": 300.2689514160156
+                }
+              ],
+              "captions": null
+            }
+          ]
+        },
+        {
+          "id": "motion_pan",
+          "title": "Motion pan",
+          "description": "Compare final-frame pursuit views after a long persistent history. Slow response adds trails; even fast OLED has full-hold blur.",
+          "file": "motion_pan.png",
+          "rows": [
+            {
+              "title": "Settled final position / no eye motion",
+              "note": "100 simulated nits -> SDR white for every motion row",
+              "reference_nits": 100.0,
+              "statistics": [
+                {
+                  "peak_channel_nits": 102.80733489990234,
+                  "mean_luminance_nits": 12.290814399719238
+                },
+                {
+                  "peak_channel_nits": 110.7810287475586,
+                  "mean_luminance_nits": 13.812451362609863
+                },
+                {
+                  "peak_channel_nits": 107.45668029785156,
+                  "mean_luminance_nits": 13.976238250732422
+                },
+                {
+                  "peak_channel_nits": 100.94745635986328,
+                  "mean_luminance_nits": 13.976238250732422
+                }
+              ],
+              "captions": null
+            },
+            {
+              "title": "Pan / profile response + full sample-and-hold",
+              "note": "36 pan frames after 12 settled frames; 8 px/frame, 16 subframe samples",
+              "reference_nits": 100.0,
+              "statistics": [
+                {
+                  "peak_channel_nits": 87.6192855834961,
+                  "mean_luminance_nits": 12.018439292907715
+                },
+                {
+                  "peak_channel_nits": 90.89240264892578,
+                  "mean_luminance_nits": 13.883905410766602
+                },
+                {
+                  "peak_channel_nits": 103.35589599609375,
+                  "mean_luminance_nits": 13.981066703796387
+                },
+                {
+                  "peak_channel_nits": 100.37238311767578,
+                  "mean_luminance_nits": 13.976632118225098
+                }
+              ],
+              "captions": null
+            },
+            {
+              "title": "Pan / synthetic LCD overdrive probe",
+              "note": "LCD gain 0.8 for 4 ms; OLED repeats full hold (user OD not assumed)",
+              "reference_nits": 100.0,
+              "statistics": [
+                {
+                  "peak_channel_nits": 92.9383544921875,
+                  "mean_luminance_nits": 13.369721412658691
+                },
+                {
+                  "peak_channel_nits": 97.47269439697266,
+                  "mean_luminance_nits": 15.357595443725586
+                },
+                {
+                  "peak_channel_nits": 103.35589599609375,
+                  "mean_luminance_nits": 13.981066703796387
+                },
+                {
+                  "peak_channel_nits": 100.37238311767578,
+                  "mean_luminance_nits": 13.976632118225098
+                }
+              ],
+              "captions": [
+                "OD probe: gain 0.8 / 4 ms",
+                "OD probe: gain 0.8 / 4 ms",
+                "OD not modeled; full hold",
+                "OD not modeled; full hold"
+              ]
+            },
+            {
+              "title": "Pan / synthetic 25%-duty BFI probe",
+              "note": "Fixed peak, no mean boost: shorter persistence and lower brightness",
+              "reference_nits": 100.0,
+              "statistics": [
+                {
+                  "peak_channel_nits": 22.538265228271484,
+                  "mean_luminance_nits": 2.9907429218292236
+                },
+                {
+                  "peak_channel_nits": 24.172683715820312,
+                  "mean_luminance_nits": 3.4478375911712646
+                },
+                {
+                  "peak_channel_nits": 25.97643280029297,
+                  "mean_luminance_nits": 3.4940595626831055
+                },
+                {
+                  "peak_channel_nits": 25.110151290893555,
+                  "mean_luminance_nits": 3.4940595626831055
+                }
+              ],
+              "captions": null
+            }
+          ]
+        },
+        {
+          "id": "motion_history",
+          "title": "Motion history",
+          "description": "The same persistent pipelines at pan frames 1, 12 and 36. Translation wraps at the image boundary; each source frame is a new position.",
+          "file": "motion_history.png",
+          "rows": [
+            {
+              "title": "Full hold / pan frame 1",
+              "note": "12 settled pre-roll frames; common 100-nit exposure",
+              "reference_nits": 100.0,
+              "statistics": [
+                {
+                  "peak_channel_nits": 91.47598266601562,
+                  "mean_luminance_nits": 11.814794540405273
+                },
+                {
+                  "peak_channel_nits": 103.14217376708984,
+                  "mean_luminance_nits": 13.69025993347168
+                },
+                {
+                  "peak_channel_nits": 103.35589599609375,
+                  "mean_luminance_nits": 13.976238250732422
+                },
+                {
+                  "peak_channel_nits": 100.37238311767578,
+                  "mean_luminance_nits": 13.976238250732422
+                }
+              ],
+              "captions": null
+            },
+            {
+              "title": "Full hold / pan frame 12",
+              "note": "12 settled pre-roll frames; common 100-nit exposure",
+              "reference_nits": 100.0,
+              "statistics": [
+                {
+                  "peak_channel_nits": 92.18818664550781,
+                  "mean_luminance_nits": 11.98986530303955
+                },
+                {
+                  "peak_channel_nits": 91.16851806640625,
+                  "mean_luminance_nits": 13.660563468933105
+                },
+                {
+                  "peak_channel_nits": 103.35589599609375,
+                  "mean_luminance_nits": 14.070859909057617
+                },
+                {
+                  "peak_channel_nits": 100.37238311767578,
+                  "mean_luminance_nits": 14.045782089233398
+                }
+              ],
+              "captions": null
+            },
+            {
+              "title": "Full hold / pan frame 36",
+              "note": "12 settled pre-roll frames; common 100-nit exposure",
+              "reference_nits": 100.0,
+              "statistics": [
+                {
+                  "peak_channel_nits": 87.6192855834961,
+                  "mean_luminance_nits": 12.018439292907715
+                },
+                {
+                  "peak_channel_nits": 90.89240264892578,
+                  "mean_luminance_nits": 13.883905410766602
+                },
+                {
+                  "peak_channel_nits": 103.35589599609375,
+                  "mean_luminance_nits": 13.981066703796387
+                },
+                {
+                  "peak_channel_nits": 100.37238311767578,
+                  "mean_luminance_nits": 13.976632118225098
+                }
+              ],
+              "captions": null
+            }
+          ]
+        },
+        {
+          "id": "macro_subpixel",
+          "title": "Macro subpixel crop",
+          "description": "A 16x8 logical-pixel crop enlarged at equal pitch. Neutral top and RGBW bars below expose RGB stripes, white allocation and QD triangular geometry.",
+          "file": "macro_subpixel.png",
+          "rows": [
+            {
+              "title": "Logical output / nearest-neighbor enlargement",
+              "note": "10 preview pixels per logical pixel; common 100-nit exposure",
+              "reference_nits": 100,
+              "statistics": [
+                {
+                  "peak_channel_nits": 90.95162963867188,
+                  "mean_luminance_nits": 59.767982482910156
+                },
+                {
+                  "peak_channel_nits": 84.05320739746094,
+                  "mean_luminance_nits": 57.62599563598633
+                },
+                {
+                  "peak_channel_nits": 107.56478118896484,
+                  "mean_luminance_nits": 69.80164337158203
+                },
+                {
+                  "peak_channel_nits": 100.79634857177734,
+                  "mean_luminance_nits": 69.4674301147461
+                }
+              ],
+              "captions": null
+            },
+            {
+              "title": "Synthetic subpixel apertures / black matrix",
+              "note": "Area-normalized aperture energy; 1,000 -> white, arbitrary fill and geometry",
+              "reference_nits": 1000.0,
+              "statistics": [
+                {
+                  "peak_channel_nits": 389.0978698730469,
+                  "mean_luminance_nits": 59.767982482910156
+                },
+                {
+                  "peak_channel_nits": 359.5859069824219,
+                  "mean_luminance_nits": 57.62599563598633
+                },
+                {
+                  "peak_channel_nits": 617.8401489257812,
+                  "mean_luminance_nits": 69.80164337158203
+                },
+                {
+                  "peak_channel_nits": 499.30078125,
+                  "mean_luminance_nits": 69.46742248535156
+                }
+              ],
+              "captions": [
+                "RGB stripes / synthetic",
+                "RGB stripes / synthetic",
+                "R/W/B/G + white allocation / synthetic",
+                "Staggered triangular RGB / synthetic"
+              ]
+            }
+          ]
+        }
+      ],
+      "macro": {
+        "crop_yxhw": [
+          44,
+          72,
+          8,
+          16
+        ],
+        "scale": 10,
+        "fill_factor": 0.72,
+        "white_fraction": 0.65,
+        "geometry_status": "synthetic, unmeasured"
+      }
+    },
+    "decoded_previews": {
+      "bright_window.png": {
+        "shape": [
+          708,
+          700,
+          3
+        ],
+        "dtype": "uint8",
+        "sha256": "1fc849743fc4270825918f4b43ff1d4be128cded8b37bf55c8564fc7fdde0227"
+      },
+      "gradients.png": {
+        "shape": [
+          516,
+          700,
+          3
+        ],
+        "dtype": "uint8",
+        "sha256": "7641f4b2c94484603c22019347122ef0bad6cfd3d1ea8aa03e244e16484f5ac2"
+      },
+      "macro_subpixel.png": {
+        "shape": [
+          484,
+          700,
+          3
+        ],
+        "dtype": "uint8",
+        "sha256": "23b2d8eaf2b366b50dc4277b59c59d6488c3157bd1fd52ad7726f9c01bed2313"
+      },
+      "motion_history.png": {
+        "shape": [
+          708,
+          700,
+          3
+        ],
+        "dtype": "uint8",
+        "sha256": "ad734f32bc1e16775b211542fa3c3cbcef97f829d9b8dcffdbe67532f72c3357"
+      },
+      "motion_pan.png": {
+        "shape": [
+          890,
+          700,
+          3
+        ],
+        "dtype": "uint8",
+        "sha256": "7a2797deeff42017d558c8a87d8f86f40ad8150103dee77c5dfb24ecd23de150"
+      },
+      "starfield.png": {
+        "shape": [
+          516,
+          700,
+          3
+        ],
+        "dtype": "uint8",
+        "sha256": "b4cfa5e00dfaca6b22b2c4633219c2951e6c48c9b93d10c64c55fbc4497ce78c"
+      },
+      "subtitles.png": {
+        "shape": [
+          516,
+          700,
+          3
+        ],
+        "dtype": "uint8",
+        "sha256": "71a6cf132b63e461b9747d4e93df1cca676371ac2669b7d22166355b42057d16"
+      }
+    }
+  }
+}
