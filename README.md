@@ -22,3 +22,12 @@ RGBW and staggered triangular QD-OLED apertures illustrate geometry at equal
 logical pitch; their dimensions, white allocation and concentrated aperture
 peaks are synthetic. See [the gallery report](docs/REPORT.md#visual-gallery-m6)
 for interpretation and [fidelity research](research/m5-fidelity.md) for limits.
+
+Check the versioned provenance sidecars without changing runtime settings:
+
+```sh
+python3 -m sim provenance --check
+```
+
+See [profile provenance](docs/PROVENANCE.md) for the evidence convention,
+schema, named-sample measurement records, and strict lookup support rules.
