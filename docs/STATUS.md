@@ -22,6 +22,7 @@
 - Codex run12: **finished** M9 window replay / drive fitting (uncommitted → PM committed + merged).
 - Started: Codex run13 → M10 opt-in viewing-angle model (worktree `/workspace/tv-sim-codex`, branch `codex/m10-viewing-angle`).
 - **M10 opt-in viewing-angle model**: IN PROGRESS (Codex).
+- Cursor CLI probe at 06:25 CST: **OK** (connection restored). Started: Cursor run12 → M11 OLED capacity attack/release design research (worktree `/workspace/tv-sim-cursor`, branch `cursor/m11-oled-dynamics`).
 
 ## Tests
 - **387/387 pytest** on `main` after the M9 merge (PM re-run: `387 passed in 42.52s`).
@@ -32,12 +33,13 @@
 - Profile numbers remain placeholders; do not present as emulating a specific TV.
 - MEMC must be off by default and leave the MEMC-off path bit-identical.
 - M9 is opt-in with separate fitted dataset IDs. Shipped records have `NR` amplitude/timing, so exploratory assumptions are required; low fitting residuals do not establish a calibrated TV, sustained capability or arbitrary-content replay. Strict geometry rejects raster area mismatch; exploratory rounding remains `P`.
-- Cursor CLI connection stalls are recurring (4 of the last 6 runs); all work now goes to Codex until Cursor connectivity is fixed.
+- Cursor CLI connection stalls were recurring (runs 6, 8, 10, 11); probe now OK, so Cursor gets a low-risk research task this cycle.
 - Still stubbed: measured OD/BFI/PWM waveforms, measured PSFs/zone maps, spectral subpixels, gamut mapping, glare, CRT/plasma, GPU path, zone temporal smoothing, full watt solver, angular leakage LUTs, OLED attack/release, block-estimation MEMC.
 - GPU path on `dscs2pc` (RTX 3070) still **blocked on user OK** + local-machine approval.
 
 ## Next (assigned this cycle)
 1. **M7 follow-ups (deferred)**: block estimation, automatic cut detection, vendor calibration, video/audio plumbing and full observer integration remain deferred per the research boundary.
 2. **M10 viewing-angle model (Codex, `codex/m10-viewing-angle`)**: per `research/m6-profile-wiring.md` §8 item 4 — opt-in LCD angular transmission with independently identified white/leakage/gray terms (VA sparse endpoints as labeled demonstrations, IPS leakage/full fits NR), OLED angular gains NR/placeholder; default off, existing outputs bit-identical; tests + one gallery row.
-3. **Measurement follow-ups**: acquire matched amplitude/color/time and sustained traces before any named-TV calibration or independent dynamics fit; current source gaps remain `NR`.
-4. **GPU path (PyTorch on dscs2pc)**: still awaiting user confirm.
+3. **M11 OLED attack/release design (Cursor, `cursor/m11-oled-dynamics`)**: per §8 item 5 — research/design doc only (state domain, initialization, conflict handling with ABL/M9 fits, history-aware experiment separate from M4); no runtime changes.
+4. **Measurement follow-ups**: acquire matched amplitude/color/time and sustained traces before any named-TV calibration or independent dynamics fit; current source gaps remain `NR`.
+5. **GPU path (PyTorch on dscs2pc)**: still awaiting user confirm.
