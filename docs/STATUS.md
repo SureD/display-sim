@@ -1,12 +1,4 @@
-# Status — 2026-10-17 (M11 design done)
-
-## M12a web preview — working tree
-
-- Static `web/` viewer and `python3 -m sim export-web` implemented, with no build step. Eight gallery scenes across all four placeholder profiles are exported as headerless linear-nit RGB float16 with provenance snapshots, effective settings, timing, quantization statistics and hashes. Default assets total 27.3 MB.
-- WebGPU requests extended Display-P3 float16 presentation, probing linear P3 before transfer-encoded P3. WebGL2 SDR and Canvas2D SDR fallbacks preserve usability. The panel distinguishes media-query capability, unknown numeric headroom, an assumed component ceiling and meter-based reference-white calibration. Both TVs and all frames share the selected scaled/clipped transform.
-- Side-by-side selectors, linked pan/zoom, RGB/RGBW/triangular aperture macro, and saved motion playback/seeking are included. All TV parameters remain placeholders. Chrome/macOS own the final brightness mapping; actual macOS HDR emission remains **NR**. See [web protocol](../web/README.md) and [Chrome support research](../research/m12a-web-hdr.md).
-- Verification: **546/546 pytest**, **8/8 JavaScript numeric tests**, provenance check and whitespace check pass. Headless Chrome 154 passes 25 checks each in default WebGL2, forced WebGL2 and Canvas2D runs, with no browser errors. Screenshot wedge codes match the expected sRGB transfer; desktop, mobile and OLED macro screenshots were read. Existing default-output goldens remain green. Changes are uncommitted.
-- A forced SwiftShader WebGPU run accepts extended P3 configuration, then cannot allocate an `RGBA_F16` swapchain SharedImage. Device-loss recovery falls through to Canvas2D and passes the same 25 checks. This exercises fallback, not successful HDR presentation; actual macOS HDR output remains unverified.
+# Status — 2026-10-17 12:35 CST
 
 ## Milestone progress
 - **M1 research docs**: DONE (`37cc504`).
@@ -22,7 +14,9 @@
 - **M7 MEMC implementation phase 1**: DONE (merge `c311510` of `codex/m7-memc`, commit `1600d8a`). Captured pre-change hashes; independent rational source/output PTS and repeat cadence (D); analytic translation/known-layer reconstruction (P), exact endpoints, declared cuts and safe source-hold fallback; separate opt-in `motion` CLI/runtime configuration, default off. Added a 24p repeat/interpolated gallery comparison with exact position traces. TV profile YAMLs unchanged; vendor algorithms/calibration remain NR.
 - **M9 opt-in window replay / drive fitting**: DONE (merge `f89047a` of `codex/m9-window-replay`, commit `202dbff`). `python3 -m sim fit-windows` fits independent `P` internal-drive scales against final pipeline luminance using strict M8 lookup. Explicit amplitude/color/settling/hold matching, black pre-roll, `P` exploratory assumptions for `NR` conditions, separate new `.fit.json` dataset IDs, preserved source evidence/placeholders, baseline fingerprints and no double limiting. Generic profile YAMLs and sidecars are unchanged. Default pipeline, validation, complete gallery and MEMC-off parity are protected by static goldens, including a current-main gallery capture.
 - **M10 opt-in viewing-angle model**: DONE (merge of `codex/m10-viewing-angle`, commit `d392f9e`). Separate horizontal/vertical runtime configuration; independent LCD white transmission, emitted-black leakage and RGB gray-response terms; OLED emission gains only. Four versioned `*.angular.yaml` records label all numeric choices `P` placeholders, with current full fits, IPS leakage fits and OLED measured gains/spectra `NR`; the provenance CLI validates both sidecar schemas. CLI angle options and opt-in `gallery --viewing-angle` add a shared-exposure 0°/+45° comparison. Original runtime YAMLs and baseline provenance sidecars are unchanged; disabled/zero-angle paths and existing goldens remain bit-identical.
-- **M11 OLED capacity attack/release design**: DONE (research only; [design](../research/m11-oled-dynamics.md), uncommitted for PM review). Defines nit-capacity state, asymmetric e-fold updates per display tick, initialization/pre-roll/full-history restore, one capacity owner, rejection of legacy-smoother and M9 v1 fit conflicts, a separate history-aware experiment, source/NR ledger, and implementation/parity acceptance tests. Default off; runtime implementation and measured calibration remain future work. No code, tests, profile YAMLs, sidecars or saved reports changed.
+- **M11 OLED capacity attack/release design**: DONE (research only; [design](../research/m11-oled-dynamics.md), merged from `codex/m11-oled-dynamics` commit `6d19a43`). Defines nit-capacity state, asymmetric e-fold updates per display tick, initialization/pre-roll/full-history restore, one capacity owner, rejection of legacy-smoother and M9 v1 fit conflicts, a separate history-aware experiment, source/NR ledger, and implementation/parity acceptance tests. Default off; runtime implementation and measured calibration remain future work. No code, tests, profile YAMLs, sidecars or saved reports changed.
+- **M12a web HDR/EDR preview**: DONE (merge of `codex/m12-web-preview`, commit `54b43af`). Static `web/` viewer (no build step) + `python3 -m sim export-web` (8 scenes × 4 placeholder profiles as linear-nit float16 + provenance, 27.3 MB). WebGPU extended Display-P3 float16 with WebGL2/Canvas2D SDR fallbacks; shared scaled/clipped brightness transform, meter-based reference-white calibration, step wedge, linked pan/zoom, subpixel macro, motion playback. Research: `research/m12a-web-hdr.md`. Real macOS HDR emission remains **NR** (headless WebGPU could not allocate an RGBA_F16 swapchain; fell back to SDR).
+- **M12b technical-principles explainer**: DONE (merge of `codex/m12-explainer`, commit `a2c50cc`). Offline `web-explainer/index.html` (Chinese primary, 8 chapters, light/dark, mobile) with three interactive Anatomy isometric instruments (local dimming, PQ/ABL, pursuit blur). `check-models.mjs` verifies figure models against the Python stages (max error 1.22e-4 nit); Anatomy audit clean; vendored MIT kit with NOTICE.
 
 ## Workers (this cycle)
 - Cursor run10: **failed at start** (`RetriableError: Connection stalled repeatedly`), no work done; stale empty `cursor/m7-memc` branch deleted.
@@ -32,10 +26,12 @@
 - Codex run12: **finished** M9 window replay / drive fitting (uncommitted → PM committed + merged).
 - Codex run13: **finished** M10 opt-in viewing-angle model (uncommitted → PM committed `d392f9e` + merged; PM re-ran 534/534 pytest + provenance check).
 - Cursor run12 (M11 OLED attack/release research): **failed at start** again (`RetriableError: Connection stalled repeatedly`) despite an OK probe at 06:25; no work done. Cursor worker paused; empty `cursor/m11-oled-dynamics` branch left unused.
-- Codex run14: **finished** M11 OLED capacity attack/release design research (reassigned from Cursor; worktree `/workspace/tv-sim-codex`, branch `codex/m11-oled-dynamics`; uncommitted for PM review).
+- Codex run14: **finished** M11 design (uncommitted → PM committed `6d19a43` + merged).
+- Codex M12a (web preview) and M12b (explainer) workers: **finished** (uncommitted → PM committed `54b43af` / `a2c50cc` + merged at 12:30).
+- Started 12:35: Codex run15 → M13 OLED attack/release runtime implementation (worktree `/workspace/tv-sim-codex`, branch `codex/m13-oled-dynamics-impl`, log `/workspace/codex_run15.log`).
 
 ## Tests
-- **M11 research-only verification:** `python3 -m pytest -q` → **534 passed in 52.18s**. No runtime or test changes.
+- **546/546 pytest on main after M11 + M12a + M12b merges** (PM re-run: `546 passed in 85.95s`); provenance check OK; `node --test web/tests/mapping.test.mjs` passes; `web-explainer/check-models.mjs` PASS.
 - **534/534 pytest** after the M10 merge (PM re-run on worktree: `534 passed in 51.80s`).
 - `python3 -m sim provenance --check` → **OK**, all four profiles, baseline/angular schema version 1. `git diff --check` passes.
 - M10 coverage includes exact disabled/on-axis output and history parity, LCD monotonic contrast collapse, independent white/leakage/gray and RGB color terms, OLED isolation from LCD terms, signed/combined-angle support and invalid-coordinate rejection, strict provenance labeling, CLI behavior and the optional gallery comparison. The generated comparison sheet was visually inspected.
@@ -52,13 +48,13 @@
 - GPU path on `dscs2pc` (RTX 3070) still **blocked on user OK** + local-machine approval.
 
 ## Next (assigned this cycle)
-1. **PM review M11 design** (`codex/m11-oled-dynamics`, uncommitted): review `research/m11-oled-dynamics.md` against M6 §8 item 5. Design is done; schedule runtime implementation separately using its file/API/CLI and golden-parity handoff.
-2. **M7 follow-ups (deferred)**: block estimation, automatic cut detection, vendor calibration, video/audio plumbing and full observer integration remain deferred per the research boundary.
-3. **Measurement follow-ups**: acquire matched amplitude/color/time and sustained traces before any named-TV calibration or independent dynamics fit; current source gaps remain `NR`.
-4. **GPU path (PyTorch on dscs2pc)**: still awaiting user confirm.
+1. **M13 OLED attack/release runtime (Codex, `codex/m13-oled-dynamics-impl`)**: implement the opt-in, default-off capacity controller exactly per `research/m11-oled-dynamics.md` (single capacity owner, asymmetric e-fold per display tick, init/pre-roll/history restore, reject legacy-smoother and M9 v1 fit conflicts, history-aware experiment separate from M4); all P constants labelled; default path bit-identical to current goldens.
+2. **Mac native app (Metal/EDR)** per `research/m5-mac-display.md`: needs a Mac to build/verify — waiting on user to say which Mac to use.
+3. **GPU path (PyTorch on dscs2pc)**: still awaiting user confirm.
+4. **M7 follow-ups / measurement follow-ups**: deferred (block-estimation MEMC, cut detection, matched measured traces).
 5. **Cursor worker**: paused until CLI connection stalls are fixed.
 
-## M12 (user-approved 2026-10-17) — two parallel Codex workers (gpt-6.1-sol, ultra)
+## M12 (user-approved 2026-10-17) — DONE, merged 12:30 (record kept below)
 - M12a Web preview: worktree /workspace/tv-sim-web-preview, branch codex/m12-web-preview, log /workspace/codex_web.log. Chrome HDR/EDR brightness-mapping panel + `sim export-web` + viewer in web/.
 - M12b Technical-principles explainer page with Anatomy figures: worktree /workspace/tv-sim-explainer, branch codex/m12-explainer, log /workspace/codex_explainer.log, output web-explainer/.
 - Codex cannot commit (git read-only): PM commits its working-tree changes on those branches, verifies, merges to main, and reports to user with screenshots.
