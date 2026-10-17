@@ -1,5 +1,13 @@
 # Status — 2026-10-17 (M11 design done)
 
+## M12a web preview — working tree
+
+- Static `web/` viewer and `python3 -m sim export-web` implemented, with no build step. Eight gallery scenes across all four placeholder profiles are exported as headerless linear-nit RGB float16 with provenance snapshots, effective settings, timing, quantization statistics and hashes. Default assets total 27.3 MB.
+- WebGPU requests extended Display-P3 float16 presentation, probing linear P3 before transfer-encoded P3. WebGL2 SDR and Canvas2D SDR fallbacks preserve usability. The panel distinguishes media-query capability, unknown numeric headroom, an assumed component ceiling and meter-based reference-white calibration. Both TVs and all frames share the selected scaled/clipped transform.
+- Side-by-side selectors, linked pan/zoom, RGB/RGBW/triangular aperture macro, and saved motion playback/seeking are included. All TV parameters remain placeholders. Chrome/macOS own the final brightness mapping; actual macOS HDR emission remains **NR**. See [web protocol](../web/README.md) and [Chrome support research](../research/m12a-web-hdr.md).
+- Verification: **546/546 pytest**, **8/8 JavaScript numeric tests**, provenance check and whitespace check pass. Headless Chrome 154 passes 25 checks each in default WebGL2, forced WebGL2 and Canvas2D runs, with no browser errors. Screenshot wedge codes match the expected sRGB transfer; desktop, mobile and OLED macro screenshots were read. Existing default-output goldens remain green. Changes are uncommitted.
+- A forced SwiftShader WebGPU run accepts extended P3 configuration, then cannot allocate an `RGBA_F16` swapchain SharedImage. Device-loss recovery falls through to Canvas2D and passes the same 25 checks. This exercises fallback, not successful HDR presentation; actual macOS HDR output remains unverified.
+
 ## Milestone progress
 - **M1 research docs**: DONE (`37cc504`).
 - **M2 pipeline skeleton + TV profiles**: DONE (merge `f0d7e05`).

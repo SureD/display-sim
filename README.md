@@ -2,6 +2,23 @@
 Goal: a simulator that reproduces how different TVs/monitors (LCD VA/IPS, mini-LED FALD, OLED, QD-OLED, CRT, plasma) look, covering panel materials/subpixel structure, optics, backlight/local dimming, tone mapping/HDR, image-processing enhancements (upscaling, motion, sharpening), and temporal behavior.
 Layout: docs/ (PM plan, status), research/ (research notes by workers), sim/ (code), tests/.
 
+M12a adds a static browser comparison with a shared brightness transform,
+meter-based reference-white calibration, subpixel macro views and motion playback:
+
+```sh
+python3 -m sim export-web
+python3 -m http.server 8000
+# Open http://localhost:8000/web/
+```
+
+There is no JavaScript build step. The viewer requests an extended Display-P3
+float16 WebGPU surface, with WebGL2 SDR and Canvas2D SDR fallbacks. HDR capability
+is separate from measured light output; Chrome/macOS own the final brightness
+mapping. All profile parameters remain placeholders. See the
+[web preview protocol](web/README.md) and [Chrome HDR research](research/m12a-web-hdr.md).
+The exporter preserves linear-nit frames and provenance in `web/data/` without
+changing ordinary simulator or gallery outputs.
+
 Build the offline visual gallery and open `reports/gallery/index.html`:
 
 ```sh

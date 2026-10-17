@@ -1,0 +1,87 @@
+# PLACEHOLDER profile — not a measured TV.
+# M3 synthetic ranges and migration notes (not calibration):
+# research/m3-local-dimming-params.md: grid/PSF and LCD leakage.
+# research/m3-hdr-abl-params.md: peak/full-field priors and ABL load convention.
+# research/m3-temporal-params.md: response_time_ms is tau, NOT t10–90.
+# LCD core sigma prior 0.2–0.8 pitches; OLED sigma below is instead pixels.
+# Main t10–90 priors: LCD 2–20 ms (slow transitions up to 50), OLED 0.05–1 ms.
+# Suggested shoulder sweep is 0.5–0.8. This profile uses 0.70 so a
+# backlight-clipped window can approach the ABL ceiling.
+# Generic VA LCD with a mini-LED full-array local-dimming backlight.
+name: generic_va_fald_miniled
+technology: va_lcd
+description: >
+  Placeholder VA mini-LED FALD set. Contrast is high on axis and falls off
+  quickly with angle. Zone grid and PSF are round numbers, not a zone map
+  from a shipping set.
+
+input:
+  eotf: srgb
+  sdr_white_nits: 100.0
+  hlg_peak_nits: 1000.0
+
+processing:
+  scale_factor: 1.0
+  scale_mode: bilinear
+  sharpen_amount: 0.25
+  sharpen_sigma: 0.8
+
+backlight:
+  mode: fald
+  zones_x: 16
+  zones_y: 12
+  # PLACEHOLDER priors (research/02 sweep), not a measured PSF or zone map.
+  psf_sigma_zones: 0.75       # core sigma, zone pitches
+  psf_sigma_y_zones: 0.75
+  psf_tail_sigma_zones: 2.0   # tail prior is 1–3 pitches
+  psf_tail_sigma_y_zones: 2.0
+  psf_tail_weight: 0.08       # synthetic prior inside 0–0.15; not fit to a panel
+  zone_percentile: 100.0      # 100 keeps the zone maximum
+  # PLACEHOLDER drive cap. High enough that a small HDR window still
+  # clips, so ABL (not this clip) sets the 10% vs full-white drop.
+  peak_nits: 2000.0
+  floor_nits: 0.0
+
+panel:
+  native_contrast: 4000.0
+  subpixel: rgb_stripe
+  viewing_angle_deg: 0.0
+  angle_loss_per_deg: 0.08   # VA loses chroma/contrast quickly off axis
+  color_matrix:              # identity; gamut mapping is not modeled
+    - [1.0, 0.0, 0.0]
+    - [0.0, 1.0, 0.0]
+    - [0.0, 0.0, 1.0]
+
+hdr:
+  tone_map: soft_clip
+  # PLACEHOLDER ceilings so the harness 10% and full-white peaks can sit in
+  # the published VA mini-LED sample envelope (~1,300–1,774 nits at 10%,
+  # 591–almost 650 full white). Not a QN95B or X95K emulation.
+  panel_peak_nits: 2000.0
+  knee_ratio: 0.70
+  abl_enabled: true
+  abl_full_field_nits: 620.0
+  abl_gamma: 1.0          # low end of the synthetic 1–3 shape prior
+  abl_power_budget_nits: 0.0          # 0 disables the channel-power gain
+  abl_channel_weights: [1.0, 1.0, 1.0]  # PLACEHOLDER, not a current budget
+
+ambient:
+  lux: 0.0
+  reflectance: 0.02
+
+temporal:
+  response_time_ms: 8.0
+  frame_time_ms: 16.666
+  sample_and_hold: true
+  motion_px_per_frame: 0.0
+  # PLACEHOLDER hooks. Gain 0 and duty 1 keep first-order lag + full hold.
+  # Not a measured overdrive LUT or backlight strobe.
+  overdrive_gain: 0.0
+  overdrive_ms: 2.0
+  overdrive_ceiling_nits: 0.0
+  bfi_duty: 1.0
+  bfi_preserve_mean: false
+
+output:
+  eotf: srgb
+  reference_nits: 100.0    # SDR preview; code 1.0 is 100 nits

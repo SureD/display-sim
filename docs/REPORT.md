@@ -259,3 +259,48 @@ center-angle experiment does not model seat geometry or per-pixel IPS glow.
 The ordinary gallery and its complete manifest, motion trace and eight contact
 sheets remain unchanged when the flag is absent. Even with the flag, those
 existing sheets and trace retain their captured golden hashes.
+
+## Static browser preview (M12a)
+
+`python3 -m sim export-web` exports eight gallery scenes for all four profiles to
+`web/data/`, retaining absolute linear-nit channel intensities in little-endian
+RGB float16. The default 256×144 export includes 24 motion frames after 12-frame
+pre-roll, plus a 16×8-logical-pixel synthetic aperture macro. One persistent
+pipeline per TV supplies motion response/load history; the saved loop has an
+explicit history cut. Manifest statistics describe the quantized transport,
+and baseline/effective settings, profile/provenance snapshots and SHA-256 hashes
+preserve the experiment's source assumptions. Original simulator outputs and
+profiles remain unchanged.
+
+Serve the repository with `python3 -m http.server 8000` and open `/web/`.
+The page has independent A/B profile selectors, a common scene, linked pan/zoom,
+macro apertures, playback/seeking, and a shared preview exposure. WebGPU requests
+an `rgba16float` extended Display-P3 surface. Linear P3 is probed first; the older
+transfer-encoded P3 path applies the extended sRGB OETF. WebGL2 SDR and Canvas2D
+SDR fallbacks clamp their presentation range to one.
+
+The brightness panel separates HDR/gamut media queries from numeric headroom,
+which ordinary Chrome does not expose here. Its component ceiling is an explicit
+assumption, independent of the reported capability. Scaled mode maps one common
+scene ceiling to that range; clipped mode divides nits by measured (or explicitly
+assumed) reference white and clips excess components. A fixed component-1 patch
+allows meter input, and a neutral step wedge uses the same transform as A/B.
+This is a one-point scale under a linear-response assumption, not a calibrated
+display transfer. The browser/OS still determine emitted light. All TV parameters,
+colorimetry conventions and aperture geometry remain synthetic placeholders.
+See [the web protocol](../web/README.md) and [sourced Chrome research](../research/m12a-web-hdr.md).
+
+Verification: 546 pytest tests and eight JavaScript numeric tests pass, including
+transport/endian/frame-history/provenance checks and all existing default-output
+goldens. Headless Chrome 154 passes 25 interaction/rendering checks in default
+WebGL2, forced WebGL2 and Canvas2D SDR runs without browser errors. Neutral wedge
+codes match `[0,16,44,63,89,124,188,255]`, reference white is code 255, and sampled
+neutral ramps agree across those runs. Desktop, mobile and WOLED/QD-OLED macro
+screenshots were inspected. This verifies software and layout; physical macOS
+HDR luminance, gamut and timing remain **NR** until measured on a real display.
+
+A separate forced-SwiftShader WebGPU run accepts the extended P3 configuration,
+then loses its device because the headless software backend cannot allocate an
+`RGBA_F16` swapchain SharedImage. The page recovers through the SDR fallbacks and
+passes the same checks. This verifies device-loss recovery; it does not establish
+successful float16 HDR presentation on this Linux test host.
