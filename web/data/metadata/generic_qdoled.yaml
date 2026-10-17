@@ -1,0 +1,79 @@
+# PLACEHOLDER profile — not a measured TV.
+# M3 synthetic ranges and migration notes (not calibration):
+# research/m3-local-dimming-params.md: grid/PSF and LCD leakage.
+# research/m3-hdr-abl-params.md: peak/full-field priors and ABL load convention.
+# research/m3-temporal-params.md: response_time_ms is tau, NOT t10–90.
+# LCD core sigma prior 0.2–0.8 pitches; OLED sigma below is instead pixels.
+# Main t10–90 priors: LCD 2–20 ms (slow transitions up to 50), OLED 0.05–1 ms.
+# knee_ratio=0.85 is a synthetic late knee; suggested shoulder sweep 0.5–0.8.
+# Generic QD-OLED: per-pixel emission, triangular RGB mosaic, slight crosstalk.
+name: generic_qdoled
+technology: qdoled
+description: >
+  Placeholder QD-OLED. The triangular subpixel buffer is a geometric stand-in
+  that box-filters back to the source color. A little per-pixel PSF stands in
+  for optical crosstalk. Quantum-dot spectra and a real gamut matrix are not
+  modeled; color_matrix stays identity.
+
+input:
+  eotf: srgb
+  sdr_white_nits: 100.0
+  hlg_peak_nits: 1000.0
+
+processing:
+  scale_factor: 1.0
+  scale_mode: bilinear
+  sharpen_amount: 0.15
+  sharpen_sigma: 0.7
+
+backlight:
+  mode: per_pixel
+  zones_x: 1
+  zones_y: 1
+  psf_sigma_zones: 0.45   # pixels; PLACEHOLDER optical crosstalk, not a measured PSF
+  psf_tail_weight: 0.0
+  zone_percentile: 100.0
+  peak_nits: 1100.0
+  floor_nits: 0.0
+
+panel:
+  native_contrast: 1000000.0
+  subpixel: qd_oled
+  viewing_angle_deg: 0.0
+  angle_loss_per_deg: 0.004
+  color_matrix:
+    - [1.0, 0.0, 0.0]
+    - [0.0, 1.0, 0.0]
+    - [0.0, 0.0, 1.0]
+
+hdr:
+  tone_map: soft_clip
+  # PLACEHOLDER load curve near the published S95B Filmmaker readings
+  # (977 nits at 10%, 199 nits full white). Not an S95B emulation.
+  panel_peak_nits: 1100.0
+  knee_ratio: 0.85
+  abl_enabled: true
+  abl_full_field_nits: 199.0
+  abl_gamma: 1.0
+  abl_power_budget_nits: 0.0          # PLACEHOLDER; 0 disables channel-power gain
+  abl_channel_weights: [1.0, 1.0, 1.0]
+
+ambient:
+  lux: 0.0
+  reflectance: 0.012
+
+temporal:
+  response_time_ms: 0.1
+  frame_time_ms: 16.666
+  sample_and_hold: true
+  motion_px_per_frame: 0.0
+  # PLACEHOLDER. Duty 1 is continuous emission, not a claimed BFI mode.
+  overdrive_gain: 0.0
+  overdrive_ms: 0.0
+  overdrive_ceiling_nits: 0.0
+  bfi_duty: 1.0
+  bfi_preserve_mean: false
+
+output:
+  eotf: srgb
+  reference_nits: 100.0

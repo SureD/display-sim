@@ -1,0 +1,70 @@
+# M10 angular schema 1. Synthetic placeholders only; measured fits remain NR.
+schema_version: 1
+profile: generic_woled
+model: emissive_gain
+parameter_status: placeholder
+full_angular_fit: NR
+calibrated_profile_fit: NR
+angular_spectra: NR
+black_leakage_fit: not_applicable
+entries:
+  max_angle_deg:
+    value: 45.0
+    evidence: P
+    source: &id001
+      locator: sim/viewing_angle.py::angular_parameters; research/m6-profile-wiring.md sections 3 and
+        8, handoff item 4
+      sample: NR
+    conditions: &id002
+      picture_mode: NR
+      dynamic_tone_mapping: NR
+      input_mode: NR
+      local_dimming: NR
+      refresh_hz: NR
+      vrr: NR
+      white_xy: NR
+      source_encoding: NR
+      requested_window_nits: NR
+      source_rgb_primaries: NR
+      stimulus: NR
+      stimulus_rgb_code: NR
+      pattern_aspect_ratio: NR
+      position_xy_fraction: NR
+      warmup_s: NR
+      dwell_s: NR
+      prior_pattern_and_duration: NR
+      ambient_lux: NR
+      temperature_C: NR
+      viewing_angle_deg: P center-ray effective angle acos(cos(horizontal) * cos(vertical)); signed symmetry
+        and azimuth independence are synthetic assumptions.
+      meter_geometry_and_spot: NR
+      instrument_and_correction: NR
+    interpolation:
+      method: none
+      evidence: not_applicable
+    support: &id003
+      range:
+      - 0.0
+      - 45.0
+      unit: radial_angle_deg
+      outside: reject
+    notes: P placeholder exploration bound, not verified measurement support. Reject larger effective
+      angles; no extrapolation or clamp.
+  emission_gain_45:
+    value:
+    - 0.88
+    - 0.92
+    - 0.96
+    evidence: P
+    source: *id001
+    conditions: *id002
+    interpolation:
+      method: log_gain_sin2_v1
+      evidence: P
+    support: *id003
+    notes: P placeholder emitter/film RGB gain only. Angular spectra and measured emitter gains remain
+      NR; LCD transmission, black leakage and gray exponents are not applicable.
+notes: All numeric angular parameters are independent P synthetic placeholders; no named television is
+  calibrated. The legacy runtime profile YAML remains unchanged. Older VA sparse endpoints are research
+  demonstrations only and are not assigned to these parameters. Signed horizontal/vertical symmetry and
+  azimuth-independent center angle are P assumptions; per-pixel geometry and IPS corner glow are not modeled.
