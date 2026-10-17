@@ -3,7 +3,8 @@
 M/D/P/NR: rational timing is D (deduced from declared inputs); analytic
 reconstruction and its thresholds are P. Vendor algorithms/latency are NR.
 MotionConfig is a separate runtime sequence profile, leaving shipped TV YAML
-values and their versioned provenance untouched. No estimation is attempted.
+values and their versioned provenance untouched. Block estimation is a separate
+opt-in path; off/repeat/analytic retain their phase-1 behavior.
 """
 
 from __future__ import annotations
@@ -18,6 +19,7 @@ import numpy as np
 from sim.frame import Frame
 
 if TYPE_CHECKING:
+    from sim.block_motion import BlockMotionConfig
     from sim.motion import LayerScene
     from sim.pipeline import Pipeline
 
@@ -28,8 +30,10 @@ class MotionConfig:
 
     ``translation_px`` is known (dx, dy) per source interval, in the prepared
     raster after spatial processing. Layer scenes use the same linear-nit
-    domain. No vectors are inferred from arbitrary images. Pursuit motion
-    remains the TV profile's independent pixels-per-output-tick parameter.
+    domain. ``mci`` instead infers vectors using the separate P ``block``
+    config; absent block config uses its versioned defaults and this object's
+    max_displacement_px. Pursuit motion remains the TV profile's independent
+    pixels-per-output-tick parameter.
     """
 
     mode: str = "off"
@@ -38,14 +42,22 @@ class MotionConfig:
     translation_px: tuple[float, float] | None = None
     max_displacement_px: float = 256.0
     endpoint_tolerance_nits: float = 0.001
+    block: BlockMotionConfig | None = None
 
     def __post_init__(self) -> None:
-        if self.mode not in ("off", "repeat", "analytic"):
-            raise ValueError("MEMC mode must be off, repeat, or analytic")
+        if self.mode not in ("off", "repeat", "analytic", "mci"):
+            raise ValueError("MEMC mode must be off, repeat, analytic, or mci")
         if self.mode == "off" and self.output_fps is not None:
             raise ValueError("off preserves profile timing; use repeat to set output_fps")
         if self.mode != "off" and self.output_fps is None:
-            raise ValueError("repeat/analytic require an explicit output_fps")
+            raise ValueError("repeat/analytic/mci require an explicit output_fps")
+        if self.block is not None:
+            from sim.block_motion import BlockMotionConfig
+
+            if self.mode != "mci" or not isinstance(self.block, BlockMotionConfig):
+                raise ValueError("block config requires mci and a BlockMotionConfig")
+        if self.mode == "mci" and self.translation_px is not None:
+            raise ValueError("mci estimates motion; translation_px requires analytic mode")
         for rate in (self.source_fps, self.output_fps):
             if rate is not None and (isinstance(rate, bool) or Fraction(rate) <= 0):
                 raise ValueError("frame rates must be positive rational values")
@@ -64,6 +76,7 @@ class SequenceOutput:
 
     frame: Frame
     diagnostics: dict
+    motion_maps: dict[str, np.ndarray] | None = None
 
 
 def _pts_string(value: Fraction) -> str:
@@ -122,6 +135,17 @@ def render_sequence(
             })
         if parsed_pts is not None and count != len(parsed_pts):
             raise ValueError("source_pts must match the number of source frames")
+        return
+
+    if settings.mode == "mci":
+        from sim.block_sequence import render_block_sequence
+
+        if scenes is not None:
+            raise ValueError("mci estimates motion; known scenes require analytic mode")
+        yield from render_block_sequence(
+            pipeline, encoded_frames, settings, source_pts=parsed_pts,
+            last_duration=last_duration, cuts=cuts,
+        )
         return
 
     from sim.motion import fixed_rate_pts, reconstruct, schedule

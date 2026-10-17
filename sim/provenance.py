@@ -400,6 +400,8 @@ def lookup_measurement(data: dict, dataset_id: str, fraction: float) -> Measurem
 def main(argv: list[str] | None = None) -> None:
     from sim.angular_provenance import validate_angular_provenance
     from sim.oled_dynamics_provenance import validate_oled_dynamics_provenance
+    from sim.motion_provenance import validate_motion_provenance
+    from sim.motion_validate import validate_motion_validation_provenance
 
     parser = argparse.ArgumentParser(description="Check offline profile provenance and measurement sidecars.")
     parser.add_argument("--check", action="store_true", required=True, help="Validate all selected sidecars")
@@ -423,11 +425,13 @@ def main(argv: list[str] | None = None) -> None:
                 errors = [str(exc)]
             failures.extend(f"{name}: {error}" for error in errors)
     failures.extend(validate_oled_dynamics_provenance())
+    failures.extend(validate_motion_provenance())
+    failures.extend(validate_motion_validation_provenance())
     if failures:
         for error in failures:
             print(error, file=sys.stderr)
         raise SystemExit(1)
-    print(f"Provenance OK: {len(names)} profile(s), baseline/angular/OLED-dynamics schema_version {SCHEMA_VERSION}")
+    print(f"Provenance OK: {len(names)} profile(s), baseline/angular/OLED-dynamics/motion schema_version {SCHEMA_VERSION}")
 
 
 if __name__ == "__main__":

@@ -1,0 +1,2405 @@
+[
+  {
+    "output_index": 0,
+    "output_pts": "0/1",
+    "source_index": 0,
+    "source_pts": "0/1",
+    "next_source_index": 1,
+    "next_source_pts": "1/24",
+    "phase": "0/1",
+    "assessed_intermediate": false,
+    "mci_assumed_lookahead_seconds": "1/24",
+    "frame_time_ms": 16.666666666666668,
+    "truth_file": "repeating_texture/truth_0000.npy",
+    "truth_sha256": "ffc053894a357c00f47844d587a692282c6214c8b9ef2c8f897a8451a142756c",
+    "regions_file": "repeating_texture/regions_0000.npz",
+    "modes": {
+      "repeat": {
+        "kind": "original",
+        "fallback_reasons": [],
+        "fallback_fraction": 0.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "linear_file": "repeating_texture/repeat_0000.npy",
+        "linear_sha256": "ffc053894a357c00f47844d587a692282c6214c8b9ef2c8f897a8451a142756c",
+        "preview_file": "repeating_texture/repeat_0000.png",
+        "fallback_file": "repeating_texture/repeat_0000_fallback.npy",
+        "reason_fractions": {},
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 8784,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "boundary": {
+              "pixels": 432,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "disoccluded": {
+              "pixels": 0,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": null
+            }
+          },
+          "trajectory_error_px": 0.0,
+          "observed_marker_centroid_px": [
+            34.5,
+            31.5
+          ],
+          "truth_marker_centroid_px": [
+            34.5,
+            31.5
+          ],
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        }
+      },
+      "analytic": {
+        "kind": "original",
+        "fallback_reasons": [],
+        "fallback_fraction": 0.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "linear_file": "repeating_texture/analytic_0000.npy",
+        "linear_sha256": "ffc053894a357c00f47844d587a692282c6214c8b9ef2c8f897a8451a142756c",
+        "preview_file": "repeating_texture/analytic_0000.png",
+        "fallback_file": "repeating_texture/analytic_0000_fallback.npy",
+        "reason_fractions": {},
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 8784,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "boundary": {
+              "pixels": 432,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "disoccluded": {
+              "pixels": 0,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": null
+            }
+          },
+          "trajectory_error_px": 0.0,
+          "observed_marker_centroid_px": [
+            34.5,
+            31.5
+          ],
+          "truth_marker_centroid_px": [
+            34.5,
+            31.5
+          ],
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        }
+      },
+      "mci": {
+        "kind": "original",
+        "fallback_reasons": [],
+        "fallback_fraction": 0.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "reason_fractions": {},
+        "diagnostics": {},
+        "linear_file": "repeating_texture/mci_0000.npy",
+        "linear_sha256": "ffc053894a357c00f47844d587a692282c6214c8b9ef2c8f897a8451a142756c",
+        "preview_file": "repeating_texture/mci_0000.png",
+        "fallback_file": "repeating_texture/mci_0000_fallback.npy",
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 8784,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "boundary": {
+              "pixels": 432,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "disoccluded": {
+              "pixels": 0,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": null
+            }
+          },
+          "trajectory_error_px": 0.0,
+          "observed_marker_centroid_px": [
+            34.5,
+            31.5
+          ],
+          "truth_marker_centroid_px": [
+            34.5,
+            31.5
+          ],
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        },
+        "reason_map_file": "repeating_texture/mci_0000_reasons.npy"
+      }
+    }
+  },
+  {
+    "output_index": 1,
+    "output_pts": "1/60",
+    "source_index": 0,
+    "source_pts": "0/1",
+    "next_source_index": 1,
+    "next_source_pts": "1/24",
+    "phase": "2/5",
+    "assessed_intermediate": true,
+    "mci_assumed_lookahead_seconds": "1/24",
+    "frame_time_ms": 16.666666666666668,
+    "truth_file": "repeating_texture/truth_0001.npy",
+    "truth_sha256": "fd7093dba397d2108699365691b14710d3c2e8beef11587fc57ac94adbe1a55f",
+    "regions_file": "repeating_texture/regions_0001.npz",
+    "modes": {
+      "repeat": {
+        "kind": "repeated",
+        "fallback_reasons": [],
+        "fallback_fraction": 0.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "linear_file": "repeating_texture/repeat_0001.npy",
+        "linear_sha256": "ffc053894a357c00f47844d587a692282c6214c8b9ef2c8f897a8451a142756c",
+        "preview_file": "repeating_texture/repeat_0001.png",
+        "fallback_file": "repeating_texture/repeat_0001_fallback.npy",
+        "reason_fractions": {},
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 8496,
+              "absolute_luma_error_sum_nits": 37925.439845758054,
+              "linear_luma_mae_nits": 4.463917119321805
+            },
+            "boundary": {
+              "pixels": 576,
+              "absolute_luma_error_sum_nits": 6716.91498906555,
+              "linear_luma_mae_nits": 11.66131074490547
+            },
+            "disoccluded": {
+              "pixels": 144,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            }
+          },
+          "trajectory_error_px": 1.2009719171228426,
+          "observed_marker_centroid_px": [
+            34.5,
+            31.5
+          ],
+          "truth_marker_centroid_px": [
+            35.70097191712284,
+            31.500000002629555
+          ],
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        }
+      },
+      "analytic": {
+        "kind": "interpolated",
+        "fallback_reasons": [],
+        "fallback_fraction": 0.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "linear_file": "repeating_texture/analytic_0001.npy",
+        "linear_sha256": "fd7093dba397d2108699365691b14710d3c2e8beef11587fc57ac94adbe1a55f",
+        "preview_file": "repeating_texture/analytic_0001.png",
+        "fallback_file": "repeating_texture/analytic_0001_fallback.npy",
+        "reason_fractions": {},
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 8496,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "boundary": {
+              "pixels": 576,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "disoccluded": {
+              "pixels": 144,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            }
+          },
+          "trajectory_error_px": 0.0,
+          "observed_marker_centroid_px": [
+            35.70097191712284,
+            31.500000002629555
+          ],
+          "truth_marker_centroid_px": [
+            35.70097191712284,
+            31.500000002629555
+          ],
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        }
+      },
+      "mci": {
+        "kind": "repeated",
+        "fallback_reasons": [
+          "ambiguous_match",
+          "low_texture",
+          "out_of_bounds",
+          "whole_frame_low_confidence"
+        ],
+        "fallback_fraction": 1.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "reason_fractions": {
+          "low_texture": 0.8472222222222222,
+          "ambiguous_match": 0.041666666666666664,
+          "out_of_bounds": 0.0625,
+          "whole_frame_low_confidence": 0.04861111111111111
+        },
+        "diagnostics": {
+          "hole_fraction": 0.9513888888888888,
+          "collision_fraction": 0.0,
+          "raw_fallback_fraction": 0.9513888888888888,
+          "visibility_policy": "consistent_visible_endpoints_only; unresolved_collisions_hold",
+          "local_reason_fractions": {
+            "low_texture": 0.8472222222222222,
+            "ambiguous_match": 0.041666666666666664,
+            "out_of_bounds": 0.0625
+          },
+          "whole_frame_hold": true
+        },
+        "linear_file": "repeating_texture/mci_0001.npy",
+        "linear_sha256": "ffc053894a357c00f47844d587a692282c6214c8b9ef2c8f897a8451a142756c",
+        "preview_file": "repeating_texture/mci_0001.png",
+        "fallback_file": "repeating_texture/mci_0001_fallback.npy",
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 8496,
+              "absolute_luma_error_sum_nits": 37925.439845758054,
+              "linear_luma_mae_nits": 4.463917119321805
+            },
+            "boundary": {
+              "pixels": 576,
+              "absolute_luma_error_sum_nits": 6716.91498906555,
+              "linear_luma_mae_nits": 11.66131074490547
+            },
+            "disoccluded": {
+              "pixels": 144,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            }
+          },
+          "trajectory_error_px": 1.2009719171228426,
+          "observed_marker_centroid_px": [
+            34.5,
+            31.5
+          ],
+          "truth_marker_centroid_px": [
+            35.70097191712284,
+            31.500000002629555
+          ],
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        },
+        "reason_map_file": "repeating_texture/mci_0001_reasons.npy"
+      }
+    }
+  },
+  {
+    "output_index": 2,
+    "output_pts": "1/30",
+    "source_index": 0,
+    "source_pts": "0/1",
+    "next_source_index": 1,
+    "next_source_pts": "1/24",
+    "phase": "4/5",
+    "assessed_intermediate": true,
+    "mci_assumed_lookahead_seconds": "1/24",
+    "frame_time_ms": 16.666666666666668,
+    "truth_file": "repeating_texture/truth_0002.npy",
+    "truth_sha256": "b2f7b004dc790f32d2071bb6a6f3d8d7b8df2b97dc4f36e0d026f3c5a2e26b4e",
+    "regions_file": "repeating_texture/regions_0002.npz",
+    "modes": {
+      "repeat": {
+        "kind": "repeated",
+        "fallback_reasons": [],
+        "fallback_fraction": 0.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "linear_file": "repeating_texture/repeat_0002.npy",
+        "linear_sha256": "ffc053894a357c00f47844d587a692282c6214c8b9ef2c8f897a8451a142756c",
+        "preview_file": "repeating_texture/repeat_0002.png",
+        "fallback_file": "repeating_texture/repeat_0002_fallback.npy",
+        "reason_fractions": {},
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 8352,
+              "absolute_luma_error_sum_nits": 73608.64027989958,
+              "linear_luma_mae_nits": 8.81329505266997
+            },
+            "boundary": {
+              "pixels": 648,
+              "absolute_luma_error_sum_nits": 11284.070335147857,
+              "linear_luma_mae_nits": 17.41368878880842
+            },
+            "disoccluded": {
+              "pixels": 216,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            }
+          },
+          "trajectory_error_px": 2.5915570388999285,
+          "observed_marker_centroid_px": [
+            34.5,
+            31.5
+          ],
+          "truth_marker_centroid_px": [
+            37.09155703889993,
+            31.500000001979945
+          ],
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        }
+      },
+      "analytic": {
+        "kind": "interpolated",
+        "fallback_reasons": [],
+        "fallback_fraction": 0.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "linear_file": "repeating_texture/analytic_0002.npy",
+        "linear_sha256": "b2f7b004dc790f32d2071bb6a6f3d8d7b8df2b97dc4f36e0d026f3c5a2e26b4e",
+        "preview_file": "repeating_texture/analytic_0002.png",
+        "fallback_file": "repeating_texture/analytic_0002_fallback.npy",
+        "reason_fractions": {},
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 8352,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "boundary": {
+              "pixels": 648,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "disoccluded": {
+              "pixels": 216,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            }
+          },
+          "trajectory_error_px": 0.0,
+          "observed_marker_centroid_px": [
+            37.09155703889993,
+            31.500000001979945
+          ],
+          "truth_marker_centroid_px": [
+            37.09155703889993,
+            31.500000001979945
+          ],
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        }
+      },
+      "mci": {
+        "kind": "repeated",
+        "fallback_reasons": [
+          "ambiguous_match",
+          "low_texture",
+          "out_of_bounds",
+          "whole_frame_low_confidence"
+        ],
+        "fallback_fraction": 1.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "reason_fractions": {
+          "low_texture": 0.8472222222222222,
+          "ambiguous_match": 0.041666666666666664,
+          "out_of_bounds": 0.0625,
+          "whole_frame_low_confidence": 0.04861111111111111
+        },
+        "diagnostics": {
+          "hole_fraction": 0.9513888888888888,
+          "collision_fraction": 0.0,
+          "raw_fallback_fraction": 0.9513888888888888,
+          "visibility_policy": "consistent_visible_endpoints_only; unresolved_collisions_hold",
+          "local_reason_fractions": {
+            "low_texture": 0.8472222222222222,
+            "ambiguous_match": 0.041666666666666664,
+            "out_of_bounds": 0.0625
+          },
+          "whole_frame_hold": true
+        },
+        "linear_file": "repeating_texture/mci_0002.npy",
+        "linear_sha256": "ffc053894a357c00f47844d587a692282c6214c8b9ef2c8f897a8451a142756c",
+        "preview_file": "repeating_texture/mci_0002.png",
+        "fallback_file": "repeating_texture/mci_0002_fallback.npy",
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 8352,
+              "absolute_luma_error_sum_nits": 73608.64027989958,
+              "linear_luma_mae_nits": 8.81329505266997
+            },
+            "boundary": {
+              "pixels": 648,
+              "absolute_luma_error_sum_nits": 11284.070335147857,
+              "linear_luma_mae_nits": 17.41368878880842
+            },
+            "disoccluded": {
+              "pixels": 216,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            }
+          },
+          "trajectory_error_px": 2.5915570388999285,
+          "observed_marker_centroid_px": [
+            34.5,
+            31.5
+          ],
+          "truth_marker_centroid_px": [
+            37.09155703889993,
+            31.500000001979945
+          ],
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        },
+        "reason_map_file": "repeating_texture/mci_0002_reasons.npy"
+      }
+    }
+  },
+  {
+    "output_index": 3,
+    "output_pts": "1/20",
+    "source_index": 1,
+    "source_pts": "1/24",
+    "next_source_index": 2,
+    "next_source_pts": "1/12",
+    "phase": "1/5",
+    "assessed_intermediate": true,
+    "mci_assumed_lookahead_seconds": "1/24",
+    "frame_time_ms": 16.666666666666668,
+    "truth_file": "repeating_texture/truth_0003.npy",
+    "truth_sha256": "87200c7bbfa4b3dd22905cc6cb2a3396a9c9174481093c755b04c17fadf27d19",
+    "regions_file": "repeating_texture/regions_0003.npz",
+    "modes": {
+      "repeat": {
+        "kind": "repeated",
+        "fallback_reasons": [],
+        "fallback_fraction": 0.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "linear_file": "repeating_texture/repeat_0003.npy",
+        "linear_sha256": "397cab3dcdab2c2970367e96f89a9d2464842b103a9bd700c134b9b0797980d6",
+        "preview_file": "repeating_texture/repeat_0003.png",
+        "fallback_file": "repeating_texture/repeat_0003_fallback.npy",
+        "reason_fractions": {},
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 8352,
+              "absolute_luma_error_sum_nits": 19676.160104621886,
+              "linear_luma_mae_nits": 2.355862081492084
+            },
+            "boundary": {
+              "pixels": 792,
+              "absolute_luma_error_sum_nits": 4181.017623104096,
+              "linear_luma_mae_nits": 5.279062655434465
+            },
+            "disoccluded": {
+              "pixels": 72,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            }
+          },
+          "trajectory_error_px": 0.7437228040966914,
+          "observed_marker_centroid_px": [
+            37.64258813216785,
+            31.500000001305956
+          ],
+          "truth_marker_centroid_px": [
+            38.38631093626454,
+            31.49999999869841
+          ],
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        }
+      },
+      "analytic": {
+        "kind": "interpolated",
+        "fallback_reasons": [],
+        "fallback_fraction": 0.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "linear_file": "repeating_texture/analytic_0003.npy",
+        "linear_sha256": "87200c7bbfa4b3dd22905cc6cb2a3396a9c9174481093c755b04c17fadf27d19",
+        "preview_file": "repeating_texture/analytic_0003.png",
+        "fallback_file": "repeating_texture/analytic_0003_fallback.npy",
+        "reason_fractions": {},
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 8352,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "boundary": {
+              "pixels": 792,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "disoccluded": {
+              "pixels": 72,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            }
+          },
+          "trajectory_error_px": 0.0,
+          "observed_marker_centroid_px": [
+            38.38631093626454,
+            31.49999999869841
+          ],
+          "truth_marker_centroid_px": [
+            38.38631093626454,
+            31.49999999869841
+          ],
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        }
+      },
+      "mci": {
+        "kind": "repeated",
+        "fallback_reasons": [
+          "ambiguous_match",
+          "low_texture",
+          "out_of_bounds",
+          "whole_frame_low_confidence"
+        ],
+        "fallback_fraction": 1.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "reason_fractions": {
+          "low_texture": 0.0763888888888889,
+          "ambiguous_match": 0.8090277777777778,
+          "out_of_bounds": 0.0625,
+          "whole_frame_low_confidence": 0.052083333333333336
+        },
+        "diagnostics": {
+          "hole_fraction": 0.9479166666666666,
+          "collision_fraction": 0.0,
+          "raw_fallback_fraction": 0.9479166666666666,
+          "visibility_policy": "consistent_visible_endpoints_only; unresolved_collisions_hold",
+          "local_reason_fractions": {
+            "low_texture": 0.0763888888888889,
+            "ambiguous_match": 0.8090277777777778,
+            "out_of_bounds": 0.0625
+          },
+          "whole_frame_hold": true
+        },
+        "linear_file": "repeating_texture/mci_0003.npy",
+        "linear_sha256": "397cab3dcdab2c2970367e96f89a9d2464842b103a9bd700c134b9b0797980d6",
+        "preview_file": "repeating_texture/mci_0003.png",
+        "fallback_file": "repeating_texture/mci_0003_fallback.npy",
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 8352,
+              "absolute_luma_error_sum_nits": 19676.160104621886,
+              "linear_luma_mae_nits": 2.355862081492084
+            },
+            "boundary": {
+              "pixels": 792,
+              "absolute_luma_error_sum_nits": 4181.017623104096,
+              "linear_luma_mae_nits": 5.279062655434465
+            },
+            "disoccluded": {
+              "pixels": 72,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            }
+          },
+          "trajectory_error_px": 0.7437228040966914,
+          "observed_marker_centroid_px": [
+            37.64258813216785,
+            31.500000001305956
+          ],
+          "truth_marker_centroid_px": [
+            38.38631093626454,
+            31.49999999869841
+          ],
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        },
+        "reason_map_file": "repeating_texture/mci_0003_reasons.npy"
+      }
+    }
+  },
+  {
+    "output_index": 4,
+    "output_pts": "1/15",
+    "source_index": 1,
+    "source_pts": "1/24",
+    "next_source_index": 2,
+    "next_source_pts": "1/12",
+    "phase": "3/5",
+    "assessed_intermediate": true,
+    "mci_assumed_lookahead_seconds": "1/24",
+    "frame_time_ms": 16.666666666666668,
+    "truth_file": "repeating_texture/truth_0004.npy",
+    "truth_sha256": "3d41dab1ce98b12c8a9174772089fd105bfff4d538560e306d1b3eb940ca8579",
+    "regions_file": "repeating_texture/regions_0004.npz",
+    "modes": {
+      "repeat": {
+        "kind": "repeated",
+        "fallback_reasons": [],
+        "fallback_fraction": 0.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "linear_file": "repeating_texture/repeat_0004.npy",
+        "linear_sha256": "397cab3dcdab2c2970367e96f89a9d2464842b103a9bd700c134b9b0797980d6",
+        "preview_file": "repeating_texture/repeat_0004.png",
+        "fallback_file": "repeating_texture/repeat_0004_fallback.npy",
+        "reason_fractions": {},
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 8352,
+              "absolute_luma_error_sum_nits": 54384.96008138123,
+              "linear_luma_mae_nits": 6.51160920514622
+            },
+            "boundary": {
+              "pixels": 720,
+              "absolute_luma_error_sum_nits": 7754.572903482056,
+              "linear_luma_mae_nits": 10.770240143725077
+            },
+            "disoccluded": {
+              "pixels": 144,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            }
+          },
+          "trajectory_error_px": 1.9423944843400704,
+          "observed_marker_centroid_px": [
+            37.64258813216785,
+            31.500000001305956
+          ],
+          "truth_marker_centroid_px": [
+            39.58498261650792,
+            31.499999998702748
+          ],
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        }
+      },
+      "analytic": {
+        "kind": "interpolated",
+        "fallback_reasons": [],
+        "fallback_fraction": 0.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "linear_file": "repeating_texture/analytic_0004.npy",
+        "linear_sha256": "3d41dab1ce98b12c8a9174772089fd105bfff4d538560e306d1b3eb940ca8579",
+        "preview_file": "repeating_texture/analytic_0004.png",
+        "fallback_file": "repeating_texture/analytic_0004_fallback.npy",
+        "reason_fractions": {},
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 8352,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "boundary": {
+              "pixels": 720,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "disoccluded": {
+              "pixels": 144,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            }
+          },
+          "trajectory_error_px": 0.0,
+          "observed_marker_centroid_px": [
+            39.58498261650792,
+            31.499999998702748
+          ],
+          "truth_marker_centroid_px": [
+            39.58498261650792,
+            31.499999998702748
+          ],
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        }
+      },
+      "mci": {
+        "kind": "repeated",
+        "fallback_reasons": [
+          "ambiguous_match",
+          "hole",
+          "low_texture",
+          "out_of_bounds",
+          "whole_frame_low_confidence"
+        ],
+        "fallback_fraction": 1.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "reason_fractions": {
+          "low_texture": 0.0763888888888889,
+          "ambiguous_match": 0.8072916666666666,
+          "out_of_bounds": 0.0625,
+          "hole": 0.001736111111111111,
+          "whole_frame_low_confidence": 0.052083333333333336
+        },
+        "diagnostics": {
+          "hole_fraction": 0.9479166666666666,
+          "collision_fraction": 0.0,
+          "raw_fallback_fraction": 0.9479166666666666,
+          "visibility_policy": "consistent_visible_endpoints_only; unresolved_collisions_hold",
+          "local_reason_fractions": {
+            "low_texture": 0.0763888888888889,
+            "ambiguous_match": 0.8072916666666666,
+            "out_of_bounds": 0.0625,
+            "hole": 0.001736111111111111
+          },
+          "whole_frame_hold": true
+        },
+        "linear_file": "repeating_texture/mci_0004.npy",
+        "linear_sha256": "397cab3dcdab2c2970367e96f89a9d2464842b103a9bd700c134b9b0797980d6",
+        "preview_file": "repeating_texture/mci_0004.png",
+        "fallback_file": "repeating_texture/mci_0004_fallback.npy",
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 8352,
+              "absolute_luma_error_sum_nits": 54384.96008138123,
+              "linear_luma_mae_nits": 6.51160920514622
+            },
+            "boundary": {
+              "pixels": 720,
+              "absolute_luma_error_sum_nits": 7754.572903482056,
+              "linear_luma_mae_nits": 10.770240143725077
+            },
+            "disoccluded": {
+              "pixels": 144,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            }
+          },
+          "trajectory_error_px": 1.9423944843400704,
+          "observed_marker_centroid_px": [
+            37.64258813216785,
+            31.500000001305956
+          ],
+          "truth_marker_centroid_px": [
+            39.58498261650792,
+            31.499999998702748
+          ],
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        },
+        "reason_map_file": "repeating_texture/mci_0004_reasons.npy"
+      }
+    }
+  },
+  {
+    "output_index": 5,
+    "output_pts": "1/12",
+    "source_index": 2,
+    "source_pts": "1/12",
+    "next_source_index": 3,
+    "next_source_pts": "1/8",
+    "phase": "0/1",
+    "assessed_intermediate": false,
+    "mci_assumed_lookahead_seconds": "1/24",
+    "frame_time_ms": 16.666666666666668,
+    "truth_file": "repeating_texture/truth_0005.npy",
+    "truth_sha256": "3379e9db80f16f271e2791c2dbb8fa39e1c2dbaf1f459844969cca5bab30cff8",
+    "regions_file": "repeating_texture/regions_0005.npz",
+    "modes": {
+      "repeat": {
+        "kind": "original",
+        "fallback_reasons": [],
+        "fallback_fraction": 0.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "linear_file": "repeating_texture/repeat_0005.npy",
+        "linear_sha256": "3379e9db80f16f271e2791c2dbb8fa39e1c2dbaf1f459844969cca5bab30cff8",
+        "preview_file": "repeating_texture/repeat_0005.png",
+        "fallback_file": "repeating_texture/repeat_0005_fallback.npy",
+        "reason_fractions": {},
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 8352,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "boundary": {
+              "pixels": 864,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "disoccluded": {
+              "pixels": 0,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": null
+            }
+          },
+          "trajectory_error_px": 0.0,
+          "observed_marker_centroid_px": [
+            40.847404868452855,
+            31.5
+          ],
+          "truth_marker_centroid_px": [
+            40.847404868452855,
+            31.5
+          ],
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        }
+      },
+      "analytic": {
+        "kind": "original",
+        "fallback_reasons": [],
+        "fallback_fraction": 0.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "linear_file": "repeating_texture/analytic_0005.npy",
+        "linear_sha256": "3379e9db80f16f271e2791c2dbb8fa39e1c2dbaf1f459844969cca5bab30cff8",
+        "preview_file": "repeating_texture/analytic_0005.png",
+        "fallback_file": "repeating_texture/analytic_0005_fallback.npy",
+        "reason_fractions": {},
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 8352,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "boundary": {
+              "pixels": 864,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "disoccluded": {
+              "pixels": 0,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": null
+            }
+          },
+          "trajectory_error_px": 0.0,
+          "observed_marker_centroid_px": [
+            40.847404868452855,
+            31.5
+          ],
+          "truth_marker_centroid_px": [
+            40.847404868452855,
+            31.5
+          ],
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        }
+      },
+      "mci": {
+        "kind": "original",
+        "fallback_reasons": [],
+        "fallback_fraction": 0.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "reason_fractions": {},
+        "diagnostics": {},
+        "linear_file": "repeating_texture/mci_0005.npy",
+        "linear_sha256": "3379e9db80f16f271e2791c2dbb8fa39e1c2dbaf1f459844969cca5bab30cff8",
+        "preview_file": "repeating_texture/mci_0005.png",
+        "fallback_file": "repeating_texture/mci_0005_fallback.npy",
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 8352,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "boundary": {
+              "pixels": 864,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "disoccluded": {
+              "pixels": 0,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": null
+            }
+          },
+          "trajectory_error_px": 0.0,
+          "observed_marker_centroid_px": [
+            40.847404868452855,
+            31.5
+          ],
+          "truth_marker_centroid_px": [
+            40.847404868452855,
+            31.5
+          ],
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        },
+        "reason_map_file": "repeating_texture/mci_0005_reasons.npy"
+      }
+    }
+  },
+  {
+    "output_index": 6,
+    "output_pts": "1/10",
+    "source_index": 2,
+    "source_pts": "1/12",
+    "next_source_index": 3,
+    "next_source_pts": "1/8",
+    "phase": "2/5",
+    "assessed_intermediate": true,
+    "mci_assumed_lookahead_seconds": "1/24",
+    "frame_time_ms": 16.666666666666668,
+    "truth_file": "repeating_texture/truth_0006.npy",
+    "truth_sha256": "9ebb2457bd6a39c55960d8706fa0f93982217f678959070fbbe25aa44ae39499",
+    "regions_file": "repeating_texture/regions_0006.npz",
+    "modes": {
+      "repeat": {
+        "kind": "repeated",
+        "fallback_reasons": [],
+        "fallback_fraction": 0.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "linear_file": "repeating_texture/repeat_0006.npy",
+        "linear_sha256": "3379e9db80f16f271e2791c2dbb8fa39e1c2dbaf1f459844969cca5bab30cff8",
+        "preview_file": "repeating_texture/repeat_0006.png",
+        "fallback_file": "repeating_texture/repeat_0006_fallback.npy",
+        "reason_fractions": {},
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 8352,
+              "absolute_luma_error_sum_nits": 36328.32046155396,
+              "linear_luma_mae_nits": 4.34965522767648
+            },
+            "boundary": {
+              "pixels": 700,
+              "absolute_luma_error_sum_nits": 4202.709868875122,
+              "linear_luma_mae_nits": 6.003871241250175
+            },
+            "disoccluded": {
+              "pixels": 164,
+              "absolute_luma_error_sum_nits": 1039.3256194381715,
+              "linear_luma_mae_nits": 6.337351338037632
+            }
+          },
+          "trajectory_error_px": 1.4221345053493692,
+          "observed_marker_centroid_px": [
+            40.847404868452855,
+            31.5
+          ],
+          "truth_marker_centroid_px": [
+            42.269539373802225,
+            31.50000000263847
+          ],
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        }
+      },
+      "analytic": {
+        "kind": "interpolated",
+        "fallback_reasons": [],
+        "fallback_fraction": 0.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "linear_file": "repeating_texture/analytic_0006.npy",
+        "linear_sha256": "9ebb2457bd6a39c55960d8706fa0f93982217f678959070fbbe25aa44ae39499",
+        "preview_file": "repeating_texture/analytic_0006.png",
+        "fallback_file": "repeating_texture/analytic_0006_fallback.npy",
+        "reason_fractions": {},
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 8352,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "boundary": {
+              "pixels": 700,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "disoccluded": {
+              "pixels": 164,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            }
+          },
+          "trajectory_error_px": 0.0,
+          "observed_marker_centroid_px": [
+            42.269539373802225,
+            31.50000000263847
+          ],
+          "truth_marker_centroid_px": [
+            42.269539373802225,
+            31.50000000263847
+          ],
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        }
+      },
+      "mci": {
+        "kind": "repeated",
+        "fallback_reasons": [
+          "ambiguous_match",
+          "low_texture",
+          "out_of_bounds",
+          "whole_frame_low_confidence"
+        ],
+        "fallback_fraction": 1.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "reason_fractions": {
+          "low_texture": 0.0763888888888889,
+          "ambiguous_match": 0.8125,
+          "out_of_bounds": 0.0625,
+          "whole_frame_low_confidence": 0.04861111111111111
+        },
+        "diagnostics": {
+          "hole_fraction": 0.9513888888888888,
+          "collision_fraction": 0.0,
+          "raw_fallback_fraction": 0.9513888888888888,
+          "visibility_policy": "consistent_visible_endpoints_only; unresolved_collisions_hold",
+          "local_reason_fractions": {
+            "low_texture": 0.0763888888888889,
+            "ambiguous_match": 0.8125,
+            "out_of_bounds": 0.0625
+          },
+          "whole_frame_hold": true
+        },
+        "linear_file": "repeating_texture/mci_0006.npy",
+        "linear_sha256": "3379e9db80f16f271e2791c2dbb8fa39e1c2dbaf1f459844969cca5bab30cff8",
+        "preview_file": "repeating_texture/mci_0006.png",
+        "fallback_file": "repeating_texture/mci_0006_fallback.npy",
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 8352,
+              "absolute_luma_error_sum_nits": 36328.32046155396,
+              "linear_luma_mae_nits": 4.34965522767648
+            },
+            "boundary": {
+              "pixels": 700,
+              "absolute_luma_error_sum_nits": 4202.709868875122,
+              "linear_luma_mae_nits": 6.003871241250175
+            },
+            "disoccluded": {
+              "pixels": 164,
+              "absolute_luma_error_sum_nits": 1039.3256194381715,
+              "linear_luma_mae_nits": 6.337351338037632
+            }
+          },
+          "trajectory_error_px": 1.4221345053493692,
+          "observed_marker_centroid_px": [
+            40.847404868452855,
+            31.5
+          ],
+          "truth_marker_centroid_px": [
+            42.269539373802225,
+            31.50000000263847
+          ],
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        },
+        "reason_map_file": "repeating_texture/mci_0006_reasons.npy"
+      }
+    }
+  },
+  {
+    "output_index": 7,
+    "output_pts": "7/60",
+    "source_index": 2,
+    "source_pts": "1/12",
+    "next_source_index": 3,
+    "next_source_pts": "1/8",
+    "phase": "4/5",
+    "assessed_intermediate": true,
+    "mci_assumed_lookahead_seconds": "1/24",
+    "frame_time_ms": 16.666666666666668,
+    "truth_file": "repeating_texture/truth_0007.npy",
+    "truth_sha256": "0e6b678fdbabed4b42b85073cae8b4d7e4c738a2b9e19c9e684ecbb3065e4da3",
+    "regions_file": "repeating_texture/regions_0007.npz",
+    "modes": {
+      "repeat": {
+        "kind": "repeated",
+        "fallback_reasons": [],
+        "fallback_fraction": 0.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "linear_file": "repeating_texture/repeat_0007.npy",
+        "linear_sha256": "3379e9db80f16f271e2791c2dbb8fa39e1c2dbaf1f459844969cca5bab30cff8",
+        "preview_file": "repeating_texture/repeat_0007.png",
+        "fallback_file": "repeating_texture/repeat_0007_fallback.npy",
+        "reason_fractions": {},
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 8352,
+              "absolute_luma_error_sum_nits": 71695.67976773834,
+              "linear_luma_mae_nits": 8.584252845754111
+            },
+            "boundary": {
+              "pixels": 648,
+              "absolute_luma_error_sum_nits": 11261.670419288635,
+              "linear_luma_mae_nits": 17.379121017420733
+            },
+            "disoccluded": {
+              "pixels": 216,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            }
+          },
+          "trajectory_error_px": 2.6244551322140524,
+          "observed_marker_centroid_px": [
+            40.847404868452855,
+            31.5
+          ],
+          "truth_marker_centroid_px": [
+            43.47186000066691,
+            31.5
+          ],
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        }
+      },
+      "analytic": {
+        "kind": "interpolated",
+        "fallback_reasons": [],
+        "fallback_fraction": 0.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "linear_file": "repeating_texture/analytic_0007.npy",
+        "linear_sha256": "0e6b678fdbabed4b42b85073cae8b4d7e4c738a2b9e19c9e684ecbb3065e4da3",
+        "preview_file": "repeating_texture/analytic_0007.png",
+        "fallback_file": "repeating_texture/analytic_0007_fallback.npy",
+        "reason_fractions": {},
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 8352,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "boundary": {
+              "pixels": 648,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "disoccluded": {
+              "pixels": 216,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            }
+          },
+          "trajectory_error_px": 0.0,
+          "observed_marker_centroid_px": [
+            43.47186000066691,
+            31.5
+          ],
+          "truth_marker_centroid_px": [
+            43.47186000066691,
+            31.5
+          ],
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        }
+      },
+      "mci": {
+        "kind": "repeated",
+        "fallback_reasons": [
+          "ambiguous_match",
+          "low_texture",
+          "out_of_bounds",
+          "whole_frame_low_confidence"
+        ],
+        "fallback_fraction": 1.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "reason_fractions": {
+          "low_texture": 0.0763888888888889,
+          "ambiguous_match": 0.8125,
+          "out_of_bounds": 0.0625,
+          "whole_frame_low_confidence": 0.04861111111111111
+        },
+        "diagnostics": {
+          "hole_fraction": 0.9513888888888888,
+          "collision_fraction": 0.0,
+          "raw_fallback_fraction": 0.9513888888888888,
+          "visibility_policy": "consistent_visible_endpoints_only; unresolved_collisions_hold",
+          "local_reason_fractions": {
+            "low_texture": 0.0763888888888889,
+            "ambiguous_match": 0.8125,
+            "out_of_bounds": 0.0625
+          },
+          "whole_frame_hold": true
+        },
+        "linear_file": "repeating_texture/mci_0007.npy",
+        "linear_sha256": "3379e9db80f16f271e2791c2dbb8fa39e1c2dbaf1f459844969cca5bab30cff8",
+        "preview_file": "repeating_texture/mci_0007.png",
+        "fallback_file": "repeating_texture/mci_0007_fallback.npy",
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 8352,
+              "absolute_luma_error_sum_nits": 71695.67976773834,
+              "linear_luma_mae_nits": 8.584252845754111
+            },
+            "boundary": {
+              "pixels": 648,
+              "absolute_luma_error_sum_nits": 11261.670419288635,
+              "linear_luma_mae_nits": 17.379121017420733
+            },
+            "disoccluded": {
+              "pixels": 216,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            }
+          },
+          "trajectory_error_px": 2.6244551322140524,
+          "observed_marker_centroid_px": [
+            40.847404868452855,
+            31.5
+          ],
+          "truth_marker_centroid_px": [
+            43.47186000066691,
+            31.5
+          ],
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        },
+        "reason_map_file": "repeating_texture/mci_0007_reasons.npy"
+      }
+    }
+  },
+  {
+    "output_index": 8,
+    "output_pts": "2/15",
+    "source_index": 3,
+    "source_pts": "1/8",
+    "next_source_index": 4,
+    "next_source_pts": "1/6",
+    "phase": "1/5",
+    "assessed_intermediate": true,
+    "mci_assumed_lookahead_seconds": "1/24",
+    "frame_time_ms": 16.666666666666668,
+    "truth_file": "repeating_texture/truth_0008.npy",
+    "truth_sha256": "7ca7ae0c4eaf2b0fbcf0c0b585d94efd4adb0d5fd30897f85375b67480f01c0f",
+    "regions_file": "repeating_texture/regions_0008.npz",
+    "modes": {
+      "repeat": {
+        "kind": "repeated",
+        "fallback_reasons": [],
+        "fallback_fraction": 0.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "linear_file": "repeating_texture/repeat_0008.npy",
+        "linear_sha256": "2401687bc9d80b6fb5776c84dd09279f78d74e758705cc3e0546400c0712f4e6",
+        "preview_file": "repeating_texture/repeat_0008.png",
+        "fallback_file": "repeating_texture/repeat_0008_fallback.npy",
+        "reason_fractions": {},
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 8352,
+              "absolute_luma_error_sum_nits": 17162.88050092316,
+              "linear_luma_mae_nits": 2.054942588712064
+            },
+            "boundary": {
+              "pixels": 844,
+              "absolute_luma_error_sum_nits": 2541.2368137702942,
+              "linear_luma_mae_nits": 3.010944092144898
+            },
+            "disoccluded": {
+              "pixels": 20,
+              "absolute_luma_error_sum_nits": 366.82080786132815,
+              "linear_luma_mae_nits": 18.341040393066407
+            }
+          },
+          "trajectory_error_px": 0.5190866582522062,
+          "observed_marker_centroid_px": [
+            44.152595131547145,
+            31.5
+          ],
+          "truth_marker_centroid_px": [
+            44.67168178979935,
+            31.5
+          ],
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        }
+      },
+      "analytic": {
+        "kind": "interpolated",
+        "fallback_reasons": [],
+        "fallback_fraction": 0.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "linear_file": "repeating_texture/analytic_0008.npy",
+        "linear_sha256": "7ca7ae0c4eaf2b0fbcf0c0b585d94efd4adb0d5fd30897f85375b67480f01c0f",
+        "preview_file": "repeating_texture/analytic_0008.png",
+        "fallback_file": "repeating_texture/analytic_0008_fallback.npy",
+        "reason_fractions": {},
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 8352,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "boundary": {
+              "pixels": 844,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "disoccluded": {
+              "pixels": 20,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            }
+          },
+          "trajectory_error_px": 0.0,
+          "observed_marker_centroid_px": [
+            44.67168178979935,
+            31.5
+          ],
+          "truth_marker_centroid_px": [
+            44.67168178979935,
+            31.5
+          ],
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        }
+      },
+      "mci": {
+        "kind": "repeated",
+        "fallback_reasons": [
+          "ambiguous_match",
+          "low_texture",
+          "out_of_bounds",
+          "whole_frame_low_confidence"
+        ],
+        "fallback_fraction": 1.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "reason_fractions": {
+          "low_texture": 0.1388888888888889,
+          "ambiguous_match": 0.7552083333333334,
+          "out_of_bounds": 0.0625,
+          "whole_frame_low_confidence": 0.043402777777777776
+        },
+        "diagnostics": {
+          "hole_fraction": 0.9565972222222222,
+          "collision_fraction": 0.0,
+          "raw_fallback_fraction": 0.9565972222222222,
+          "visibility_policy": "consistent_visible_endpoints_only; unresolved_collisions_hold",
+          "local_reason_fractions": {
+            "low_texture": 0.1388888888888889,
+            "ambiguous_match": 0.7552083333333334,
+            "out_of_bounds": 0.0625
+          },
+          "whole_frame_hold": true
+        },
+        "linear_file": "repeating_texture/mci_0008.npy",
+        "linear_sha256": "2401687bc9d80b6fb5776c84dd09279f78d74e758705cc3e0546400c0712f4e6",
+        "preview_file": "repeating_texture/mci_0008.png",
+        "fallback_file": "repeating_texture/mci_0008_fallback.npy",
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 8352,
+              "absolute_luma_error_sum_nits": 17162.88050092316,
+              "linear_luma_mae_nits": 2.054942588712064
+            },
+            "boundary": {
+              "pixels": 844,
+              "absolute_luma_error_sum_nits": 2541.2368137702942,
+              "linear_luma_mae_nits": 3.010944092144898
+            },
+            "disoccluded": {
+              "pixels": 20,
+              "absolute_luma_error_sum_nits": 366.82080786132815,
+              "linear_luma_mae_nits": 18.341040393066407
+            }
+          },
+          "trajectory_error_px": 0.5190866582522062,
+          "observed_marker_centroid_px": [
+            44.152595131547145,
+            31.5
+          ],
+          "truth_marker_centroid_px": [
+            44.67168178979935,
+            31.5
+          ],
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        },
+        "reason_map_file": "repeating_texture/mci_0008_reasons.npy"
+      }
+    }
+  },
+  {
+    "output_index": 9,
+    "output_pts": "3/20",
+    "source_index": 3,
+    "source_pts": "1/8",
+    "next_source_index": 4,
+    "next_source_pts": "1/6",
+    "phase": "3/5",
+    "assessed_intermediate": true,
+    "mci_assumed_lookahead_seconds": "1/24",
+    "frame_time_ms": 16.666666666666668,
+    "truth_file": "repeating_texture/truth_0009.npy",
+    "truth_sha256": "983eefac7426ce322b72c3582d04436a636447ed2858ecd93a5622369d48c000",
+    "regions_file": "repeating_texture/regions_0009.npz",
+    "modes": {
+      "repeat": {
+        "kind": "repeated",
+        "fallback_reasons": [],
+        "fallback_fraction": 0.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "linear_file": "repeating_texture/repeat_0009.npy",
+        "linear_sha256": "2401687bc9d80b6fb5776c84dd09279f78d74e758705cc3e0546400c0712f4e6",
+        "preview_file": "repeating_texture/repeat_0009.png",
+        "fallback_file": "repeating_texture/repeat_0009_fallback.npy",
+        "reason_fractions": {},
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 8352,
+              "absolute_luma_error_sum_nits": 50498.56074962768,
+              "linear_luma_mae_nits": 6.046283614658487
+            },
+            "boundary": {
+              "pixels": 720,
+              "absolute_luma_error_sum_nits": 7770.253263189697,
+              "linear_luma_mae_nits": 10.7920184210968
+            },
+            "disoccluded": {
+              "pixels": 144,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            }
+          },
+          "trajectory_error_px": 1.8779238853391078,
+          "observed_marker_centroid_px": [
+            44.152595131547145,
+            31.5
+          ],
+          "truth_marker_centroid_px": [
+            46.03051901688625,
+            31.499999996040106
+          ],
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        }
+      },
+      "analytic": {
+        "kind": "interpolated",
+        "fallback_reasons": [],
+        "fallback_fraction": 0.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "linear_file": "repeating_texture/analytic_0009.npy",
+        "linear_sha256": "983eefac7426ce322b72c3582d04436a636447ed2858ecd93a5622369d48c000",
+        "preview_file": "repeating_texture/analytic_0009.png",
+        "fallback_file": "repeating_texture/analytic_0009_fallback.npy",
+        "reason_fractions": {},
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 8352,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "boundary": {
+              "pixels": 720,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "disoccluded": {
+              "pixels": 144,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            }
+          },
+          "trajectory_error_px": 0.0,
+          "observed_marker_centroid_px": [
+            46.03051901688625,
+            31.499999996040106
+          ],
+          "truth_marker_centroid_px": [
+            46.03051901688625,
+            31.499999996040106
+          ],
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        }
+      },
+      "mci": {
+        "kind": "repeated",
+        "fallback_reasons": [
+          "ambiguous_match",
+          "hole",
+          "low_texture",
+          "out_of_bounds",
+          "whole_frame_low_confidence"
+        ],
+        "fallback_fraction": 1.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "reason_fractions": {
+          "low_texture": 0.1388888888888889,
+          "ambiguous_match": 0.7534722222222222,
+          "out_of_bounds": 0.0625,
+          "hole": 0.001736111111111111,
+          "whole_frame_low_confidence": 0.043402777777777776
+        },
+        "diagnostics": {
+          "hole_fraction": 0.9565972222222222,
+          "collision_fraction": 0.0,
+          "raw_fallback_fraction": 0.9565972222222222,
+          "visibility_policy": "consistent_visible_endpoints_only; unresolved_collisions_hold",
+          "local_reason_fractions": {
+            "low_texture": 0.1388888888888889,
+            "ambiguous_match": 0.7534722222222222,
+            "out_of_bounds": 0.0625,
+            "hole": 0.001736111111111111
+          },
+          "whole_frame_hold": true
+        },
+        "linear_file": "repeating_texture/mci_0009.npy",
+        "linear_sha256": "2401687bc9d80b6fb5776c84dd09279f78d74e758705cc3e0546400c0712f4e6",
+        "preview_file": "repeating_texture/mci_0009.png",
+        "fallback_file": "repeating_texture/mci_0009_fallback.npy",
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 8352,
+              "absolute_luma_error_sum_nits": 50498.56074962768,
+              "linear_luma_mae_nits": 6.046283614658487
+            },
+            "boundary": {
+              "pixels": 720,
+              "absolute_luma_error_sum_nits": 7770.253263189697,
+              "linear_luma_mae_nits": 10.7920184210968
+            },
+            "disoccluded": {
+              "pixels": 144,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            }
+          },
+          "trajectory_error_px": 1.8779238853391078,
+          "observed_marker_centroid_px": [
+            44.152595131547145,
+            31.5
+          ],
+          "truth_marker_centroid_px": [
+            46.03051901688625,
+            31.499999996040106
+          ],
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        },
+        "reason_map_file": "repeating_texture/mci_0009_reasons.npy"
+      }
+    }
+  },
+  {
+    "output_index": 10,
+    "output_pts": "1/6",
+    "source_index": 4,
+    "source_pts": "1/6",
+    "next_source_index": 5,
+    "next_source_pts": "5/24",
+    "phase": "0/1",
+    "assessed_intermediate": false,
+    "mci_assumed_lookahead_seconds": "1/24",
+    "frame_time_ms": 16.666666666666668,
+    "truth_file": "repeating_texture/truth_0010.npy",
+    "truth_sha256": "5bcbfbb6abcb8cfbf666a991463fdc89af7a65613dbc466087a3809b0b0ad5a2",
+    "regions_file": "repeating_texture/regions_0010.npz",
+    "modes": {
+      "repeat": {
+        "kind": "original",
+        "fallback_reasons": [],
+        "fallback_fraction": 0.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "linear_file": "repeating_texture/repeat_0010.npy",
+        "linear_sha256": "5bcbfbb6abcb8cfbf666a991463fdc89af7a65613dbc466087a3809b0b0ad5a2",
+        "preview_file": "repeating_texture/repeat_0010.png",
+        "fallback_file": "repeating_texture/repeat_0010_fallback.npy",
+        "reason_fractions": {},
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 8352,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "boundary": {
+              "pixels": 864,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "disoccluded": {
+              "pixels": 0,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": null
+            }
+          },
+          "trajectory_error_px": 0.0,
+          "observed_marker_centroid_px": [
+            47.35741186783215,
+            31.499999998694044
+          ],
+          "truth_marker_centroid_px": [
+            47.35741186783215,
+            31.499999998694044
+          ],
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        }
+      },
+      "analytic": {
+        "kind": "original",
+        "fallback_reasons": [],
+        "fallback_fraction": 0.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "linear_file": "repeating_texture/analytic_0010.npy",
+        "linear_sha256": "5bcbfbb6abcb8cfbf666a991463fdc89af7a65613dbc466087a3809b0b0ad5a2",
+        "preview_file": "repeating_texture/analytic_0010.png",
+        "fallback_file": "repeating_texture/analytic_0010_fallback.npy",
+        "reason_fractions": {},
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 8352,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "boundary": {
+              "pixels": 864,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "disoccluded": {
+              "pixels": 0,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": null
+            }
+          },
+          "trajectory_error_px": 0.0,
+          "observed_marker_centroid_px": [
+            47.35741186783215,
+            31.499999998694044
+          ],
+          "truth_marker_centroid_px": [
+            47.35741186783215,
+            31.499999998694044
+          ],
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        }
+      },
+      "mci": {
+        "kind": "original",
+        "fallback_reasons": [],
+        "fallback_fraction": 0.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "reason_fractions": {},
+        "diagnostics": {},
+        "linear_file": "repeating_texture/mci_0010.npy",
+        "linear_sha256": "5bcbfbb6abcb8cfbf666a991463fdc89af7a65613dbc466087a3809b0b0ad5a2",
+        "preview_file": "repeating_texture/mci_0010.png",
+        "fallback_file": "repeating_texture/mci_0010_fallback.npy",
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 8352,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "boundary": {
+              "pixels": 864,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "disoccluded": {
+              "pixels": 0,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": null
+            }
+          },
+          "trajectory_error_px": 0.0,
+          "observed_marker_centroid_px": [
+            47.35741186783215,
+            31.499999998694044
+          ],
+          "truth_marker_centroid_px": [
+            47.35741186783215,
+            31.499999998694044
+          ],
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        },
+        "reason_map_file": "repeating_texture/mci_0010_reasons.npy"
+      }
+    }
+  },
+  {
+    "output_index": 11,
+    "output_pts": "11/60",
+    "source_index": 4,
+    "source_pts": "1/6",
+    "next_source_index": 5,
+    "next_source_pts": "5/24",
+    "phase": "2/5",
+    "assessed_intermediate": true,
+    "mci_assumed_lookahead_seconds": "1/24",
+    "frame_time_ms": 16.666666666666668,
+    "truth_file": "repeating_texture/truth_0011.npy",
+    "truth_sha256": "3ec1d83df2ac8f0c7268ccb0bb5723b52032596c17fbd84bcad3b2d36b64cf67",
+    "regions_file": "repeating_texture/regions_0011.npz",
+    "modes": {
+      "repeat": {
+        "kind": "repeated",
+        "fallback_reasons": [],
+        "fallback_fraction": 0.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "linear_file": "repeating_texture/repeat_0011.npy",
+        "linear_sha256": "5bcbfbb6abcb8cfbf666a991463fdc89af7a65613dbc466087a3809b0b0ad5a2",
+        "preview_file": "repeating_texture/repeat_0011.png",
+        "fallback_file": "repeating_texture/repeat_0011_fallback.npy",
+        "reason_fractions": {},
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 8352,
+              "absolute_luma_error_sum_nits": 35356.16070528564,
+              "linear_luma_mae_nits": 4.233256789425963
+            },
+            "boundary": {
+              "pixels": 792,
+              "absolute_luma_error_sum_nits": 6595.441450380706,
+              "linear_luma_mae_nits": 8.327577588864527
+            },
+            "disoccluded": {
+              "pixels": 72,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            }
+          },
+          "trajectory_error_px": 1.1990550474823394,
+          "observed_marker_centroid_px": [
+            47.35741186783215,
+            31.499999998694044
+          ],
+          "truth_marker_centroid_px": [
+            48.55646691531449,
+            31.500000001292943
+          ],
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        }
+      },
+      "analytic": {
+        "kind": "interpolated",
+        "fallback_reasons": [],
+        "fallback_fraction": 0.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "linear_file": "repeating_texture/analytic_0011.npy",
+        "linear_sha256": "3ec1d83df2ac8f0c7268ccb0bb5723b52032596c17fbd84bcad3b2d36b64cf67",
+        "preview_file": "repeating_texture/analytic_0011.png",
+        "fallback_file": "repeating_texture/analytic_0011_fallback.npy",
+        "reason_fractions": {},
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 8352,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "boundary": {
+              "pixels": 792,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "disoccluded": {
+              "pixels": 72,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            }
+          },
+          "trajectory_error_px": 0.0,
+          "observed_marker_centroid_px": [
+            48.55646691531449,
+            31.500000001292943
+          ],
+          "truth_marker_centroid_px": [
+            48.55646691531449,
+            31.500000001292943
+          ],
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        }
+      },
+      "mci": {
+        "kind": "repeated",
+        "fallback_reasons": [
+          "ambiguous_match",
+          "low_texture",
+          "out_of_bounds",
+          "whole_frame_low_confidence"
+        ],
+        "fallback_fraction": 1.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "reason_fractions": {
+          "low_texture": 0.1527777777777778,
+          "ambiguous_match": 0.7413194444444444,
+          "out_of_bounds": 0.0625,
+          "whole_frame_low_confidence": 0.043402777777777776
+        },
+        "diagnostics": {
+          "hole_fraction": 0.9565972222222222,
+          "collision_fraction": 0.0,
+          "raw_fallback_fraction": 0.9565972222222222,
+          "visibility_policy": "consistent_visible_endpoints_only; unresolved_collisions_hold",
+          "local_reason_fractions": {
+            "low_texture": 0.1527777777777778,
+            "ambiguous_match": 0.7413194444444444,
+            "out_of_bounds": 0.0625
+          },
+          "whole_frame_hold": true
+        },
+        "linear_file": "repeating_texture/mci_0011.npy",
+        "linear_sha256": "5bcbfbb6abcb8cfbf666a991463fdc89af7a65613dbc466087a3809b0b0ad5a2",
+        "preview_file": "repeating_texture/mci_0011.png",
+        "fallback_file": "repeating_texture/mci_0011_fallback.npy",
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 8352,
+              "absolute_luma_error_sum_nits": 35356.16070528564,
+              "linear_luma_mae_nits": 4.233256789425963
+            },
+            "boundary": {
+              "pixels": 792,
+              "absolute_luma_error_sum_nits": 6595.441450380706,
+              "linear_luma_mae_nits": 8.327577588864527
+            },
+            "disoccluded": {
+              "pixels": 72,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            }
+          },
+          "trajectory_error_px": 1.1990550474823394,
+          "observed_marker_centroid_px": [
+            47.35741186783215,
+            31.499999998694044
+          ],
+          "truth_marker_centroid_px": [
+            48.55646691531449,
+            31.500000001292943
+          ],
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        },
+        "reason_map_file": "repeating_texture/mci_0011_reasons.npy"
+      }
+    }
+  },
+  {
+    "output_index": 12,
+    "output_pts": "1/5",
+    "source_index": 4,
+    "source_pts": "1/6",
+    "next_source_index": 5,
+    "next_source_pts": "5/24",
+    "phase": "4/5",
+    "assessed_intermediate": true,
+    "mci_assumed_lookahead_seconds": "1/24",
+    "frame_time_ms": 16.666666666666668,
+    "truth_file": "repeating_texture/truth_0012.npy",
+    "truth_sha256": "594b2acc9fdd9848f2352ae75199a268cf97b196c04400f74771bf850527a2fe",
+    "regions_file": "repeating_texture/regions_0012.npz",
+    "modes": {
+      "repeat": {
+        "kind": "repeated",
+        "fallback_reasons": [],
+        "fallback_fraction": 0.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "linear_file": "repeating_texture/repeat_0012.npy",
+        "linear_sha256": "5bcbfbb6abcb8cfbf666a991463fdc89af7a65613dbc466087a3809b0b0ad5a2",
+        "preview_file": "repeating_texture/repeat_0012.png",
+        "fallback_file": "repeating_texture/repeat_0012_fallback.npy",
+        "reason_fractions": {},
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 8352,
+              "absolute_luma_error_sum_nits": 67464.32025731659,
+              "linear_luma_mae_nits": 8.077624551881776
+            },
+            "boundary": {
+              "pixels": 700,
+              "absolute_luma_error_sum_nits": 9869.199132621765,
+              "linear_luma_mae_nits": 14.098855903745378
+            },
+            "disoccluded": {
+              "pixels": 164,
+              "absolute_luma_error_sum_nits": 550.2311491165161,
+              "linear_luma_mae_nits": 3.3550679824177814
+            }
+          },
+          "trajectory_error_px": 2.4289548841335673,
+          "observed_marker_centroid_px": [
+            47.35741186783215,
+            31.499999998694044
+          ],
+          "truth_marker_centroid_px": [
+            49.786366751965716,
+            31.50000000065998
+          ],
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        }
+      },
+      "analytic": {
+        "kind": "interpolated",
+        "fallback_reasons": [],
+        "fallback_fraction": 0.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "linear_file": "repeating_texture/analytic_0012.npy",
+        "linear_sha256": "594b2acc9fdd9848f2352ae75199a268cf97b196c04400f74771bf850527a2fe",
+        "preview_file": "repeating_texture/analytic_0012.png",
+        "fallback_file": "repeating_texture/analytic_0012_fallback.npy",
+        "reason_fractions": {},
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 8352,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "boundary": {
+              "pixels": 700,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "disoccluded": {
+              "pixels": 164,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            }
+          },
+          "trajectory_error_px": 0.0,
+          "observed_marker_centroid_px": [
+            49.786366751965716,
+            31.50000000065998
+          ],
+          "truth_marker_centroid_px": [
+            49.786366751965716,
+            31.50000000065998
+          ],
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        }
+      },
+      "mci": {
+        "kind": "repeated",
+        "fallback_reasons": [
+          "ambiguous_match",
+          "low_texture",
+          "out_of_bounds",
+          "whole_frame_low_confidence"
+        ],
+        "fallback_fraction": 1.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "reason_fractions": {
+          "low_texture": 0.1527777777777778,
+          "ambiguous_match": 0.7413194444444444,
+          "out_of_bounds": 0.0625,
+          "whole_frame_low_confidence": 0.043402777777777776
+        },
+        "diagnostics": {
+          "hole_fraction": 0.9565972222222222,
+          "collision_fraction": 0.0,
+          "raw_fallback_fraction": 0.9565972222222222,
+          "visibility_policy": "consistent_visible_endpoints_only; unresolved_collisions_hold",
+          "local_reason_fractions": {
+            "low_texture": 0.1527777777777778,
+            "ambiguous_match": 0.7413194444444444,
+            "out_of_bounds": 0.0625
+          },
+          "whole_frame_hold": true
+        },
+        "linear_file": "repeating_texture/mci_0012.npy",
+        "linear_sha256": "5bcbfbb6abcb8cfbf666a991463fdc89af7a65613dbc466087a3809b0b0ad5a2",
+        "preview_file": "repeating_texture/mci_0012.png",
+        "fallback_file": "repeating_texture/mci_0012_fallback.npy",
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 8352,
+              "absolute_luma_error_sum_nits": 67464.32025731659,
+              "linear_luma_mae_nits": 8.077624551881776
+            },
+            "boundary": {
+              "pixels": 700,
+              "absolute_luma_error_sum_nits": 9869.199132621765,
+              "linear_luma_mae_nits": 14.098855903745378
+            },
+            "disoccluded": {
+              "pixels": 164,
+              "absolute_luma_error_sum_nits": 550.2311491165161,
+              "linear_luma_mae_nits": 3.3550679824177814
+            }
+          },
+          "trajectory_error_px": 2.4289548841335673,
+          "observed_marker_centroid_px": [
+            47.35741186783215,
+            31.499999998694044
+          ],
+          "truth_marker_centroid_px": [
+            49.786366751965716,
+            31.50000000065998
+          ],
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        },
+        "reason_map_file": "repeating_texture/mci_0012_reasons.npy"
+      }
+    }
+  },
+  {
+    "output_index": 13,
+    "output_pts": "13/60",
+    "source_index": 5,
+    "source_pts": "5/24",
+    "next_source_index": null,
+    "next_source_pts": null,
+    "phase": "1/5",
+    "assessed_intermediate": false,
+    "mci_assumed_lookahead_seconds": "0/1",
+    "frame_time_ms": 16.666666666666668,
+    "truth_file": "repeating_texture/truth_0013.npy",
+    "truth_sha256": "5748bb5660a1e28cb12b77cfe29f88fa21da82afbc62f9fd6314a94a3a795f25",
+    "regions_file": "repeating_texture/regions_0013.npz",
+    "modes": {
+      "repeat": {
+        "kind": "repeated",
+        "fallback_reasons": [],
+        "fallback_fraction": 0.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "linear_file": "repeating_texture/repeat_0013.npy",
+        "linear_sha256": "5748bb5660a1e28cb12b77cfe29f88fa21da82afbc62f9fd6314a94a3a795f25",
+        "preview_file": "repeating_texture/repeat_0013.png",
+        "fallback_file": "repeating_texture/repeat_0013_fallback.npy",
+        "reason_fractions": {},
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 8352,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "boundary": {
+              "pixels": 864,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "disoccluded": {
+              "pixels": 0,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": null
+            }
+          },
+          "trajectory_error_px": 0.0,
+          "observed_marker_centroid_px": [
+            50.5,
+            31.5
+          ],
+          "truth_marker_centroid_px": [
+            50.5,
+            31.5
+          ],
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        }
+      },
+      "analytic": {
+        "kind": "repeated",
+        "fallback_reasons": [
+          "last_frame_hold"
+        ],
+        "fallback_fraction": 1.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "linear_file": "repeating_texture/analytic_0013.npy",
+        "linear_sha256": "5748bb5660a1e28cb12b77cfe29f88fa21da82afbc62f9fd6314a94a3a795f25",
+        "preview_file": "repeating_texture/analytic_0013.png",
+        "fallback_file": "repeating_texture/analytic_0013_fallback.npy",
+        "reason_fractions": {
+          "last_frame_hold": 1.0
+        },
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 8352,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "boundary": {
+              "pixels": 864,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "disoccluded": {
+              "pixels": 0,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": null
+            }
+          },
+          "trajectory_error_px": 0.0,
+          "observed_marker_centroid_px": [
+            50.5,
+            31.5
+          ],
+          "truth_marker_centroid_px": [
+            50.5,
+            31.5
+          ],
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        }
+      },
+      "mci": {
+        "kind": "repeated",
+        "fallback_reasons": [
+          "last_frame_hold"
+        ],
+        "fallback_fraction": 1.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "linear_file": "repeating_texture/mci_0013.npy",
+        "linear_sha256": "5748bb5660a1e28cb12b77cfe29f88fa21da82afbc62f9fd6314a94a3a795f25",
+        "preview_file": "repeating_texture/mci_0013.png",
+        "fallback_file": "repeating_texture/mci_0013_fallback.npy",
+        "reason_fractions": {
+          "last_frame_hold": 1.0
+        },
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 8352,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "boundary": {
+              "pixels": 864,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "disoccluded": {
+              "pixels": 0,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": null
+            }
+          },
+          "trajectory_error_px": 0.0,
+          "observed_marker_centroid_px": [
+            50.5,
+            31.5
+          ],
+          "truth_marker_centroid_px": [
+            50.5,
+            31.5
+          ],
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        }
+      }
+    }
+  },
+  {
+    "output_index": 14,
+    "output_pts": "7/30",
+    "source_index": 5,
+    "source_pts": "5/24",
+    "next_source_index": null,
+    "next_source_pts": null,
+    "phase": "3/5",
+    "assessed_intermediate": false,
+    "mci_assumed_lookahead_seconds": "0/1",
+    "frame_time_ms": 16.666666666666668,
+    "truth_file": "repeating_texture/truth_0014.npy",
+    "truth_sha256": "5748bb5660a1e28cb12b77cfe29f88fa21da82afbc62f9fd6314a94a3a795f25",
+    "regions_file": "repeating_texture/regions_0014.npz",
+    "modes": {
+      "repeat": {
+        "kind": "repeated",
+        "fallback_reasons": [],
+        "fallback_fraction": 0.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "linear_file": "repeating_texture/repeat_0014.npy",
+        "linear_sha256": "5748bb5660a1e28cb12b77cfe29f88fa21da82afbc62f9fd6314a94a3a795f25",
+        "preview_file": "repeating_texture/repeat_0014.png",
+        "fallback_file": "repeating_texture/repeat_0014_fallback.npy",
+        "reason_fractions": {},
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 8352,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "boundary": {
+              "pixels": 864,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "disoccluded": {
+              "pixels": 0,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": null
+            }
+          },
+          "trajectory_error_px": 0.0,
+          "observed_marker_centroid_px": [
+            50.5,
+            31.5
+          ],
+          "truth_marker_centroid_px": [
+            50.5,
+            31.5
+          ],
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        }
+      },
+      "analytic": {
+        "kind": "repeated",
+        "fallback_reasons": [
+          "last_frame_hold"
+        ],
+        "fallback_fraction": 1.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "linear_file": "repeating_texture/analytic_0014.npy",
+        "linear_sha256": "5748bb5660a1e28cb12b77cfe29f88fa21da82afbc62f9fd6314a94a3a795f25",
+        "preview_file": "repeating_texture/analytic_0014.png",
+        "fallback_file": "repeating_texture/analytic_0014_fallback.npy",
+        "reason_fractions": {
+          "last_frame_hold": 1.0
+        },
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 8352,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "boundary": {
+              "pixels": 864,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "disoccluded": {
+              "pixels": 0,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": null
+            }
+          },
+          "trajectory_error_px": 0.0,
+          "observed_marker_centroid_px": [
+            50.5,
+            31.5
+          ],
+          "truth_marker_centroid_px": [
+            50.5,
+            31.5
+          ],
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        }
+      },
+      "mci": {
+        "kind": "repeated",
+        "fallback_reasons": [
+          "last_frame_hold"
+        ],
+        "fallback_fraction": 1.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "linear_file": "repeating_texture/mci_0014.npy",
+        "linear_sha256": "5748bb5660a1e28cb12b77cfe29f88fa21da82afbc62f9fd6314a94a3a795f25",
+        "preview_file": "repeating_texture/mci_0014.png",
+        "fallback_file": "repeating_texture/mci_0014_fallback.npy",
+        "reason_fractions": {
+          "last_frame_hold": 1.0
+        },
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 8352,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "boundary": {
+              "pixels": 864,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "disoccluded": {
+              "pixels": 0,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": null
+            }
+          },
+          "trajectory_error_px": 0.0,
+          "observed_marker_centroid_px": [
+            50.5,
+            31.5
+          ],
+          "truth_marker_centroid_px": [
+            50.5,
+            31.5
+          ],
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        }
+      }
+    }
+  }
+]
