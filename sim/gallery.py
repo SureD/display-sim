@@ -418,12 +418,17 @@ and research/m5-fidelity.md describe validation and model boundaries.</p></main>
             "python3 -m sim gallery</code>",
             "python3 -m sim gallery --viewing-angle</code>",
         )
+    if "colorimetry_experiment" in manifest:
+        page = page.replace("<nav>__NAV__</nav>",
+                            '<p><a href="colorimetry/index.html">M15 colorimetry and color-volume comparison</a>: '
+                            'clip/compression, four placeholder panels, one shared exposure, XYZ/u′v′ errors.</p><nav>__NAV__</nav>')
     nav = "".join(f'<a href="#{escape(s["id"])}">{escape(s["title"])}</a>' for s in manifest["sheets"])
     (out / "index.html").write_text(page.replace("__NAV__", nav).replace("__PROFILES__", profiles).replace("__SECTIONS__", "\n".join(sections)), encoding="utf-8")
 
 
 def generate_gallery(
     out: Path, width: int = 320, height: int = 180, *, viewing_angle: bool = False,
+    colorimetry: bool = False,
 ) -> dict:
     """Render all four shipped profiles without modifying their YAML files."""
     from sim.macro import render_macro
@@ -581,6 +586,12 @@ def generate_gallery(
                 for p in profiles
             ],
         }
+    if colorimetry:
+        from sim.colorimetry_gallery import generate_colorimetry_gallery
+
+        generate_colorimetry_gallery(out / "colorimetry", width, height)
+        manifest["colorimetry_experiment"] = {"index": "colorimetry/index.html", "manifest": "colorimetry/manifest.json",
+                                              "evidence": "P", "calibrated_profile_fit": "NR"}
     (out / "manifest.json").write_text(json.dumps(manifest, indent=2, allow_nan=False)+"\n", encoding="utf-8")
     _html(out, manifest)
     return manifest
@@ -593,10 +604,13 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument("--height", type=int, default=180)
     parser.add_argument("--viewing-angle", action="store_true",
                         help="Append a P placeholder 0/+45-degree matched-white angular comparison")
+    parser.add_argument("--colorimetry", action="store_true",
+                        help="Add separate M15 synthetic gamut/color-volume sheets and XYZ errors")
     args = parser.parse_args(argv)
     if args.width < 160 or args.height < 96:
         parser.error("resolution must be at least 160x96")
-    result = generate_gallery(args.out, args.width, args.height, viewing_angle=args.viewing_angle)
+    result = generate_gallery(args.out, args.width, args.height, viewing_angle=args.viewing_angle,
+                              colorimetry=args.colorimetry)
     print(f"Wrote {len(result['sheets'])} contact sheets and {args.out / 'index.html'}")
 
 

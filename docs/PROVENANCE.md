@@ -1,4 +1,4 @@
-# Profile and experiment provenance (M8, M10, M13, M14)
+# Profile and experiment provenance (M8, M10, M13, M14, M15)
 
 Each runtime profile has a separate `sim/profiles/<name>.provenance.yaml`
 record with `schema_version: 1`. These records document the current generic
@@ -12,12 +12,14 @@ python3 -m sim provenance --check --profiles generic_woled generic_qdoled
 
 The check reports invalid or missing records and exits unsuccessfully when
 validation fails. M10 adds `sim/profiles/<name>.angular.yaml` records to this
-same check; `--profiles` selects both baseline and angular records. The default
-check also rejects orphan sidecars of either kind with no
-corresponding runtime profile. Runtime loading and the rendering pipeline do not read the
-sidecars. Profile discovery excludes `*.provenance.yaml` and `*.angular.yaml`, so adding a record
-does not create another selectable TV profile. The four original runtime
-YAML files remain unchanged.
+same check. M15 adds `sim/profiles/<name>.colorimetry.yaml`; `--profiles`
+selects baseline, angular and colorimetry records together. The default check
+also rejects orphan sidecars of these kinds with no corresponding runtime
+profile. Baseline and angular sidecars remain offline snapshots. Colorimetry
+sidecars are read only when the M15 runtime path is explicitly enabled; ordinary
+profile loading and disabled rendering never read them. Profile discovery
+excludes all three sidecar suffixes, so adding a record does not create another
+selectable TV profile. The four original runtime YAML files remain unchanged.
 
 M13 also checks the separate [synthetic OLED dynamics protocol](../research/measurements/oled_dynamics_synthetic_v1.json)
 on every invocation, including checks restricted by `--profiles`. This protocol
@@ -389,3 +391,78 @@ disoccluded masks, actual rendered-marker trajectory error, separate vector
 endpoint error, fallback fractions/reasons and temporal switching counts.
 Errors and timing are D calculations under the declared P experiment.
 Short-clip previews share one fixed exposure, so flashes remain visible.
+
+
+## Colorimetry schema version 1 (M15)
+
+The separate `*.colorimetry.yaml` records are the source of panel parameters
+for the opt-in path, loaded by
+[`panel_parameters`](../sim/colorimetry_provenance.py). Baseline runtime
+`panel.color_matrix` identity values and their M8 snapshots remain unchanged.
+The new loader validates the whole record before returning parameters and
+has no fallback for absent or malformed evidence. Disabled rendering does not
+load these records and retains the original BT.709 compatibility interpretation.
+
+| Top-level field | Contract |
+|---|---|
+| `schema_version` | Integer `1`. |
+| `profile` | Matching generic runtime profile name. |
+| `model` | `rgb_chromaticities_color_volume_v1`. |
+| `parameter_status` | `placeholder`; schema 1 does not support measured calibration claims. |
+| `panel_spectra`, `measured_color_volume`, `calibrated_profile_fit` | Explicit `NR`; no matched measurements or fit. |
+| `entries` | Exactly `primaries_xy`, `white_xy`, `woled_rgb_peak_ratio`, `woled_white_exponent`. |
+| `gamut_mapping` | `model: neutral_axis_compress_v1` and a complete P `compression_knee` entry recording the runtime default. |
+| `notes` | Synthetic interpretation and limitations. |
+
+Every entry retains `value`, `evidence`, `source`, complete `conditions`,
+`interpolation`, `support` and `notes`. Schema 1 requires `evidence: P`, an
+original mechanism/reference URL, a local research locator and `source.sample:
+NR`. References justify mechanisms or encoding definitions; they do not turn
+these generic panel assignments into measurements. Unknown source amplitude,
+primaries, dwell, geometry and instrument conditions stay `NR`. Interpolation
+is `none/not_applicable`: these constants are not interpolated measurements.
+Unknown keys, missing fields, duplicate YAML keys, false numeric booleans,
+nonfinite numbers and unsupported versions fail validation.
+
+The primary value is ordered red/green/blue CIE xy pairs; white is a CIE xy
+pair. Each coordinate must be positive and physical, primary matrices must be
+nondegenerate and numerically stable, and panel white must lie strictly inside
+the primary triangle. `woled_rgb_peak_ratio` is in `(0, 1]`, with `1` required
+for families without the WOLED penalty; `woled_white_exponent` is positive.
+The compression knee is in `[0, 1)` and its shipped **P 0.8** value records the
+runtime config's default. An explicit runtime knee override remains a P input
+and must be retained in result metadata. The checker rejects a stale default
+snapshot; per-profile sidecars do not override the runtime mapper. Support bounds describe mathematical
+model domains, not measured TV support. The positive exponent has no measured
+support interval (`range: not_applicable`); it is a model shape parameter.
+
+The source runtime configuration separately declares BT.709, Display P3 or
+BT.2020 primaries and white, with BT.709/D65 as the existing-path compatibility
+default. Normative source coordinates are D definitions from ITU/ICC. Applying
+D65 or a standard-like primary triangle to one of the generic panels is P.
+RGB↔XYZ and source-to-panel matrices are D conditional on these declared
+inputs; exact derivation does not promote a P input to M. Differing whites use
+explicit `none_absolute_xyz` conversion without chromatic adaptation; the
+metadata must retain both whites and that policy.
+
+The mapper records out-of-gamut chromaticity masks before correction. Hard
+clip is a declared baseline; neutral-axis compression preserves fixed XYZ Y
+and the straight ray from destination white in CIE 1976 u′v′, rather than a
+claim of perfectly constant perceived hue. Tone mapping then uses the joint
+channel-cube limit `min(global_capacity, color_capacity)` once. WOLED's P
+neutral-fraction envelope lowers saturated-color capacity while allowing
+white-subpixel benefit for desaturated colors. M13 continues to own one
+global capacity update per tick; no second ABL state or post-map RGBW limiter
+is added. The active color path does not reuse the legacy post-shoulder
+white projection. Panel spectra, RGBW electrical coefficients and real
+hue-dependent luminance ceilings remain NR.
+
+Exports must identify linear RGB primaries/white and units, or linear XYZ with
+Y in cd/m², plus the derived matrices, mapping and capacity configuration,
+out-of-gamut fractions and evidence labels. Synthetic patch errors and hue-ray
+errors are D relative to the declared source intent. u′v′ distance omits
+luminance and is not perceptual ΔE; report the deliberate luminance reduction
+separately. The shared preview exposure and host/browser calibration remain
+independent of TV evidence. See the
+[M15 research and primary sources](../research/m15-colorimetry.md) for the
+panel placeholders, geometric hue limitation and missing measurement ledger.

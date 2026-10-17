@@ -39,7 +39,7 @@ def _implementation() -> str:
 def identity(pipeline) -> dict:
     if not pipeline._dynamics_active:
         raise ValueError("capacity identity requires active ABL dynamics")
-    return {
+    result = {
         "model": pipeline.abl_dynamics.model, "evolution_version": 1,
         "profile_sha256": digest(asdict(pipeline.profile)),
         "evolution_sha256": digest(evolution(pipeline.abl_dynamics)),
@@ -49,6 +49,13 @@ def identity(pipeline) -> dict:
                                 else asdict(pipeline.angular_params)}),
         "implementation_sha256": _implementation(), "numpy_version": np.__version__,
     }
+    if pipeline._colorimetry_active:
+        result["colorimetry"] = {
+            "config_sha256": digest(asdict(pipeline.colorimetry)),
+            "panel_sha256": digest(asdict(pipeline.panel_colorimetry)),
+            "implementation_sha256": sha256((Path(__file__).resolve().parent / "colorimetry.py").read_bytes()).hexdigest(),
+        }
+    return result
 
 
 def _hex(value):

@@ -1,4 +1,4 @@
-import {decodeFrame, mappingGain} from './mapping.js';
+import {decodeFrame, mappingGain, toLinear709} from './mapping.js';
 import {createRenderers} from './renderers.js';
 
 const $ = id => document.getElementById(id);
@@ -89,7 +89,7 @@ function draw() {
       if(uploadedKeys[i]!==key) {
         let frame=decoded.get(key);
         if(!frame) {
-          frame=decodeFrame(asset.buffer,asset.width,asset.height,state.frame,asset.frame_stride_bytes);
+          frame=toLinear709(decodeFrame(asset.buffer,asset.width,asset.height,state.frame,asset.frame_stride_bytes),manifest.format);
           decoded.set(key,frame);
           if(decoded.size>48) decoded.delete(decoded.keys().next().value);
         }
@@ -249,7 +249,8 @@ function bindControls() {
 }
 function checkManifest(data) {
   const f=data.format;
-  if(data.schema_version!==1 || f?.dtype!=='float16' || f.byte_order!=='little' || f.channels!==3 || f.color_space!=='linear-srgb' || f.layout!=='frame-major HWC RGB' || f.units!=='linear-nit')throw new Error('Unsupported export format. Regenerate with python3 -m sim export-web.');
+  if(data.schema_version!==1 || f?.dtype!=='float16' || f.byte_order!=='little' || f.channels!==3 || !['linear-srgb','linear-display-p3','linear-bt2020','linear-xyz'].includes(f.color_space) || f.layout!==(f.color_space==='linear-xyz'?'frame-major HWC XYZ':'frame-major HWC RGB') || f.units!=='linear-nit')throw new Error('Unsupported export format. Regenerate with python3 -m sim export-web.');
+  toLinear709(new Float32Array(3),f); // Validate the declared conversion before loading assets.
   for(const s of data.scenes) for(const p of data.profiles) {
     const a=s.assets[p.id];
     if(!a || a.width!==s.width || a.height!==s.height || a.frame_count!==s.frame_count || a.frame_stride_bytes!==a.width*a.height*6 || a.byte_length!==a.frame_stride_bytes*a.frame_count)throw new Error('Invalid scene dimensions or frame stride in export manifest.');

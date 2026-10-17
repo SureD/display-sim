@@ -65,6 +65,9 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--input", required=True, type=Path, help="Encoded input image")
     parser.add_argument("--output", required=True, type=Path, help="Preview PNG path")
     parser.add_argument("--input-eotf", choices=("srgb", "pq", "hlg"), default=None)
+    from sim.colorimetry_cli import add_arguments
+
+    add_arguments(parser)
     parser.add_argument(
         "--viewing-angle-horizontal", "--viewing-angle", dest="viewing_angle_horizontal",
         type=float, default=None,
@@ -81,7 +84,7 @@ def build_parser() -> argparse.ArgumentParser:
         default=None,
         help="Sample-and-hold eye motion in pixels per frame",
     )
-    parser.epilog = (parser.epilog or "") + " Commands: python -m sim {validate,gallery,export-web,motion,provenance,fit-windows,oled-dynamics} --help"
+    parser.epilog = (parser.epilog or "") + " Commands: python -m sim {validate,gallery,colorimetry,export-web,motion,provenance,fit-windows,oled-dynamics} --help"
     return parser
 
 
@@ -90,6 +93,11 @@ def main(argv: list[str] | None = None) -> None:
         argv = sys.argv[1:]
     else:
         argv = list(argv)
+    if argv and argv[0] == "colorimetry":
+        from sim.colorimetry_gallery import main as colorimetry_main
+
+        colorimetry_main(argv[1:])
+        return
     if argv and argv[0] == "oled-dynamics":
         from sim.oled_dynamics_experiment import main as oled_dynamics_main
 
@@ -133,12 +141,14 @@ def main(argv: list[str] | None = None) -> None:
         motion_px=args.motion_px,
     )
     try:
+        from sim.colorimetry_cli import configuration
+
         config = ViewingAngleConfig(
             enabled=args.viewing_angle_horizontal is not None or args.viewing_angle_vertical is not None,
             horizontal_deg=args.viewing_angle_horizontal if args.viewing_angle_horizontal is not None else 0.0,
             vertical_deg=args.viewing_angle_vertical if args.viewing_angle_vertical is not None else 0.0,
         )
-        pipeline = Pipeline(profile, viewing_angle=config)
+        pipeline = Pipeline(profile, viewing_angle=config, colorimetry=configuration(args))
     except ValueError as exc:
         parser.error(str(exc))
     preview = pipeline.run(load_image(args.input))

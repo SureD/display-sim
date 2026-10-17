@@ -1,0 +1,127 @@
+# M15 colorimetry schema 1. P placeholders; matched measurements and calibration NR.
+schema_version: 1
+profile: generic_ips_edge
+model: rgb_chromaticities_color_volume_v1
+parameter_status: placeholder
+panel_spectra: NR
+measured_color_volume: NR
+calibrated_profile_fit: NR
+entries:
+  primaries_xy:
+    value:
+    - - 0.64
+      - 0.33
+    - - 0.3
+      - 0.6
+    - - 0.15
+      - 0.06
+    evidence: P
+    source: &id001
+      locator: 'research/m15-colorimetry.md: initial sidecar assignments and P capacity
+        model; primary URL supports mechanism only'
+      sample: NR
+      url: https://doi.org/10.1364/OE.21.026269
+    conditions: &id002
+      picture_mode: NR
+      dynamic_tone_mapping: NR
+      input_mode: NR
+      local_dimming: NR
+      refresh_hz: NR
+      vrr: NR
+      white_xy: NR
+      source_encoding: NR
+      requested_window_nits: NR
+      source_rgb_primaries: NR
+      stimulus: NR
+      stimulus_rgb_code: NR
+      pattern_aspect_ratio: NR
+      position_xy_fraction: NR
+      warmup_s: NR
+      dwell_s: NR
+      prior_pattern_and_duration: NR
+      ambient_lux: NR
+      temperature_C: NR
+      viewing_angle_deg: NR
+      meter_geometry_and_spot: NR
+      instrument_and_correction: NR
+    interpolation:
+      method: none
+      evidence: not_applicable
+    support:
+      range:
+      - 0.0
+      - 1.0
+      unit: cie_xy
+      outside: reject
+    notes: P BT.709-like demonstration; IPS shutter and edge geometry do not determine
+      native gamut.
+  white_xy:
+    value:
+    - 0.3127
+    - 0.329
+    evidence: P
+    source: *id001
+    conditions: *id002
+    interpolation:
+      method: none
+      evidence: not_applicable
+    support:
+      range:
+      - 0.0
+      - 1.0
+      unit: cie_xy
+      outside: reject
+    notes: P assumed D65 panel white. The D65 normative definition is D; assigning
+      it to this generic panel is P.
+  woled_rgb_peak_ratio:
+    value: 1.0
+    evidence: P
+    source: *id001
+    conditions: *id002
+    interpolation:
+      method: none
+      evidence: not_applicable
+    support:
+      range:
+      - 0.0
+      - 1.0
+      unit: ratio
+      outside: reject
+    notes: P saturated-color channel ceiling relative to white peak; not a measured
+      color-volume ratio. A value of 1 disables this saturation penalty.
+  woled_white_exponent:
+    value: 2.0
+    evidence: P
+    source: *id001
+    conditions: *id002
+    interpolation:
+      method: none
+      evidence: not_applicable
+    support:
+      range: not_applicable
+      unit: positive_exponent
+      outside: reject
+    notes: P exponent of minRGB/maxRGB neutral fraction; not an RGBW drive allocation
+      or electrical current model.
+gamut_mapping:
+  model: neutral_axis_compress_v1
+  compression_knee:
+    value: 0.8
+    evidence: P
+    source: *id001
+    conditions: *id002
+    interpolation:
+      method: none
+      evidence: not_applicable
+    support:
+      range:
+      - 0.0
+      - 1.0
+      unit: ratio
+      outside: reject
+    notes: P default normalized chroma knee for the runtime compression configuration;
+      hard clip is a separate selectable baseline. This is not a vendor gamut map.
+notes: P BT.709-like demonstration; IPS shutter and edge geometry do not determine
+  native gamut. All numeric model inputs are P, derived matrices are D conditional
+  on those inputs, and spectra/color-volume measurements are NR. Source URLs support
+  mechanism or encoding definitions only.

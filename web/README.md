@@ -22,6 +22,30 @@ python3 -m sim export-web --help
 
 The minimum export resolution is 160 × 96. `--out` changes the output directory; the page expects its manifest at `data/manifest.json`, so use `--out web/data` for this viewer. Frame files are generated assets and can be regenerated from the Python source.
 
+M15 colorimetry is a separate **default-off** choice:
+
+```sh
+python3 -m sim export-web --colorimetry --source-primaries bt2020 \
+  --colorimetry-output bt2020 --out web/data
+```
+
+`--source-primaries` declares the RGB container, independently of PQ. The M15
+output basis can be `bt2020`, `display_p3`, `xyz` or `bt709`; the default is
+linear BT.2020. Its manifest carries source/panel xy and white, derived matrices,
+P mapper/volume settings, NR measurement fields and exact sidecar snapshots.
+BT.2020/D65 sources also include synthetic primary/secondary windows, saturated
+ramps, illustrative skin/foliage colors and a hue sweep. All four panels remain
+P placeholders. This path changes the simulated color behavior only when opted in.
+
+The viewer converts the declared linear coordinates to signed linear BT.709
+using `format.to_linear_srgb`, then the WebGPU renderer converts to Display P3.
+Negative wide-gamut coordinates survive both conversions until the final host
+gamut/component clip; SDR fallbacks clip their BT.709 presentation. Linear XYZ
+uses X/Y/Z channels and Y in cd/m². Signed RGB components are coordinates, not
+negative emitted light. Exposure, calibration and host HDR limits remain
+separate from the TV model. Default exports retain their original asset bytes
+and linear BT.709 interpretation.
+
 ## Use the viewer
 
 Choose a TV independently for A and B, then select one shared gallery scene: stars, subtitles, narrow/wide bright windows, ramps, logical subpixels, synthetic aperture macro, or the pan sequence. Drag either image to pan both views, scroll or use Zoom to inspect pixels, and use Reset view to restore the framing. Subpixel macro opens the existing area-normalized aperture model. Its geometry and concentrated peaks are illustrative, not measured physical emitter dimensions or luminance.
@@ -67,7 +91,7 @@ Calibration is kept only for the browser tab session, not as a permanent display
 
 `python3 -m sim export-web` uses `Pipeline.run_linear()` through the existing gallery protocol. Every `.f16` is headerless **IEEE 754 binary16, little-endian**, with **frame-major HWC RGB** layout, top-to-bottom rows, three channels, and no alpha. An asset of `F × H × W` pixels has `F * H * W * 3 * 2` bytes. Frame `i` starts at `i * frame_stride_bytes`; RGB channels are interleaved.
 
-Values are absolute linear-nit channel intensities under an explicit **linear sRGB / BT.709 primaries, D65** preview interpretation. Neutral `(N,N,N)` represents `N` cd/m² in the model; one colored channel value is not itself the patch's luminance. The existing profiles have synthetic matrices and no calibrated spectral/gamut model. PQ is used to feed the existing pipeline, without implying BT.2020 primaries for these procedural scenes. No output OETF or SDR normalization is baked into the transport.
+Default values are absolute linear-nit channel intensities under an explicit **linear sRGB / BT.709 primaries, D65** preview interpretation. Neutral `(N,N,N)` represents `N` cd/m² in the model; one colored channel value is not itself the patch's luminance. The default profiles have synthetic matrices and no calibrated spectral/gamut model. PQ is used to feed the existing pipeline, without implying BT.2020 primaries for these procedural scenes. M15 instead supplies the declared basis and matrices described above. No output OETF or SDR normalization is baked into either transport.
 
 The schema-version-1 manifest includes:
 
