@@ -47,3 +47,9 @@
 3. **Measurement follow-ups**: acquire matched amplitude/color/time and sustained traces before any named-TV calibration or independent dynamics fit; current source gaps remain `NR`.
 4. **GPU path (PyTorch on dscs2pc)**: still awaiting user confirm.
 5. **Cursor worker**: paused until CLI connection stalls are fixed.
+
+## M12 (user-approved 2026-10-17) — two parallel Codex workers (gpt-6.1-sol, ultra)
+- M12a Web preview: worktree /workspace/tv-sim-web-preview, branch codex/m12-web-preview, log /workspace/codex_web.log. Chrome HDR/EDR brightness-mapping panel + `sim export-web` + viewer in web/.
+- M12b Technical-principles explainer page with Anatomy figures: worktree /workspace/tv-sim-explainer, branch codex/m12-explainer, log /workspace/codex_explainer.log, output web-explainer/.
+- Codex cannot commit (git read-only): PM commits its working-tree changes on those branches, verifies, merges to main, and reports to user with screenshots.
+- After M12: Mac native app (Metal/EDR) per research/m5-mac-display.md; user wants precise brightness mapping. Cursor CLI is flaky (5 stalls) — use Codex.
