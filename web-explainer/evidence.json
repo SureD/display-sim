@@ -1,0 +1,893 @@
+{
+  "schema_version": 1,
+  "purpose": "M12b web explainer: source-grounded facts, not a calibration dataset",
+  "status": "All four generic runtime profiles are P placeholders; no named television is calibrated.",
+  "units": {
+    "luminance": "cd/m² (nits)",
+    "internal_rgb": "float32 linear-light RGB in nit-scaled units",
+    "apl": "mean linear BT.709 luminance in nits; not mean PQ code",
+    "luma_weights_bt709": [
+      0.2126,
+      0.7152,
+      0.0722
+    ]
+  },
+  "citations": {
+    "pipeline": {
+      "path": "../sim/pipeline.py",
+      "research": "../research/m6-profile-wiring.md#1-what-can-be-wired-today"
+    },
+    "panels": {
+      "path": "../research/01-panel-tech.md#definitions-and-defensible-comparisons",
+      "detail": "../research/m5-fidelity.md#4-aperture-geometry-and-physical-pixel-pitch",
+      "code": "../sim/macro.py"
+    },
+    "dimming": {
+      "path": "../research/02-backlight-local-dimming.md#layout-and-light-transport",
+      "detail": "../research/m3-local-dimming-params.md#grid-and-optics",
+      "code": "../sim/stages/backlight.py"
+    },
+    "hdr": {
+      "path": "../research/03-color-hdr.md#pq-and-hlg",
+      "detail": "../research/m3-hdr-abl-params.md#abl-versus-load",
+      "code": "../sim/load.py"
+    },
+    "temporal": {
+      "path": "../research/m5-fidelity.md#5-response-overdrive-emission-timing-and-mprt",
+      "detail": "../research/m3-temporal-params.md#response-and-state",
+      "code": "../sim/stages/temporal.py"
+    },
+    "memc": {
+      "path": "../research/m7-memc-motion.md#4-cadence-conversion-stutter-and-the-soap-opera-effect",
+      "current": "../README.md",
+      "code": "../sim/sequence.py"
+    },
+    "angle": {
+      "path": "../research/m6-profile-wiring.md#3-angular-leakage-separate-va-and-ips-fits",
+      "current": "../docs/PROVENANCE.md#angular-schema-version-1-m10",
+      "code": "../sim/viewing_angle.py"
+    },
+    "host": {
+      "path": "../research/m5-mac-display.md#2-edr-is-relative-to-sdr-white-not-an-absolute-nit-encoding",
+      "detail": "../research/m5-mac-display.md#6-a-dimmer-host-cannot-emit-the-brighter-tvs-light"
+    },
+    "provenance": {
+      "path": "../docs/PROVENANCE.md#evidence-and-unknowns",
+      "research": "../research/m5-fidelity.md"
+    },
+    "measurements": {
+      "path": "../research/m6-profile-wiring.md#2-measured-window-and-apl-records",
+      "detail": "../research/m5-fidelity.md#1-load-dependent-brightness-window-curves-are-conditional-measurements"
+    }
+  },
+  "pipeline": {
+    "order": [
+      "source encoded RGB",
+      "decode EOTF to linear nits",
+      "resize then unsharp-mask processing",
+      "backlight zone pooling/spread",
+      "panel transmission/emission (opt-in angular terms here), matrix and illustrative mosaic",
+      "soft HDR shoulder and ABL",
+      "ambient reflection",
+      "response/overdrive/BFI/pursuit exposure",
+      "optional uint8 preview encoding"
+    ],
+    "sequence_insertion": "Opt-in off/repeat/analytic sequence reconstruction occurs after per-source decode+spatial processing and before display stages, once per output tick.",
+    "default_input": {
+      "encoding": "srgb",
+      "white_nits": 100,
+      "hlg_peak_nits": 1000
+    },
+    "output": {
+      "run_linear": "Frame containing float32 linear RGB nits before preview encoding",
+      "run": "uint8 encoded preview",
+      "default_srgb_reference_nits": 100,
+      "above_reference": "clips"
+    },
+    "caveats": [
+      "Not a fully coupled electro-optical power solver.",
+      "Ambient precedes temporal in the compatibility pipeline; use zero lux for emission/BFI demonstrations.",
+      "The Frame has no primaries tag and identity profile matrices are not complete BT.2020/panel gamut management."
+    ]
+  },
+  "profiles": {
+    "generic_ips_edge": {
+      "name": "generic_ips_edge",
+      "technology": "ips_lcd",
+      "description": "Placeholder edge-lit IPS set. Native contrast is lower than VA, viewing angle is wider, and the backlight is a single row of segments whose light is spread by a wide PSF. Each segment drives a full-height column before the blur; that is a stand-in, not a light-guide simulation.\n",
+      "input": {
+        "eotf": "srgb",
+        "sdr_white_nits": 100.0,
+        "hlg_peak_nits": 1000.0
+      },
+      "processing": {
+        "scale_factor": 1.0,
+        "scale_mode": "bilinear",
+        "sharpen_amount": 0.2,
+        "sharpen_sigma": 0.8
+      },
+      "backlight": {
+        "mode": "edge",
+        "zones_x": 8,
+        "zones_y": 1,
+        "psf_sigma_zones": 1.5,
+        "psf_sigma_y_zones": 0.15,
+        "psf_tail_sigma_zones": 2.5,
+        "psf_tail_sigma_y_zones": null,
+        "psf_tail_weight": 0.0,
+        "psf_shape": "gaussian",
+        "psf_boundary": "reflect",
+        "psf_profile": null,
+        "zone_percentile": 100.0,
+        "peak_nits": 400.0,
+        "floor_nits": 0.0
+      },
+      "panel": {
+        "native_contrast": 1200.0,
+        "subpixel": "rgb_stripe",
+        "viewing_angle_deg": 0.0,
+        "angle_loss_per_deg": 0.015,
+        "color_matrix": [
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ]
+      },
+      "hdr": {
+        "tone_map": "soft_clip",
+        "panel_peak_nits": 400.0,
+        "knee_ratio": 0.85,
+        "abl_enabled": false,
+        "abl_full_field_nits": 350.0,
+        "abl_gamma": 2.0,
+        "abl_source": "emitted",
+        "abl_reference_nits": 0.0,
+        "abl_response_ms": 0.0,
+        "abl_backlight_tracking": 0.0,
+        "abl_power_budget_nits": 0.0,
+        "abl_channel_weights": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "ambient": {
+        "lux": 0.0,
+        "reflectance": 0.025
+      },
+      "temporal": {
+        "response_time_ms": 12.0,
+        "frame_time_ms": 16.666,
+        "sample_and_hold": true,
+        "motion_px_per_frame": 0.0,
+        "overdrive_gain": 0.0,
+        "overdrive_ms": 2.0,
+        "overdrive_ceiling_nits": 0.0,
+        "bfi_duty": 1.0,
+        "bfi_preserve_mean": false,
+        "integration_samples": 1
+      },
+      "output": {
+        "eotf": "srgb",
+        "reference_nits": 100.0
+      },
+      "evidence": "P placeholder, not measured TV",
+      "response_t10_90_ms_derived": 26.366694928034633,
+      "angular": {
+        "max_angle_deg": 45.0,
+        "white_gain_45": [
+          0.8,
+          0.8,
+          0.8
+        ],
+        "black_gain_45": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "gray_exponent_45": [
+          0.98,
+          1.0,
+          1.02
+        ]
+      }
+    },
+    "generic_qdoled": {
+      "name": "generic_qdoled",
+      "technology": "qdoled",
+      "description": "Placeholder QD-OLED. The triangular subpixel buffer is a geometric stand-in that box-filters back to the source color. A little per-pixel PSF stands in for optical crosstalk. Quantum-dot spectra and a real gamut matrix are not modeled; color_matrix stays identity.\n",
+      "input": {
+        "eotf": "srgb",
+        "sdr_white_nits": 100.0,
+        "hlg_peak_nits": 1000.0
+      },
+      "processing": {
+        "scale_factor": 1.0,
+        "scale_mode": "bilinear",
+        "sharpen_amount": 0.15,
+        "sharpen_sigma": 0.7
+      },
+      "backlight": {
+        "mode": "per_pixel",
+        "zones_x": 1,
+        "zones_y": 1,
+        "psf_sigma_zones": 0.45,
+        "psf_sigma_y_zones": null,
+        "psf_tail_sigma_zones": 2.0,
+        "psf_tail_sigma_y_zones": null,
+        "psf_tail_weight": 0.0,
+        "psf_shape": "gaussian",
+        "psf_boundary": "reflect",
+        "psf_profile": null,
+        "zone_percentile": 100.0,
+        "peak_nits": 1100.0,
+        "floor_nits": 0.0
+      },
+      "panel": {
+        "native_contrast": 1000000.0,
+        "subpixel": "qd_oled",
+        "viewing_angle_deg": 0.0,
+        "angle_loss_per_deg": 0.004,
+        "color_matrix": [
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ]
+      },
+      "hdr": {
+        "tone_map": "soft_clip",
+        "panel_peak_nits": 1100.0,
+        "knee_ratio": 0.85,
+        "abl_enabled": true,
+        "abl_full_field_nits": 199.0,
+        "abl_gamma": 1.0,
+        "abl_source": "emitted",
+        "abl_reference_nits": 0.0,
+        "abl_response_ms": 0.0,
+        "abl_backlight_tracking": 0.0,
+        "abl_power_budget_nits": 0.0,
+        "abl_channel_weights": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "ambient": {
+        "lux": 0.0,
+        "reflectance": 0.012
+      },
+      "temporal": {
+        "response_time_ms": 0.1,
+        "frame_time_ms": 16.666,
+        "sample_and_hold": true,
+        "motion_px_per_frame": 0.0,
+        "overdrive_gain": 0.0,
+        "overdrive_ms": 0.0,
+        "overdrive_ceiling_nits": 0.0,
+        "bfi_duty": 1.0,
+        "bfi_preserve_mean": false,
+        "integration_samples": 1
+      },
+      "output": {
+        "eotf": "srgb",
+        "reference_nits": 100.0
+      },
+      "evidence": "P placeholder, not measured TV",
+      "response_t10_90_ms_derived": 0.21972245773362198,
+      "angular": {
+        "max_angle_deg": 45.0,
+        "emission_gain_45": [
+          0.95,
+          0.96,
+          0.94
+        ]
+      }
+    },
+    "generic_va_fald_miniled": {
+      "name": "generic_va_fald_miniled",
+      "technology": "va_lcd",
+      "description": "Placeholder VA mini-LED FALD set. Contrast is high on axis and falls off quickly with angle. Zone grid and PSF are round numbers, not a zone map from a shipping set.\n",
+      "input": {
+        "eotf": "srgb",
+        "sdr_white_nits": 100.0,
+        "hlg_peak_nits": 1000.0
+      },
+      "processing": {
+        "scale_factor": 1.0,
+        "scale_mode": "bilinear",
+        "sharpen_amount": 0.25,
+        "sharpen_sigma": 0.8
+      },
+      "backlight": {
+        "mode": "fald",
+        "zones_x": 16,
+        "zones_y": 12,
+        "psf_sigma_zones": 0.75,
+        "psf_sigma_y_zones": 0.75,
+        "psf_tail_sigma_zones": 2.0,
+        "psf_tail_sigma_y_zones": 2.0,
+        "psf_tail_weight": 0.08,
+        "psf_shape": "gaussian",
+        "psf_boundary": "reflect",
+        "psf_profile": null,
+        "zone_percentile": 100.0,
+        "peak_nits": 2000.0,
+        "floor_nits": 0.0
+      },
+      "panel": {
+        "native_contrast": 4000.0,
+        "subpixel": "rgb_stripe",
+        "viewing_angle_deg": 0.0,
+        "angle_loss_per_deg": 0.08,
+        "color_matrix": [
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ]
+      },
+      "hdr": {
+        "tone_map": "soft_clip",
+        "panel_peak_nits": 2000.0,
+        "knee_ratio": 0.7,
+        "abl_enabled": true,
+        "abl_full_field_nits": 620.0,
+        "abl_gamma": 1.0,
+        "abl_source": "emitted",
+        "abl_reference_nits": 0.0,
+        "abl_response_ms": 0.0,
+        "abl_backlight_tracking": 0.0,
+        "abl_power_budget_nits": 0.0,
+        "abl_channel_weights": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "ambient": {
+        "lux": 0.0,
+        "reflectance": 0.02
+      },
+      "temporal": {
+        "response_time_ms": 8.0,
+        "frame_time_ms": 16.666,
+        "sample_and_hold": true,
+        "motion_px_per_frame": 0.0,
+        "overdrive_gain": 0.0,
+        "overdrive_ms": 2.0,
+        "overdrive_ceiling_nits": 0.0,
+        "bfi_duty": 1.0,
+        "bfi_preserve_mean": false,
+        "integration_samples": 1
+      },
+      "output": {
+        "eotf": "srgb",
+        "reference_nits": 100.0
+      },
+      "evidence": "P placeholder, not measured TV",
+      "response_t10_90_ms_derived": 17.577796618689757,
+      "angular": {
+        "max_angle_deg": 45.0,
+        "white_gain_45": [
+          0.65,
+          0.65,
+          0.65
+        ],
+        "black_gain_45": [
+          5.0,
+          5.0,
+          5.0
+        ],
+        "gray_exponent_45": [
+          0.8,
+          0.84,
+          0.9
+        ]
+      }
+    },
+    "generic_woled": {
+      "name": "generic_woled",
+      "technology": "woled",
+      "description": "Placeholder WOLED. Emission is per pixel (no zone grid). The WRGB mosaic is energy-preserving when box-filtered, so it does not change a flat color. ABL pulls the allowed peak down toward the full-field figure as APL rises. Spectral white-subpixel mixing beyond that mosaic is not modeled.\n",
+      "input": {
+        "eotf": "srgb",
+        "sdr_white_nits": 100.0,
+        "hlg_peak_nits": 1000.0
+      },
+      "processing": {
+        "scale_factor": 1.0,
+        "scale_mode": "bilinear",
+        "sharpen_amount": 0.15,
+        "sharpen_sigma": 0.7
+      },
+      "backlight": {
+        "mode": "per_pixel",
+        "zones_x": 1,
+        "zones_y": 1,
+        "psf_sigma_zones": 0.0,
+        "psf_sigma_y_zones": null,
+        "psf_tail_sigma_zones": 2.0,
+        "psf_tail_sigma_y_zones": null,
+        "psf_tail_weight": 0.0,
+        "psf_shape": "gaussian",
+        "psf_boundary": "reflect",
+        "psf_profile": null,
+        "zone_percentile": 100.0,
+        "peak_nits": 850.0,
+        "floor_nits": 0.0
+      },
+      "panel": {
+        "native_contrast": 1000000.0,
+        "subpixel": "wrgb",
+        "viewing_angle_deg": 0.0,
+        "angle_loss_per_deg": 0.005,
+        "color_matrix": [
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ]
+      },
+      "hdr": {
+        "tone_map": "soft_clip",
+        "panel_peak_nits": 850.0,
+        "knee_ratio": 0.85,
+        "abl_enabled": true,
+        "abl_full_field_nits": 170.0,
+        "abl_gamma": 2.4,
+        "abl_source": "emitted",
+        "abl_reference_nits": 0.0,
+        "abl_response_ms": 0.0,
+        "abl_backlight_tracking": 0.0,
+        "abl_power_budget_nits": 0.0,
+        "abl_channel_weights": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "ambient": {
+        "lux": 0.0,
+        "reflectance": 0.015
+      },
+      "temporal": {
+        "response_time_ms": 0.2,
+        "frame_time_ms": 16.666,
+        "sample_and_hold": true,
+        "motion_px_per_frame": 0.0,
+        "overdrive_gain": 0.0,
+        "overdrive_ms": 0.0,
+        "overdrive_ceiling_nits": 0.0,
+        "bfi_duty": 1.0,
+        "bfi_preserve_mean": false,
+        "integration_samples": 1
+      },
+      "output": {
+        "eotf": "srgb",
+        "reference_nits": 100.0
+      },
+      "evidence": "P placeholder, not measured TV",
+      "response_t10_90_ms_derived": 0.43944491546724396,
+      "angular": {
+        "max_angle_deg": 45.0,
+        "emission_gain_45": [
+          0.88,
+          0.92,
+          0.96
+        ]
+      }
+    }
+  },
+  "subpixels": {
+    "evidence": "P geometry; observed technology topology from research, exact apertures NR",
+    "rgb_stripe": "Separate R/G/B stripe apertures; panel-specific RGB/BGR order and domain geometry are not measured.",
+    "wrgb": "White-emitting OLED plus filtered R/G/B and an unfiltered W aperture; family order varies by generation.",
+    "qdoled": "Blue OLED plus patterned red/green quantum-dot conversion, blue retained; TV examples use green-above-red/blue staggered triangular topology.",
+    "macro": {
+      "code": "sim/macro.py",
+      "logical_pitch": "same square logical pixel pitch for every family",
+      "default_fill_factor": 0.72,
+      "wrgb_white_fraction": 0.65,
+      "wrgb_repeat": "R/W/B/G",
+      "normalization": "Each aperture has unit cell-mean; box averaging recovers input RGB.",
+      "limits": "Not a measured micrograph, spectrum, emitter peak or PenTile pixel-sharing model. Macro allocation differs from coarse pipeline mosaic."
+    },
+    "derived_65_in_4k": {
+      "pitch_mm": 0.374732,
+      "ppi": 67.781759,
+      "evidence": "D using nominal active diagonal and square 3840×2160 raster"
+    },
+    "unsupported_profiles": [
+      "CRT",
+      "plasma"
+    ]
+  },
+  "local_dimming": {
+    "grid": {
+      "columns": 16,
+      "rows": 12,
+      "count": 192,
+      "evidence": "P current VA profile; not a shipping-TV zone map",
+      "pitch_at_3840x2160_px": [
+        240,
+        180
+      ]
+    },
+    "edge_proxy": {
+      "columns": 8,
+      "rows": 1,
+      "strips": 8,
+      "evidence": "P full-height strips, not a measured edge-light guide"
+    },
+    "demand": "max(R,G,B), pooled by zone maximum when percentile=100",
+    "transport": "B_i = Σ_j H_ij d_j; current regular-grid approximation expands zone footprints then convolves unit-sum kernels",
+    "psf": "K=(1−a)G_core+aG_tail; separable x/y Gaussian mixture",
+    "current_va_psf": {
+      "core_sigma_pitch_xy": [
+        0.75,
+        0.75
+      ],
+      "tail_sigma_pitch_xy": [
+        2,
+        2
+      ],
+      "tail_energy": 0.08,
+      "boundary": "reflect",
+      "evidence": "P placeholders"
+    },
+    "leakage": "For B>0: L = clip(T, B/C, B), equivalent to compensated LCD transmission; current disabled-angle path uses 1e−8-nit numerical safe floor.",
+    "synthetic_example": {
+      "backlight_nits": 1000,
+      "contrast": 4000,
+      "black_leakage_nits": 0.25,
+      "evidence": "D from synthetic inputs, not a measured halo"
+    },
+    "limits": [
+      "No zone-controller lag, per-zone watt budget, measured influence matrix or iterative backlight/LCD solver.",
+      "Light spreading alone does not establish visible LCD halo; finite extinction raises dark pixels.",
+      "Current QD-OLED's 0.45-pixel PSF spreads emitted RGB; it is distinct from LCD zone leakage."
+    ]
+  },
+  "hdr": {
+    "pq": {
+      "evidence": "D equation evaluation of pinned normative PQ EOTF; display peak remains independent",
+      "formula": "p=N^(1/m2); L=10000*[max(p−c1,0)/(c2−c3*p)]^(1/m1)",
+      "m1": "2610/16384",
+      "m2": "2523/32",
+      "c1": "3424/4096",
+      "c2": "2413/128",
+      "c3": "2392/128",
+      "checks": [
+        {
+          "nits": 100,
+          "pq_code": 0.508078396320343
+        },
+        {
+          "nits": 1000,
+          "pq_code": 0.7518271207809448
+        },
+        {
+          "nits": 10000,
+          "pq_code": 1.0
+        }
+      ]
+    },
+    "tone_map": {
+      "evidence": "P approximation, not BT.2390 or vendor firmware",
+      "formula": "K=kP; f(Y)=Y for Y≤K, else K+(P−K)*(1−exp(−(Y−K)/(P−K)))",
+      "rgb": "Scale by f(Y)/Y, then project excessive RGB toward equal-channel white.",
+      "example": {
+        "P_nits": 1000,
+        "k": 0.7,
+        "f_700": 700,
+        "f_1000": 889.63617,
+        "f_4000": 999.99499
+      }
+    },
+    "abl": {
+      "evidence": "P synthetic content/load proxy",
+      "formula": "a=clip(APL/P0,0,1); P(a)=F+(P0−F)*(1−a)^g",
+      "area_relation": "For neutral requested window on black: APL_request = fraction × requested_window_nits. Area equals normalized APL only when amplitude=P0.",
+      "current_source": "All shipped profiles inherit abl_source=emitted: read mean after panel clipping; demand mode is separately supported and opt in.",
+      "opt_in_source": "abl_source=demand reads upstream requested linear luminance after spatial processing and before limiting.",
+      "dynamics": "abl_response_ms=0 and tracking=0 in shipped profiles; separate attack/release, thermal and static-logo controllers are not modeled.",
+      "power": "abl_power_budget_nits=0 disables weighted-nit proxy; it is not watts."
+    }
+  },
+  "temporal": {
+    "response": {
+      "evidence": "P one-pole emitted-RGB surrogate",
+      "formula": "q_next=u+(q_prev−u)*exp(−dt/τ)",
+      "t10_90_ms": "ln(9)*tau_ms, only in same measurement domain",
+      "first_frame": "settled, not a black→white response test",
+      "state": "unblurred response endpoint retained before BFI/pursuit"
+    },
+    "overdrive": {
+      "formula": "u_OD=clip(u+k*(u−q_start),0,ceiling) for a short prefix, then u",
+      "current": "gain=0 for all; LCD prefix duration=2 ms, OLED=0",
+      "limits": "P optical surrogate; measured voltage/transition LUT and full inverse-ghosting dynamics NR"
+    },
+    "bfi": {
+      "formula": "T_visible_ms=1000*d/f; fixed-peak mean luminance≈d×full hold",
+      "current": "duty=1; optional centered rectangular pulse when subframe integration enabled",
+      "limits": "No measured scanout/PWM/BFI pulse waveform or supported retail-mode claim"
+    },
+    "hold_examples_960_px_s": [
+      {
+        "hz": 60,
+        "duty": 1,
+        "visible_ms": 16.666666666666668,
+        "support_px": 16.0,
+        "edge_10_90_px": 12.8,
+        "evidence": "D ideal rectangular aperture"
+      },
+      {
+        "hz": 120,
+        "duty": 1,
+        "visible_ms": 8.333333333333334,
+        "support_px": 8.0,
+        "edge_10_90_px": 6.4,
+        "evidence": "D ideal rectangular aperture"
+      },
+      {
+        "hz": 60,
+        "duty": 0.5,
+        "visible_ms": 8.333333333333334,
+        "support_px": 8.0,
+        "edge_10_90_px": 6.4,
+        "evidence": "D ideal rectangular aperture"
+      },
+      {
+        "hz": 120,
+        "duty": 0.25,
+        "visible_ms": 2.0833333333333335,
+        "support_px": 2.0,
+        "edge_10_90_px": 1.6,
+        "evidence": "D ideal rectangular aperture"
+      }
+    ],
+    "implementation": "integration_samples=1 is legacy endpoint+7 shifts. Gallery separately uses 16 analytic subframe response samples.",
+    "memc": {
+      "current_modes": [
+        "off",
+        "repeat",
+        "analytic"
+      ],
+      "default": "off",
+      "evidence": {
+        "rational_timing": "D",
+        "known_translation_and_layers": "P",
+        "vendor_algorithms_latency": "NR"
+      },
+      "implemented": "Exact rational PTS; known translation or known layered masks/depths; explicit cuts and safe source-hold fallback before display stages.",
+      "absent": [
+        "automatic motion estimation",
+        "automatic scene-cut detection",
+        "vendor MEMC calibration"
+      ],
+      "cadence": [
+        {
+          "source_fps": 24,
+          "output_hz": 60,
+          "repeat": "3:2",
+          "holds_ms": [
+            50,
+            33.333333333333336
+          ],
+          "unique_source_positions_s": 24
+        },
+        {
+          "source_fps": 24,
+          "output_hz": 120,
+          "repeat": "5:5",
+          "holds_ms": [
+            41.666666666666664
+          ],
+          "unique_source_positions_s": 24
+        }
+      ],
+      "at_480_px_s": {
+        "source_step_24_fps_px": 20,
+        "output_step_60_fps_px": 8,
+        "output_step_120_fps_px": 4
+      }
+    }
+  },
+  "viewing_angle": {
+    "evidence": "Every shipped M10 angular value is P placeholder. Complete generic-profile fits and OLED measured gains/spectra are NR.",
+    "support": "Combined center-ray angle 0–45 degrees, outside rejected; this is a synthetic exploration bound, not measured support.",
+    "geometry": "cos(theta)=cos(horizontal)*cos(vertical); unsigned symmetry and azimuth independence are P assumptions.",
+    "interpolation": "s=sin²(theta)/sin²(45°); gain=exp(log(endpoint45)*s); gray exponent=1+(endpoint45−1)*s",
+    "lcd": "epsilon0=1/C; q=clip((T/B−epsilon0)/(1−epsilon0),0,1); epsilon=epsilon0*Fb/Fw; L=B*Fw*(epsilon+(1−epsilon)*q^gamma)",
+    "emissive": "Emitted RGB multiplied only by RGB angular gain, with no LCD leakage.",
+    "fixed_100_nit_backlight_example": {
+      "VA": {
+        "white_0": 100,
+        "black_0": 0.025,
+        "contrast_0": 4000,
+        "white_45": 65,
+        "black_45": 0.125,
+        "contrast_45": 520
+      },
+      "IPS": {
+        "white_0": 100,
+        "black_0": 0.08333333333333333,
+        "contrast_0": 1200,
+        "white_45": 80,
+        "black_45": 0.16666666666666666,
+        "contrast_45": 480
+      },
+      "evidence": "D using P model endpoints, isolated mechanisms (ABL/sharpen/optics/temporal disabled)"
+    },
+    "limits": [
+      "No per-pixel seat geometry or IPS corner glow",
+      "No extra cosine luminance fade",
+      "No named-TV calibration"
+    ]
+  },
+  "host_display": {
+    "evidence": "Research proposal; no Mac renderer or host calibration implemented",
+    "current_preview": "8-bit sRGB default maps 100 simulated nits to code1 and clips higher values; no browser nit guarantee.",
+    "shared_scale": "L_preview=s*L_T with one scale shared across all TVs and compared times",
+    "hard_clip": "L_preview=min(L_T,L_H): lower values retained, distinctions above host limit lost",
+    "example": {
+      "host_limit_nits": 600,
+      "tv_peaks_nits": [
+        3000,
+        1000
+      ],
+      "shared_scale": 0.2,
+      "preview_peaks_nits": [
+        600,
+        200
+      ],
+      "evidence": "D/P conditional example, not measured host"
+    },
+    "edr": {
+      "formula": "C_edr=M_tv_to_linear_P3*C_tv_nits/W",
+      "W": "measured luminance of EDR(1,1,1), current SDR/UI white",
+      "H": "current admissible EDR component maximum; current and positive reference headroom considered",
+      "ideal_neutral_limit": "W*H",
+      "example": {
+        "W_nits": 100,
+        "H": 10,
+        "tv_nits": [
+          100,
+          400,
+          1000
+        ],
+        "edr_values": [
+          1,
+          4,
+          10
+        ],
+        "evidence": "D/P conditional example; not a calibrated host"
+      },
+      "limits": "EDR1 is relative white, not universal nits; potential headroom is not current/reference headroom. Lowering W cannot raise physical panel peak."
+    },
+    "unmatched": [
+      "host black floor and local dimming halos",
+      "gamut/color volume",
+      "pattern area/duration and thermal history",
+      "spatial/subpixel structure",
+      "response/BFI/refresh",
+      "ambient and adaptation"
+    ]
+  },
+  "evidence_grades": {
+    "M": "Published measurement on a named specimen under recorded conditions",
+    "D": "Calculation from stated inputs with retained method/source",
+    "P": "Proposed model, synthetic preset, fitting choice or interpolation",
+    "NR": "No verified numerical reference, unidentified parameter or unknown condition",
+    "not_applicable": "Mechanism/field does not apply; distinct from unknown",
+    "rules": [
+      "NR never means zero.",
+      "An interpolation between M nodes is P.",
+      "A measured peak does not establish sustained luminance or timing.",
+      "Nearby named-TV measurement does not turn a generic parameter into M."
+    ]
+  },
+  "named_measurements": {
+    "fractions": [
+      0.01,
+      0.02,
+      0.05,
+      0.1,
+      0.25,
+      0.5,
+      0.75,
+      1
+    ],
+    "unit": "nits",
+    "luminance_evidence": "Each numeric node is M in versioned sidecars; null entries retain NR.",
+    "dwell_s": "NR",
+    "timed_sustained_trace": "NR",
+    "c2_42_hdr_standard_peak": [
+      717,
+      717,
+      717,
+      717,
+      396,
+      243,
+      192,
+      152
+    ],
+    "s95b_65_hdr10_filmmaker_peak": [
+      1000,
+      null,
+      null,
+      1000,
+      600,
+      300,
+      null,
+      200
+    ],
+    "x955_98_theatre_hdr_peak": [
+      null,
+      1675,
+      3000,
+      3200,
+      3200,
+      1800,
+      1100,
+      896
+    ],
+    "uh770v_55_hdr_peak_unlocated": {
+      "luminance_nits": 455,
+      "fraction": "NR",
+      "dwell": "NR"
+    }
+  },
+  "stale_text_cautions": [
+    "docs/REPORT.md M4 sections are historical: their QD-OLED zero optical halo and MEMC-unimplemented descriptions are not current runtime truth.",
+    "research/m5-fidelity.md emitted-only APL and ignored OLED-PSF implementation descriptions are superseded by m6 plus current code.",
+    "research/m6-profile-wiring.md proposed angular implementation is superseded by README, docs/PROVENANCE.md M10 and sim/viewing_angle.py.",
+    "research/m7-memc-motion.md is a preimplementation design note. README and sim/sequence.py define current off/repeat/analytic support; proposed blend/mci and automatic block estimation are not current modes."
+  ]
+}

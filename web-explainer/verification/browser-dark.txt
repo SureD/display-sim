@@ -1,0 +1,14 @@
+eval: {"chapters":["pipeline","panels","dimming","hdr","temporal","angle","mapping","evidence"],"figures":3,"overflow":false}
+eval: {"position":"88","halo":"0.2773325443267822"}
+line ends: 0 of 214 ends on 11 lines float
+eval: "window keyboard passed"
+eval: {"va":"65.00 / 0.1250 nit520:1","ips":"80.00 / 0.1667 nit480:1"}
+eval: "clipped: 600 / 600"
+eval: "scaled: 600 / 200"
+eval: "24 → 120：5:5 重复，每张源帧均保持 41.67 ms；新运动位置仍只有每秒 24 个。"
+eval: "PQ 1.000 → 10000 nits · 容量 199 → 输出 199 nits · a=100%"
+line ends: 0 of 448 ends on 43 lines float
+eval: "2.08 ms · 2.00 px"
+line ends: 0 of 76 ends on 21 lines float
+eval: "theme toggle: light"
+console: clean
