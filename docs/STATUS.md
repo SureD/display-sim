@@ -1,4 +1,4 @@
-# Status — 2026-10-17 12:35 CST
+# Status — 2026-10-17 15:20 CST
 
 ## Milestone progress
 - **M1 research docs**: DONE (`37cc504`).
@@ -29,6 +29,7 @@
 - Codex run14: **finished** M11 design (uncommitted → PM committed `6d19a43` + merged).
 - Codex M12a (web preview) and M12b (explainer) workers: **finished** (uncommitted → PM committed `54b43af` / `a2c50cc` + merged at 12:30).
 - Started 12:35: Codex run15 → M13 OLED attack/release runtime implementation (worktree `/workspace/tv-sim-codex`, branch `codex/m13-oled-dynamics-impl`, log `/workspace/codex_run15.log`).
+- 15:20 PM check: Codex run15 (M13) **still running** (process since 14:27, ultra reasoning, log 24.8k lines). Uncommitted work so far: `sim/abl_dynamics.py`, `sim/abl_history.py`, `sim/oled_dynamics_experiment.py`, `sim/oled_dynamics_provenance.py`, `python3 -m sim oled-dynamics` CLI, M9 fit-composition rejection, off-path baseline fixture; PM ran the 4 new M13 test files in the worktree: **238 passed**. Not merged yet (waiting for Codex to finish + full-suite run). Cursor still paused.
 
 ## Tests
 - **546/546 pytest on main after M11 + M12a + M12b merges** (PM re-run: `546 passed in 85.95s`); provenance check OK; `node --test web/tests/mapping.test.mjs` passes; `web-explainer/check-models.mjs` PASS.
