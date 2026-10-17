@@ -55,13 +55,51 @@ python3 -m sim motion --profile generic_woled --input-frames 'clip/frame_*.png' 
 mode. `repeat` schedules half-open source holds (24→60 is 3:2; 24→120 is 5:5).
 `analytic` reconstructs prepared linear-nit content before the display stages.
 Declare cuts with `--cut-before INDEX ...`; cuts, missing/mismatched models,
-unsafe motion and unknown borders use source-hold fallback. No automatic motion
-estimation or cut detection is included. Original source times preserve the
+unsafe motion and unknown borders use source-hold fallback. Original source times preserve the
 original content exactly; the last picture holds for its source duration.
 The sidecar records independent source/output PTS, phase, fallback flags,
 assumed lookahead and hashes, alongside linear-nit `.npy` and fixed-exposure PNG
 outputs. Python callers can use `Pipeline.run_sequence` with the separate
 runtime `MotionConfig` and known `LayerScene` masks/depths; TV YAMLs are unchanged.
+
+M14 adds the separate **opt-in `mci` block motion proxy**, with deterministic
+NumPy matching on an estimation raster capped at 320×180, 8/16-pixel blocks,
+and a declared coarse-to-fine search. Matching uses fixed-reference linear
+BT.709 luma; vectors are saved in output pixels per source interval. Confidence,
+forward/backward visibility, unresolved collisions, cuts and exposure changes
+can trigger local or whole-picture source holds with recorded reasons.
+Declared and detected cuts hold the old shot until the new source PTS.
+
+```sh
+python3 -m sim motion --profile generic_woled --input-frames 'clip/frame_*.png' \
+  --source-fps 24 --output-fps 60 --memc mci --motion-debug \
+  --preview-reference-nits 1000 --out reports/motion-mci
+python3 -m sim motion validate --seed 7 --gallery --out reports/motion-tests
+```
+
+The isolated validation suite covers pan, two-layer occlusion, thin text, cuts,
+repeating texture, large motion and flashes. It saves linear-nit sources,
+analytic intermediate truth, repeat/analytic/MCI results, region masks,
+PTS traces, trajectory/vector error, regional luma error and fallback switching.
+The optional offline gallery compares short occlusion/text clips at one shared
+exposure. These reports are separate from M4; browser playback and contact
+sheets do not establish perceived smoothness or a panel refresh-rate result.
+
+Every estimator threshold is a **P placeholder** in the versioned
+[`motion_block_synthetic_v1.json`](research/measurements/motion_block_synthetic_v1.json),
+checked by `provenance --check`. Use `--motion-config PATH` for a separately
+labeled config or `--block-size 16` for the larger estimation blocks. The
+simple cut detector can miss similar shots or misclassify large appearance
+changes; thin detail and repeated texture can produce substantial fallback.
+No named TV or vendor MEMC algorithm is calibrated.
+
+The MCI CLI streams adjacent images and estimates each pair once. All motion
+modes reconstruct requested content before backlight/optics/panel/ABL stages;
+one persistent display history advances per output tick. To combine with M13,
+add `--abl-dynamics capacity_attack_release_v1 --abl-attack-ms 100
+--abl-release-ms 1000`; these taus are explicit P inputs. Both controls default
+off. Existing repeat/analytic traces, default rendering and M13 experiments
+retain exact captured output parity.
 
 All parameters are **placeholders**, not calibrated TVs. HDR is scaled into a
 shared SDR preview; amplified shadow rows reveal leakage. Motion rows distinguish

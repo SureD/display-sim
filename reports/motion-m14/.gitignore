@@ -1,0 +1,3 @@
+# Float arrays (~57 MB) are reproducible; regenerate with the command in README.md.
+*.npy
+*.npz

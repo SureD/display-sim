@@ -1,0 +1,2127 @@
+[
+  {
+    "output_index": 0,
+    "output_pts": "0/1",
+    "source_index": 0,
+    "source_pts": "0/1",
+    "next_source_index": 1,
+    "next_source_pts": "1/24",
+    "phase": "0/1",
+    "assessed_intermediate": false,
+    "mci_assumed_lookahead_seconds": "1/24",
+    "frame_time_ms": 16.666666666666668,
+    "truth_file": "large_motion/truth_0000.npy",
+    "truth_sha256": "46a0d40cb977faeb4c7945eaae4588066052aadf43df92508b69d04d741a72be",
+    "regions_file": "large_motion/regions_0000.npz",
+    "modes": {
+      "repeat": {
+        "kind": "original",
+        "fallback_reasons": [],
+        "fallback_fraction": 0.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "linear_file": "large_motion/repeat_0000.npy",
+        "linear_sha256": "46a0d40cb977faeb4c7945eaae4588066052aadf43df92508b69d04d741a72be",
+        "preview_file": "large_motion/repeat_0000.png",
+        "fallback_file": "large_motion/repeat_0000_fallback.npy",
+        "reason_fractions": {},
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 8784,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "boundary": {
+              "pixels": 432,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "disoccluded": {
+              "pixels": 0,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": null
+            }
+          },
+          "trajectory_error_px": 0.0,
+          "observed_marker_centroid_px": [
+            34.5,
+            31.5
+          ],
+          "truth_marker_centroid_px": [
+            34.5,
+            31.5
+          ],
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        }
+      },
+      "analytic": {
+        "kind": "original",
+        "fallback_reasons": [],
+        "fallback_fraction": 0.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "linear_file": "large_motion/analytic_0000.npy",
+        "linear_sha256": "46a0d40cb977faeb4c7945eaae4588066052aadf43df92508b69d04d741a72be",
+        "preview_file": "large_motion/analytic_0000.png",
+        "fallback_file": "large_motion/analytic_0000_fallback.npy",
+        "reason_fractions": {},
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 8784,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "boundary": {
+              "pixels": 432,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "disoccluded": {
+              "pixels": 0,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": null
+            }
+          },
+          "trajectory_error_px": 0.0,
+          "observed_marker_centroid_px": [
+            34.5,
+            31.5
+          ],
+          "truth_marker_centroid_px": [
+            34.5,
+            31.5
+          ],
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        }
+      },
+      "mci": {
+        "kind": "original",
+        "fallback_reasons": [],
+        "fallback_fraction": 0.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "reason_fractions": {},
+        "diagnostics": {},
+        "linear_file": "large_motion/mci_0000.npy",
+        "linear_sha256": "46a0d40cb977faeb4c7945eaae4588066052aadf43df92508b69d04d741a72be",
+        "preview_file": "large_motion/mci_0000.png",
+        "fallback_file": "large_motion/mci_0000_fallback.npy",
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 8784,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "boundary": {
+              "pixels": 432,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "disoccluded": {
+              "pixels": 0,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": null
+            }
+          },
+          "trajectory_error_px": 0.0,
+          "observed_marker_centroid_px": [
+            34.5,
+            31.5
+          ],
+          "truth_marker_centroid_px": [
+            34.5,
+            31.5
+          ],
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        },
+        "reason_map_file": "large_motion/mci_0000_reasons.npy"
+      }
+    }
+  },
+  {
+    "output_index": 1,
+    "output_pts": "1/60",
+    "source_index": 0,
+    "source_pts": "0/1",
+    "next_source_index": 1,
+    "next_source_pts": "1/24",
+    "phase": "2/5",
+    "assessed_intermediate": true,
+    "mci_assumed_lookahead_seconds": "1/24",
+    "frame_time_ms": 16.666666666666668,
+    "truth_file": "large_motion/truth_0001.npy",
+    "truth_sha256": "37cd4ea6f3ef97511c6aab4029a8f4cafb6a699df5abbcefaf0d17027ccc35a4",
+    "regions_file": "large_motion/regions_0001.npz",
+    "modes": {
+      "repeat": {
+        "kind": "repeated",
+        "fallback_reasons": [],
+        "fallback_fraction": 0.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "linear_file": "large_motion/repeat_0001.npy",
+        "linear_sha256": "46a0d40cb977faeb4c7945eaae4588066052aadf43df92508b69d04d741a72be",
+        "preview_file": "large_motion/repeat_0001.png",
+        "fallback_file": "large_motion/repeat_0001_fallback.npy",
+        "reason_fractions": {},
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 7128,
+              "absolute_luma_error_sum_nits": 108243.618954628,
+              "linear_luma_mae_nits": 15.185692894869247
+            },
+            "boundary": {
+              "pixels": 576,
+              "absolute_luma_error_sum_nits": 21456.752832337188,
+              "linear_luma_mae_nits": 37.2513070005854
+            },
+            "disoccluded": {
+              "pixels": 1512,
+              "absolute_luma_error_sum_nits": 21340.724700927734,
+              "linear_luma_mae_nits": 14.114235913311994
+            }
+          },
+          "trajectory_error_px": 20.469480971193782,
+          "observed_marker_centroid_px": [
+            34.5,
+            31.5
+          ],
+          "truth_marker_centroid_px": [
+            54.96948097119378,
+            31.499999999076024
+          ],
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        }
+      },
+      "analytic": {
+        "kind": "interpolated",
+        "fallback_reasons": [],
+        "fallback_fraction": 0.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "linear_file": "large_motion/analytic_0001.npy",
+        "linear_sha256": "37cd4ea6f3ef97511c6aab4029a8f4cafb6a699df5abbcefaf0d17027ccc35a4",
+        "preview_file": "large_motion/analytic_0001.png",
+        "fallback_file": "large_motion/analytic_0001_fallback.npy",
+        "reason_fractions": {},
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 7128,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "boundary": {
+              "pixels": 576,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "disoccluded": {
+              "pixels": 1512,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            }
+          },
+          "trajectory_error_px": 0.0,
+          "observed_marker_centroid_px": [
+            54.96948097119378,
+            31.499999999076024
+          ],
+          "truth_marker_centroid_px": [
+            54.96948097119378,
+            31.499999999076024
+          ],
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        }
+      },
+      "mci": {
+        "kind": "repeated",
+        "fallback_reasons": [
+          "ambiguous_match",
+          "hole",
+          "inconsistent_motion",
+          "low_texture",
+          "whole_frame_low_confidence"
+        ],
+        "fallback_fraction": 1.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "reason_fractions": {
+          "low_texture": 0.1597222222222222,
+          "ambiguous_match": 0.8246527777777778,
+          "inconsistent_motion": 0.006944444444444444,
+          "hole": 0.0008680555555555555,
+          "whole_frame_low_confidence": 0.0078125
+        },
+        "diagnostics": {
+          "hole_fraction": 0.9921875,
+          "collision_fraction": 0.0,
+          "raw_fallback_fraction": 0.9921875,
+          "visibility_policy": "consistent_visible_endpoints_only; unresolved_collisions_hold",
+          "local_reason_fractions": {
+            "low_texture": 0.1597222222222222,
+            "ambiguous_match": 0.8246527777777778,
+            "inconsistent_motion": 0.006944444444444444,
+            "hole": 0.0008680555555555555
+          },
+          "whole_frame_hold": true
+        },
+        "linear_file": "large_motion/mci_0001.npy",
+        "linear_sha256": "46a0d40cb977faeb4c7945eaae4588066052aadf43df92508b69d04d741a72be",
+        "preview_file": "large_motion/mci_0001.png",
+        "fallback_file": "large_motion/mci_0001_fallback.npy",
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 7128,
+              "absolute_luma_error_sum_nits": 108243.618954628,
+              "linear_luma_mae_nits": 15.185692894869247
+            },
+            "boundary": {
+              "pixels": 576,
+              "absolute_luma_error_sum_nits": 21456.752832337188,
+              "linear_luma_mae_nits": 37.2513070005854
+            },
+            "disoccluded": {
+              "pixels": 1512,
+              "absolute_luma_error_sum_nits": 21340.724700927734,
+              "linear_luma_mae_nits": 14.114235913311994
+            }
+          },
+          "trajectory_error_px": 20.469480971193782,
+          "observed_marker_centroid_px": [
+            34.5,
+            31.5
+          ],
+          "truth_marker_centroid_px": [
+            54.96948097119378,
+            31.499999999076024
+          ],
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        },
+        "reason_map_file": "large_motion/mci_0001_reasons.npy"
+      }
+    }
+  },
+  {
+    "output_index": 2,
+    "output_pts": "1/30",
+    "source_index": 0,
+    "source_pts": "0/1",
+    "next_source_index": 1,
+    "next_source_pts": "1/24",
+    "phase": "4/5",
+    "assessed_intermediate": true,
+    "mci_assumed_lookahead_seconds": "1/24",
+    "frame_time_ms": 16.666666666666668,
+    "truth_file": "large_motion/truth_0002.npy",
+    "truth_sha256": "2f8f6a3e14450f3b43358df574909613e276a87a80f4a2deaae5e675d421b959",
+    "regions_file": "large_motion/regions_0002.npz",
+    "modes": {
+      "repeat": {
+        "kind": "repeated",
+        "fallback_reasons": [],
+        "fallback_fraction": 0.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "linear_file": "large_motion/repeat_0002.npy",
+        "linear_sha256": "46a0d40cb977faeb4c7945eaae4588066052aadf43df92508b69d04d741a72be",
+        "preview_file": "large_motion/repeat_0002.png",
+        "fallback_file": "large_motion/repeat_0002_fallback.npy",
+        "reason_fractions": {},
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 5616,
+              "absolute_luma_error_sum_nits": 65707.09589429626,
+              "linear_luma_mae_nits": 11.69998146265959
+            },
+            "boundary": {
+              "pixels": 648,
+              "absolute_luma_error_sum_nits": 26342.34865505409,
+              "linear_luma_mae_nits": 40.651772615824214
+            },
+            "disoccluded": {
+              "pixels": 2952,
+              "absolute_luma_error_sum_nits": 67624.92406158446,
+              "linear_luma_mae_nits": 22.90817210758281
+            }
+          },
+          "trajectory_error_px": 40.97186001605276,
+          "observed_marker_centroid_px": [
+            34.5,
+            31.5
+          ],
+          "truth_marker_centroid_px": [
+            75.47186001605276,
+            31.500000009922697
+          ],
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        }
+      },
+      "analytic": {
+        "kind": "interpolated",
+        "fallback_reasons": [],
+        "fallback_fraction": 0.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "linear_file": "large_motion/analytic_0002.npy",
+        "linear_sha256": "2f8f6a3e14450f3b43358df574909613e276a87a80f4a2deaae5e675d421b959",
+        "preview_file": "large_motion/analytic_0002.png",
+        "fallback_file": "large_motion/analytic_0002_fallback.npy",
+        "reason_fractions": {},
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 5616,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "boundary": {
+              "pixels": 648,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "disoccluded": {
+              "pixels": 2952,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            }
+          },
+          "trajectory_error_px": 0.0,
+          "observed_marker_centroid_px": [
+            75.47186001605276,
+            31.500000009922697
+          ],
+          "truth_marker_centroid_px": [
+            75.47186001605276,
+            31.500000009922697
+          ],
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        }
+      },
+      "mci": {
+        "kind": "repeated",
+        "fallback_reasons": [
+          "ambiguous_match",
+          "hole",
+          "inconsistent_motion",
+          "low_texture",
+          "whole_frame_low_confidence"
+        ],
+        "fallback_fraction": 1.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "reason_fractions": {
+          "low_texture": 0.1597222222222222,
+          "ambiguous_match": 0.8237847222222222,
+          "inconsistent_motion": 0.006944444444444444,
+          "hole": 0.001736111111111111,
+          "whole_frame_low_confidence": 0.0078125
+        },
+        "diagnostics": {
+          "hole_fraction": 0.9921875,
+          "collision_fraction": 0.0,
+          "raw_fallback_fraction": 0.9921875,
+          "visibility_policy": "consistent_visible_endpoints_only; unresolved_collisions_hold",
+          "local_reason_fractions": {
+            "low_texture": 0.1597222222222222,
+            "ambiguous_match": 0.8237847222222222,
+            "inconsistent_motion": 0.006944444444444444,
+            "hole": 0.001736111111111111
+          },
+          "whole_frame_hold": true
+        },
+        "linear_file": "large_motion/mci_0002.npy",
+        "linear_sha256": "46a0d40cb977faeb4c7945eaae4588066052aadf43df92508b69d04d741a72be",
+        "preview_file": "large_motion/mci_0002.png",
+        "fallback_file": "large_motion/mci_0002_fallback.npy",
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 5616,
+              "absolute_luma_error_sum_nits": 65707.09589429626,
+              "linear_luma_mae_nits": 11.69998146265959
+            },
+            "boundary": {
+              "pixels": 648,
+              "absolute_luma_error_sum_nits": 26342.34865505409,
+              "linear_luma_mae_nits": 40.651772615824214
+            },
+            "disoccluded": {
+              "pixels": 2952,
+              "absolute_luma_error_sum_nits": 67624.92406158446,
+              "linear_luma_mae_nits": 22.90817210758281
+            }
+          },
+          "trajectory_error_px": 40.97186001605276,
+          "observed_marker_centroid_px": [
+            34.5,
+            31.5
+          ],
+          "truth_marker_centroid_px": [
+            75.47186001605276,
+            31.500000009922697
+          ],
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        },
+        "reason_map_file": "large_motion/mci_0002_reasons.npy"
+      }
+    }
+  },
+  {
+    "output_index": 3,
+    "output_pts": "1/20",
+    "source_index": 1,
+    "source_pts": "1/24",
+    "next_source_index": 2,
+    "next_source_pts": "1/12",
+    "phase": "1/5",
+    "assessed_intermediate": true,
+    "mci_assumed_lookahead_seconds": "1/24",
+    "frame_time_ms": 16.666666666666668,
+    "truth_file": "large_motion/truth_0003.npy",
+    "truth_sha256": "2a72ef1d50f1faef942d746b974a8902c1b771e6567c136e5cf2e8857f8065cd",
+    "regions_file": "large_motion/regions_0003.npz",
+    "modes": {
+      "repeat": {
+        "kind": "repeated",
+        "fallback_reasons": [],
+        "fallback_fraction": 0.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "linear_file": "large_motion/repeat_0003.npy",
+        "linear_sha256": "fd08f3c85ac378de36957e1779d7684e690a03746cdd1d9fae207181eee431f9",
+        "preview_file": "large_motion/repeat_0003.png",
+        "fallback_file": "large_motion/repeat_0003_fallback.npy",
+        "reason_fractions": {},
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 7848,
+              "absolute_luma_error_sum_nits": 55633.56411180076,
+              "linear_luma_mae_nits": 7.0888843159786905
+            },
+            "boundary": {
+              "pixels": 648,
+              "absolute_luma_error_sum_nits": 19804.64682287674,
+              "linear_luma_mae_nits": 30.562726578513487
+            },
+            "disoccluded": {
+              "pixels": 720,
+              "absolute_luma_error_sum_nits": 10165.196155548096,
+              "linear_luma_mae_nits": 14.1183279938168
+            }
+          },
+          "trajectory_error_px": 10.265854749766575,
+          "observed_marker_centroid_px": [
+            85.64258815925626,
+            31.499999998694044
+          ],
+          "truth_marker_centroid_px": [
+            95.90844290902284,
+            31.49999999287219
+          ],
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        }
+      },
+      "analytic": {
+        "kind": "interpolated",
+        "fallback_reasons": [],
+        "fallback_fraction": 0.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "linear_file": "large_motion/analytic_0003.npy",
+        "linear_sha256": "2a72ef1d50f1faef942d746b974a8902c1b771e6567c136e5cf2e8857f8065cd",
+        "preview_file": "large_motion/analytic_0003.png",
+        "fallback_file": "large_motion/analytic_0003_fallback.npy",
+        "reason_fractions": {},
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 7848,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "boundary": {
+              "pixels": 648,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "disoccluded": {
+              "pixels": 720,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            }
+          },
+          "trajectory_error_px": 0.0,
+          "observed_marker_centroid_px": [
+            95.90844290902284,
+            31.49999999287219
+          ],
+          "truth_marker_centroid_px": [
+            95.90844290902284,
+            31.49999999287219
+          ],
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        }
+      },
+      "mci": {
+        "kind": "repeated",
+        "fallback_reasons": [
+          "ambiguous_match",
+          "low_texture",
+          "out_of_bounds"
+        ],
+        "fallback_fraction": 1.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "reason_fractions": {
+          "low_texture": 0.4861111111111111,
+          "ambiguous_match": 0.4930555555555556,
+          "out_of_bounds": 0.020833333333333332
+        },
+        "diagnostics": {
+          "hole_fraction": 1.0,
+          "collision_fraction": 0.0,
+          "raw_fallback_fraction": 1.0,
+          "visibility_policy": "consistent_visible_endpoints_only; unresolved_collisions_hold",
+          "local_reason_fractions": {
+            "low_texture": 0.4861111111111111,
+            "ambiguous_match": 0.4930555555555556,
+            "out_of_bounds": 0.020833333333333332
+          },
+          "whole_frame_hold": true
+        },
+        "linear_file": "large_motion/mci_0003.npy",
+        "linear_sha256": "fd08f3c85ac378de36957e1779d7684e690a03746cdd1d9fae207181eee431f9",
+        "preview_file": "large_motion/mci_0003.png",
+        "fallback_file": "large_motion/mci_0003_fallback.npy",
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 7848,
+              "absolute_luma_error_sum_nits": 55633.56411180076,
+              "linear_luma_mae_nits": 7.0888843159786905
+            },
+            "boundary": {
+              "pixels": 648,
+              "absolute_luma_error_sum_nits": 19804.64682287674,
+              "linear_luma_mae_nits": 30.562726578513487
+            },
+            "disoccluded": {
+              "pixels": 720,
+              "absolute_luma_error_sum_nits": 10165.196155548096,
+              "linear_luma_mae_nits": 14.1183279938168
+            }
+          },
+          "trajectory_error_px": 10.265854749766575,
+          "observed_marker_centroid_px": [
+            85.64258815925626,
+            31.499999998694044
+          ],
+          "truth_marker_centroid_px": [
+            95.90844290902284,
+            31.49999999287219
+          ],
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        },
+        "reason_map_file": "large_motion/mci_0003_reasons.npy"
+      }
+    }
+  },
+  {
+    "output_index": 4,
+    "output_pts": "1/15",
+    "source_index": 1,
+    "source_pts": "1/24",
+    "next_source_index": 2,
+    "next_source_pts": "1/12",
+    "phase": "3/5",
+    "assessed_intermediate": true,
+    "mci_assumed_lookahead_seconds": "1/24",
+    "frame_time_ms": 16.666666666666668,
+    "truth_file": "large_motion/truth_0004.npy",
+    "truth_sha256": "32e45487b2ff70eca90fd732602e34b78e65afdfe404740bb5b2df6250520410",
+    "regions_file": "large_motion/regions_0004.npz",
+    "modes": {
+      "repeat": {
+        "kind": "repeated",
+        "fallback_reasons": [],
+        "fallback_fraction": 0.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "linear_file": "large_motion/repeat_0004.npy",
+        "linear_sha256": "fd08f3c85ac378de36957e1779d7684e690a03746cdd1d9fae207181eee431f9",
+        "preview_file": "large_motion/repeat_0004.png",
+        "fallback_file": "large_motion/repeat_0004_fallback.npy",
+        "reason_fractions": {},
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 6356,
+              "absolute_luma_error_sum_nits": 53386.77867243881,
+              "linear_luma_mae_nits": 8.399430250541034
+            },
+            "boundary": {
+              "pixels": 628,
+              "absolute_luma_error_sum_nits": 25903.232331920815,
+              "linear_luma_mae_nits": 41.24718524191213
+            },
+            "disoccluded": {
+              "pixels": 2232,
+              "absolute_luma_error_sum_nits": 39034.94247370376,
+              "linear_luma_mae_nits": 17.48877350972391
+            }
+          },
+          "trajectory_error_px": 30.80094490772842,
+          "observed_marker_centroid_px": [
+            85.64258815925626,
+            31.499999998694044
+          ],
+          "truth_marker_centroid_px": [
+            116.44353306698468,
+            31.499999998965645
+          ],
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        }
+      },
+      "analytic": {
+        "kind": "interpolated",
+        "fallback_reasons": [],
+        "fallback_fraction": 0.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "linear_file": "large_motion/analytic_0004.npy",
+        "linear_sha256": "32e45487b2ff70eca90fd732602e34b78e65afdfe404740bb5b2df6250520410",
+        "preview_file": "large_motion/analytic_0004.png",
+        "fallback_file": "large_motion/analytic_0004_fallback.npy",
+        "reason_fractions": {},
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 6356,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "boundary": {
+              "pixels": 628,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "disoccluded": {
+              "pixels": 2232,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            }
+          },
+          "trajectory_error_px": 0.0,
+          "observed_marker_centroid_px": [
+            116.44353306698468,
+            31.499999998965645
+          ],
+          "truth_marker_centroid_px": [
+            116.44353306698468,
+            31.499999998965645
+          ],
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        }
+      },
+      "mci": {
+        "kind": "repeated",
+        "fallback_reasons": [
+          "ambiguous_match",
+          "low_texture",
+          "out_of_bounds"
+        ],
+        "fallback_fraction": 1.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "reason_fractions": {
+          "low_texture": 0.4861111111111111,
+          "ambiguous_match": 0.4930555555555556,
+          "out_of_bounds": 0.020833333333333332
+        },
+        "diagnostics": {
+          "hole_fraction": 1.0,
+          "collision_fraction": 0.0,
+          "raw_fallback_fraction": 1.0,
+          "visibility_policy": "consistent_visible_endpoints_only; unresolved_collisions_hold",
+          "local_reason_fractions": {
+            "low_texture": 0.4861111111111111,
+            "ambiguous_match": 0.4930555555555556,
+            "out_of_bounds": 0.020833333333333332
+          },
+          "whole_frame_hold": true
+        },
+        "linear_file": "large_motion/mci_0004.npy",
+        "linear_sha256": "fd08f3c85ac378de36957e1779d7684e690a03746cdd1d9fae207181eee431f9",
+        "preview_file": "large_motion/mci_0004.png",
+        "fallback_file": "large_motion/mci_0004_fallback.npy",
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 6356,
+              "absolute_luma_error_sum_nits": 53386.77867243881,
+              "linear_luma_mae_nits": 8.399430250541034
+            },
+            "boundary": {
+              "pixels": 628,
+              "absolute_luma_error_sum_nits": 25903.232331920815,
+              "linear_luma_mae_nits": 41.24718524191213
+            },
+            "disoccluded": {
+              "pixels": 2232,
+              "absolute_luma_error_sum_nits": 39034.94247370376,
+              "linear_luma_mae_nits": 17.48877350972391
+            }
+          },
+          "trajectory_error_px": 30.80094490772842,
+          "observed_marker_centroid_px": [
+            85.64258815925626,
+            31.499999998694044
+          ],
+          "truth_marker_centroid_px": [
+            116.44353306698468,
+            31.499999998965645
+          ],
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        },
+        "reason_map_file": "large_motion/mci_0004_reasons.npy"
+      }
+    }
+  },
+  {
+    "output_index": 5,
+    "output_pts": "1/12",
+    "source_index": 2,
+    "source_pts": "1/12",
+    "next_source_index": 3,
+    "next_source_pts": "1/8",
+    "phase": "0/1",
+    "assessed_intermediate": false,
+    "mci_assumed_lookahead_seconds": "1/24",
+    "frame_time_ms": 16.666666666666668,
+    "truth_file": "large_motion/truth_0005.npy",
+    "truth_sha256": "231a17815f13fa82daff4291bd010b29d20279f210abbbfd220d1c99cad21bf1",
+    "regions_file": "large_motion/regions_0005.npz",
+    "modes": {
+      "repeat": {
+        "kind": "original",
+        "fallback_reasons": [],
+        "fallback_fraction": 0.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "linear_file": "large_motion/repeat_0005.npy",
+        "linear_sha256": "231a17815f13fa82daff4291bd010b29d20279f210abbbfd220d1c99cad21bf1",
+        "preview_file": "large_motion/repeat_0005.png",
+        "fallback_file": "large_motion/repeat_0005_fallback.npy",
+        "reason_fractions": {},
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 8784,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "boundary": {
+              "pixels": 432,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "disoccluded": {
+              "pixels": 0,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": null
+            }
+          },
+          "trajectory_error_px": null,
+          "observed_marker_centroid_px": null,
+          "truth_marker_centroid_px": null,
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        }
+      },
+      "analytic": {
+        "kind": "original",
+        "fallback_reasons": [],
+        "fallback_fraction": 0.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "linear_file": "large_motion/analytic_0005.npy",
+        "linear_sha256": "231a17815f13fa82daff4291bd010b29d20279f210abbbfd220d1c99cad21bf1",
+        "preview_file": "large_motion/analytic_0005.png",
+        "fallback_file": "large_motion/analytic_0005_fallback.npy",
+        "reason_fractions": {},
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 8784,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "boundary": {
+              "pixels": 432,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "disoccluded": {
+              "pixels": 0,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": null
+            }
+          },
+          "trajectory_error_px": null,
+          "observed_marker_centroid_px": null,
+          "truth_marker_centroid_px": null,
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        }
+      },
+      "mci": {
+        "kind": "original",
+        "fallback_reasons": [],
+        "fallback_fraction": 0.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "reason_fractions": {},
+        "diagnostics": {},
+        "linear_file": "large_motion/mci_0005.npy",
+        "linear_sha256": "231a17815f13fa82daff4291bd010b29d20279f210abbbfd220d1c99cad21bf1",
+        "preview_file": "large_motion/mci_0005.png",
+        "fallback_file": "large_motion/mci_0005_fallback.npy",
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 8784,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "boundary": {
+              "pixels": 432,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "disoccluded": {
+              "pixels": 0,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": null
+            }
+          },
+          "trajectory_error_px": null,
+          "observed_marker_centroid_px": null,
+          "truth_marker_centroid_px": null,
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        },
+        "reason_map_file": "large_motion/mci_0005_reasons.npy"
+      }
+    }
+  },
+  {
+    "output_index": 6,
+    "output_pts": "1/10",
+    "source_index": 2,
+    "source_pts": "1/12",
+    "next_source_index": 3,
+    "next_source_pts": "1/8",
+    "phase": "2/5",
+    "assessed_intermediate": true,
+    "mci_assumed_lookahead_seconds": "1/24",
+    "frame_time_ms": 16.666666666666668,
+    "truth_file": "large_motion/truth_0006.npy",
+    "truth_sha256": "948ad85be6aa753fbdb103f02f00060d1caa456ca7fd06e8e468cf6b3451f2a7",
+    "regions_file": "large_motion/regions_0006.npz",
+    "modes": {
+      "repeat": {
+        "kind": "repeated",
+        "fallback_reasons": [],
+        "fallback_fraction": 0.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "linear_file": "large_motion/repeat_0006.npy",
+        "linear_sha256": "231a17815f13fa82daff4291bd010b29d20279f210abbbfd220d1c99cad21bf1",
+        "preview_file": "large_motion/repeat_0006.png",
+        "fallback_file": "large_motion/repeat_0006_fallback.npy",
+        "reason_fractions": {},
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 7488,
+              "absolute_luma_error_sum_nits": 1076.343692779541,
+              "linear_luma_mae_nits": 0.1437424803391481
+            },
+            "boundary": {
+              "pixels": 216,
+              "absolute_luma_error_sum_nits": 2018.5751724243164,
+              "linear_luma_mae_nits": 9.345255427890354
+            },
+            "disoccluded": {
+              "pixels": 1512,
+              "absolute_luma_error_sum_nits": 21103.32614517212,
+              "linear_luma_mae_nits": 13.957226286489497
+            }
+          },
+          "trajectory_error_px": null,
+          "observed_marker_centroid_px": null,
+          "truth_marker_centroid_px": null,
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        }
+      },
+      "analytic": {
+        "kind": "interpolated",
+        "fallback_reasons": [],
+        "fallback_fraction": 0.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "linear_file": "large_motion/analytic_0006.npy",
+        "linear_sha256": "948ad85be6aa753fbdb103f02f00060d1caa456ca7fd06e8e468cf6b3451f2a7",
+        "preview_file": "large_motion/analytic_0006.png",
+        "fallback_file": "large_motion/analytic_0006_fallback.npy",
+        "reason_fractions": {},
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 7488,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "boundary": {
+              "pixels": 216,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "disoccluded": {
+              "pixels": 1512,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            }
+          },
+          "trajectory_error_px": null,
+          "observed_marker_centroid_px": null,
+          "truth_marker_centroid_px": null,
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        }
+      },
+      "mci": {
+        "kind": "repeated",
+        "fallback_reasons": [
+          "ambiguous_match",
+          "low_texture"
+        ],
+        "fallback_fraction": 1.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "reason_fractions": {
+          "low_texture": 0.7916666666666666,
+          "ambiguous_match": 0.20833333333333334
+        },
+        "diagnostics": {
+          "hole_fraction": 1.0,
+          "collision_fraction": 0.0,
+          "raw_fallback_fraction": 1.0,
+          "visibility_policy": "consistent_visible_endpoints_only; unresolved_collisions_hold",
+          "local_reason_fractions": {
+            "low_texture": 0.7916666666666666,
+            "ambiguous_match": 0.20833333333333334
+          },
+          "whole_frame_hold": true
+        },
+        "linear_file": "large_motion/mci_0006.npy",
+        "linear_sha256": "231a17815f13fa82daff4291bd010b29d20279f210abbbfd220d1c99cad21bf1",
+        "preview_file": "large_motion/mci_0006.png",
+        "fallback_file": "large_motion/mci_0006_fallback.npy",
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 7488,
+              "absolute_luma_error_sum_nits": 1076.343692779541,
+              "linear_luma_mae_nits": 0.1437424803391481
+            },
+            "boundary": {
+              "pixels": 216,
+              "absolute_luma_error_sum_nits": 2018.5751724243164,
+              "linear_luma_mae_nits": 9.345255427890354
+            },
+            "disoccluded": {
+              "pixels": 1512,
+              "absolute_luma_error_sum_nits": 21103.32614517212,
+              "linear_luma_mae_nits": 13.957226286489497
+            }
+          },
+          "trajectory_error_px": null,
+          "observed_marker_centroid_px": null,
+          "truth_marker_centroid_px": null,
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        },
+        "reason_map_file": "large_motion/mci_0006_reasons.npy"
+      }
+    }
+  },
+  {
+    "output_index": 7,
+    "output_pts": "7/60",
+    "source_index": 2,
+    "source_pts": "1/12",
+    "next_source_index": 3,
+    "next_source_pts": "1/8",
+    "phase": "4/5",
+    "assessed_intermediate": true,
+    "mci_assumed_lookahead_seconds": "1/24",
+    "frame_time_ms": 16.666666666666668,
+    "truth_file": "large_motion/truth_0007.npy",
+    "truth_sha256": "dd18b9fa4b9b04b91caadba4a60cfd51dcb5d9a8565c795cca3eaefe3cc846f1",
+    "regions_file": "large_motion/regions_0007.npz",
+    "modes": {
+      "repeat": {
+        "kind": "repeated",
+        "fallback_reasons": [],
+        "fallback_fraction": 0.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "linear_file": "large_motion/repeat_0007.npy",
+        "linear_sha256": "231a17815f13fa82daff4291bd010b29d20279f210abbbfd220d1c99cad21bf1",
+        "preview_file": "large_motion/repeat_0007.png",
+        "fallback_file": "large_motion/repeat_0007_fallback.npy",
+        "reason_fractions": {},
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 7344,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "boundary": {
+              "pixels": 0,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": null
+            },
+            "disoccluded": {
+              "pixels": 1872,
+              "absolute_luma_error_sum_nits": 25594.416717529297,
+              "linear_luma_mae_nits": 13.672231152526333
+            }
+          },
+          "trajectory_error_px": null,
+          "observed_marker_centroid_px": null,
+          "truth_marker_centroid_px": null,
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        }
+      },
+      "analytic": {
+        "kind": "interpolated",
+        "fallback_reasons": [],
+        "fallback_fraction": 0.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "linear_file": "large_motion/analytic_0007.npy",
+        "linear_sha256": "dd18b9fa4b9b04b91caadba4a60cfd51dcb5d9a8565c795cca3eaefe3cc846f1",
+        "preview_file": "large_motion/analytic_0007.png",
+        "fallback_file": "large_motion/analytic_0007_fallback.npy",
+        "reason_fractions": {},
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 7344,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "boundary": {
+              "pixels": 0,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": null
+            },
+            "disoccluded": {
+              "pixels": 1872,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            }
+          },
+          "trajectory_error_px": null,
+          "observed_marker_centroid_px": null,
+          "truth_marker_centroid_px": null,
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        }
+      },
+      "mci": {
+        "kind": "repeated",
+        "fallback_reasons": [
+          "ambiguous_match",
+          "low_texture"
+        ],
+        "fallback_fraction": 1.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "reason_fractions": {
+          "low_texture": 0.7916666666666666,
+          "ambiguous_match": 0.20833333333333334
+        },
+        "diagnostics": {
+          "hole_fraction": 1.0,
+          "collision_fraction": 0.0,
+          "raw_fallback_fraction": 1.0,
+          "visibility_policy": "consistent_visible_endpoints_only; unresolved_collisions_hold",
+          "local_reason_fractions": {
+            "low_texture": 0.7916666666666666,
+            "ambiguous_match": 0.20833333333333334
+          },
+          "whole_frame_hold": true
+        },
+        "linear_file": "large_motion/mci_0007.npy",
+        "linear_sha256": "231a17815f13fa82daff4291bd010b29d20279f210abbbfd220d1c99cad21bf1",
+        "preview_file": "large_motion/mci_0007.png",
+        "fallback_file": "large_motion/mci_0007_fallback.npy",
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 7344,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "boundary": {
+              "pixels": 0,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": null
+            },
+            "disoccluded": {
+              "pixels": 1872,
+              "absolute_luma_error_sum_nits": 25594.416717529297,
+              "linear_luma_mae_nits": 13.672231152526333
+            }
+          },
+          "trajectory_error_px": null,
+          "observed_marker_centroid_px": null,
+          "truth_marker_centroid_px": null,
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        },
+        "reason_map_file": "large_motion/mci_0007_reasons.npy"
+      }
+    }
+  },
+  {
+    "output_index": 8,
+    "output_pts": "2/15",
+    "source_index": 3,
+    "source_pts": "1/8",
+    "next_source_index": 4,
+    "next_source_pts": "1/6",
+    "phase": "1/5",
+    "assessed_intermediate": true,
+    "mci_assumed_lookahead_seconds": "1/24",
+    "frame_time_ms": 16.666666666666668,
+    "truth_file": "large_motion/truth_0008.npy",
+    "truth_sha256": "dd18b9fa4b9b04b91caadba4a60cfd51dcb5d9a8565c795cca3eaefe3cc846f1",
+    "regions_file": "large_motion/regions_0008.npz",
+    "modes": {
+      "repeat": {
+        "kind": "repeated",
+        "fallback_reasons": [],
+        "fallback_fraction": 0.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "linear_file": "large_motion/repeat_0008.npy",
+        "linear_sha256": "dd18b9fa4b9b04b91caadba4a60cfd51dcb5d9a8565c795cca3eaefe3cc846f1",
+        "preview_file": "large_motion/repeat_0008.png",
+        "fallback_file": "large_motion/repeat_0008_fallback.npy",
+        "reason_fractions": {},
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 9216,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "boundary": {
+              "pixels": 0,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": null
+            },
+            "disoccluded": {
+              "pixels": 0,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": null
+            }
+          },
+          "trajectory_error_px": null,
+          "observed_marker_centroid_px": null,
+          "truth_marker_centroid_px": null,
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        }
+      },
+      "analytic": {
+        "kind": "repeated",
+        "fallback_reasons": [],
+        "fallback_fraction": 0.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "linear_file": "large_motion/analytic_0008.npy",
+        "linear_sha256": "dd18b9fa4b9b04b91caadba4a60cfd51dcb5d9a8565c795cca3eaefe3cc846f1",
+        "preview_file": "large_motion/analytic_0008.png",
+        "fallback_file": "large_motion/analytic_0008_fallback.npy",
+        "reason_fractions": {},
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 9216,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "boundary": {
+              "pixels": 0,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": null
+            },
+            "disoccluded": {
+              "pixels": 0,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": null
+            }
+          },
+          "trajectory_error_px": null,
+          "observed_marker_centroid_px": null,
+          "truth_marker_centroid_px": null,
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        }
+      },
+      "mci": {
+        "kind": "repeated",
+        "fallback_reasons": [],
+        "fallback_fraction": 0.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "reason_fractions": {},
+        "diagnostics": {},
+        "linear_file": "large_motion/mci_0008.npy",
+        "linear_sha256": "dd18b9fa4b9b04b91caadba4a60cfd51dcb5d9a8565c795cca3eaefe3cc846f1",
+        "preview_file": "large_motion/mci_0008.png",
+        "fallback_file": "large_motion/mci_0008_fallback.npy",
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 9216,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "boundary": {
+              "pixels": 0,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": null
+            },
+            "disoccluded": {
+              "pixels": 0,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": null
+            }
+          },
+          "trajectory_error_px": null,
+          "observed_marker_centroid_px": null,
+          "truth_marker_centroid_px": null,
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        },
+        "reason_map_file": "large_motion/mci_0008_reasons.npy"
+      }
+    }
+  },
+  {
+    "output_index": 9,
+    "output_pts": "3/20",
+    "source_index": 3,
+    "source_pts": "1/8",
+    "next_source_index": 4,
+    "next_source_pts": "1/6",
+    "phase": "3/5",
+    "assessed_intermediate": true,
+    "mci_assumed_lookahead_seconds": "1/24",
+    "frame_time_ms": 16.666666666666668,
+    "truth_file": "large_motion/truth_0009.npy",
+    "truth_sha256": "dd18b9fa4b9b04b91caadba4a60cfd51dcb5d9a8565c795cca3eaefe3cc846f1",
+    "regions_file": "large_motion/regions_0009.npz",
+    "modes": {
+      "repeat": {
+        "kind": "repeated",
+        "fallback_reasons": [],
+        "fallback_fraction": 0.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "linear_file": "large_motion/repeat_0009.npy",
+        "linear_sha256": "dd18b9fa4b9b04b91caadba4a60cfd51dcb5d9a8565c795cca3eaefe3cc846f1",
+        "preview_file": "large_motion/repeat_0009.png",
+        "fallback_file": "large_motion/repeat_0009_fallback.npy",
+        "reason_fractions": {},
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 9216,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "boundary": {
+              "pixels": 0,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": null
+            },
+            "disoccluded": {
+              "pixels": 0,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": null
+            }
+          },
+          "trajectory_error_px": null,
+          "observed_marker_centroid_px": null,
+          "truth_marker_centroid_px": null,
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        }
+      },
+      "analytic": {
+        "kind": "repeated",
+        "fallback_reasons": [],
+        "fallback_fraction": 0.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "linear_file": "large_motion/analytic_0009.npy",
+        "linear_sha256": "dd18b9fa4b9b04b91caadba4a60cfd51dcb5d9a8565c795cca3eaefe3cc846f1",
+        "preview_file": "large_motion/analytic_0009.png",
+        "fallback_file": "large_motion/analytic_0009_fallback.npy",
+        "reason_fractions": {},
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 9216,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "boundary": {
+              "pixels": 0,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": null
+            },
+            "disoccluded": {
+              "pixels": 0,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": null
+            }
+          },
+          "trajectory_error_px": null,
+          "observed_marker_centroid_px": null,
+          "truth_marker_centroid_px": null,
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        }
+      },
+      "mci": {
+        "kind": "repeated",
+        "fallback_reasons": [],
+        "fallback_fraction": 0.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "reason_fractions": {},
+        "diagnostics": {},
+        "linear_file": "large_motion/mci_0009.npy",
+        "linear_sha256": "dd18b9fa4b9b04b91caadba4a60cfd51dcb5d9a8565c795cca3eaefe3cc846f1",
+        "preview_file": "large_motion/mci_0009.png",
+        "fallback_file": "large_motion/mci_0009_fallback.npy",
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 9216,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "boundary": {
+              "pixels": 0,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": null
+            },
+            "disoccluded": {
+              "pixels": 0,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": null
+            }
+          },
+          "trajectory_error_px": null,
+          "observed_marker_centroid_px": null,
+          "truth_marker_centroid_px": null,
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        },
+        "reason_map_file": "large_motion/mci_0009_reasons.npy"
+      }
+    }
+  },
+  {
+    "output_index": 10,
+    "output_pts": "1/6",
+    "source_index": 4,
+    "source_pts": "1/6",
+    "next_source_index": 5,
+    "next_source_pts": "5/24",
+    "phase": "0/1",
+    "assessed_intermediate": false,
+    "mci_assumed_lookahead_seconds": "1/24",
+    "frame_time_ms": 16.666666666666668,
+    "truth_file": "large_motion/truth_0010.npy",
+    "truth_sha256": "dd18b9fa4b9b04b91caadba4a60cfd51dcb5d9a8565c795cca3eaefe3cc846f1",
+    "regions_file": "large_motion/regions_0010.npz",
+    "modes": {
+      "repeat": {
+        "kind": "original",
+        "fallback_reasons": [],
+        "fallback_fraction": 0.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "linear_file": "large_motion/repeat_0010.npy",
+        "linear_sha256": "dd18b9fa4b9b04b91caadba4a60cfd51dcb5d9a8565c795cca3eaefe3cc846f1",
+        "preview_file": "large_motion/repeat_0010.png",
+        "fallback_file": "large_motion/repeat_0010_fallback.npy",
+        "reason_fractions": {},
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 9216,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "boundary": {
+              "pixels": 0,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": null
+            },
+            "disoccluded": {
+              "pixels": 0,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": null
+            }
+          },
+          "trajectory_error_px": null,
+          "observed_marker_centroid_px": null,
+          "truth_marker_centroid_px": null,
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        }
+      },
+      "analytic": {
+        "kind": "original",
+        "fallback_reasons": [],
+        "fallback_fraction": 0.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "linear_file": "large_motion/analytic_0010.npy",
+        "linear_sha256": "dd18b9fa4b9b04b91caadba4a60cfd51dcb5d9a8565c795cca3eaefe3cc846f1",
+        "preview_file": "large_motion/analytic_0010.png",
+        "fallback_file": "large_motion/analytic_0010_fallback.npy",
+        "reason_fractions": {},
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 9216,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "boundary": {
+              "pixels": 0,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": null
+            },
+            "disoccluded": {
+              "pixels": 0,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": null
+            }
+          },
+          "trajectory_error_px": null,
+          "observed_marker_centroid_px": null,
+          "truth_marker_centroid_px": null,
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        }
+      },
+      "mci": {
+        "kind": "original",
+        "fallback_reasons": [],
+        "fallback_fraction": 0.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "reason_fractions": {},
+        "diagnostics": {},
+        "linear_file": "large_motion/mci_0010.npy",
+        "linear_sha256": "dd18b9fa4b9b04b91caadba4a60cfd51dcb5d9a8565c795cca3eaefe3cc846f1",
+        "preview_file": "large_motion/mci_0010.png",
+        "fallback_file": "large_motion/mci_0010_fallback.npy",
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 9216,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "boundary": {
+              "pixels": 0,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": null
+            },
+            "disoccluded": {
+              "pixels": 0,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": null
+            }
+          },
+          "trajectory_error_px": null,
+          "observed_marker_centroid_px": null,
+          "truth_marker_centroid_px": null,
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        },
+        "reason_map_file": "large_motion/mci_0010_reasons.npy"
+      }
+    }
+  },
+  {
+    "output_index": 11,
+    "output_pts": "11/60",
+    "source_index": 4,
+    "source_pts": "1/6",
+    "next_source_index": 5,
+    "next_source_pts": "5/24",
+    "phase": "2/5",
+    "assessed_intermediate": true,
+    "mci_assumed_lookahead_seconds": "1/24",
+    "frame_time_ms": 16.666666666666668,
+    "truth_file": "large_motion/truth_0011.npy",
+    "truth_sha256": "dd18b9fa4b9b04b91caadba4a60cfd51dcb5d9a8565c795cca3eaefe3cc846f1",
+    "regions_file": "large_motion/regions_0011.npz",
+    "modes": {
+      "repeat": {
+        "kind": "repeated",
+        "fallback_reasons": [],
+        "fallback_fraction": 0.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "linear_file": "large_motion/repeat_0011.npy",
+        "linear_sha256": "dd18b9fa4b9b04b91caadba4a60cfd51dcb5d9a8565c795cca3eaefe3cc846f1",
+        "preview_file": "large_motion/repeat_0011.png",
+        "fallback_file": "large_motion/repeat_0011_fallback.npy",
+        "reason_fractions": {},
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 9216,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "boundary": {
+              "pixels": 0,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": null
+            },
+            "disoccluded": {
+              "pixels": 0,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": null
+            }
+          },
+          "trajectory_error_px": null,
+          "observed_marker_centroid_px": null,
+          "truth_marker_centroid_px": null,
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        }
+      },
+      "analytic": {
+        "kind": "repeated",
+        "fallback_reasons": [],
+        "fallback_fraction": 0.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "linear_file": "large_motion/analytic_0011.npy",
+        "linear_sha256": "dd18b9fa4b9b04b91caadba4a60cfd51dcb5d9a8565c795cca3eaefe3cc846f1",
+        "preview_file": "large_motion/analytic_0011.png",
+        "fallback_file": "large_motion/analytic_0011_fallback.npy",
+        "reason_fractions": {},
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 9216,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "boundary": {
+              "pixels": 0,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": null
+            },
+            "disoccluded": {
+              "pixels": 0,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": null
+            }
+          },
+          "trajectory_error_px": null,
+          "observed_marker_centroid_px": null,
+          "truth_marker_centroid_px": null,
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        }
+      },
+      "mci": {
+        "kind": "repeated",
+        "fallback_reasons": [],
+        "fallback_fraction": 0.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "reason_fractions": {},
+        "diagnostics": {},
+        "linear_file": "large_motion/mci_0011.npy",
+        "linear_sha256": "dd18b9fa4b9b04b91caadba4a60cfd51dcb5d9a8565c795cca3eaefe3cc846f1",
+        "preview_file": "large_motion/mci_0011.png",
+        "fallback_file": "large_motion/mci_0011_fallback.npy",
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 9216,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "boundary": {
+              "pixels": 0,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": null
+            },
+            "disoccluded": {
+              "pixels": 0,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": null
+            }
+          },
+          "trajectory_error_px": null,
+          "observed_marker_centroid_px": null,
+          "truth_marker_centroid_px": null,
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        },
+        "reason_map_file": "large_motion/mci_0011_reasons.npy"
+      }
+    }
+  },
+  {
+    "output_index": 12,
+    "output_pts": "1/5",
+    "source_index": 4,
+    "source_pts": "1/6",
+    "next_source_index": 5,
+    "next_source_pts": "5/24",
+    "phase": "4/5",
+    "assessed_intermediate": true,
+    "mci_assumed_lookahead_seconds": "1/24",
+    "frame_time_ms": 16.666666666666668,
+    "truth_file": "large_motion/truth_0012.npy",
+    "truth_sha256": "dd18b9fa4b9b04b91caadba4a60cfd51dcb5d9a8565c795cca3eaefe3cc846f1",
+    "regions_file": "large_motion/regions_0012.npz",
+    "modes": {
+      "repeat": {
+        "kind": "repeated",
+        "fallback_reasons": [],
+        "fallback_fraction": 0.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "linear_file": "large_motion/repeat_0012.npy",
+        "linear_sha256": "dd18b9fa4b9b04b91caadba4a60cfd51dcb5d9a8565c795cca3eaefe3cc846f1",
+        "preview_file": "large_motion/repeat_0012.png",
+        "fallback_file": "large_motion/repeat_0012_fallback.npy",
+        "reason_fractions": {},
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 9216,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "boundary": {
+              "pixels": 0,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": null
+            },
+            "disoccluded": {
+              "pixels": 0,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": null
+            }
+          },
+          "trajectory_error_px": null,
+          "observed_marker_centroid_px": null,
+          "truth_marker_centroid_px": null,
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        }
+      },
+      "analytic": {
+        "kind": "repeated",
+        "fallback_reasons": [],
+        "fallback_fraction": 0.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "linear_file": "large_motion/analytic_0012.npy",
+        "linear_sha256": "dd18b9fa4b9b04b91caadba4a60cfd51dcb5d9a8565c795cca3eaefe3cc846f1",
+        "preview_file": "large_motion/analytic_0012.png",
+        "fallback_file": "large_motion/analytic_0012_fallback.npy",
+        "reason_fractions": {},
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 9216,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "boundary": {
+              "pixels": 0,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": null
+            },
+            "disoccluded": {
+              "pixels": 0,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": null
+            }
+          },
+          "trajectory_error_px": null,
+          "observed_marker_centroid_px": null,
+          "truth_marker_centroid_px": null,
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        }
+      },
+      "mci": {
+        "kind": "repeated",
+        "fallback_reasons": [],
+        "fallback_fraction": 0.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "reason_fractions": {},
+        "diagnostics": {},
+        "linear_file": "large_motion/mci_0012.npy",
+        "linear_sha256": "dd18b9fa4b9b04b91caadba4a60cfd51dcb5d9a8565c795cca3eaefe3cc846f1",
+        "preview_file": "large_motion/mci_0012.png",
+        "fallback_file": "large_motion/mci_0012_fallback.npy",
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 9216,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "boundary": {
+              "pixels": 0,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": null
+            },
+            "disoccluded": {
+              "pixels": 0,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": null
+            }
+          },
+          "trajectory_error_px": null,
+          "observed_marker_centroid_px": null,
+          "truth_marker_centroid_px": null,
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        },
+        "reason_map_file": "large_motion/mci_0012_reasons.npy"
+      }
+    }
+  },
+  {
+    "output_index": 13,
+    "output_pts": "13/60",
+    "source_index": 5,
+    "source_pts": "5/24",
+    "next_source_index": null,
+    "next_source_pts": null,
+    "phase": "1/5",
+    "assessed_intermediate": false,
+    "mci_assumed_lookahead_seconds": "0/1",
+    "frame_time_ms": 16.666666666666668,
+    "truth_file": "large_motion/truth_0013.npy",
+    "truth_sha256": "dd18b9fa4b9b04b91caadba4a60cfd51dcb5d9a8565c795cca3eaefe3cc846f1",
+    "regions_file": "large_motion/regions_0013.npz",
+    "modes": {
+      "repeat": {
+        "kind": "repeated",
+        "fallback_reasons": [],
+        "fallback_fraction": 0.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "linear_file": "large_motion/repeat_0013.npy",
+        "linear_sha256": "dd18b9fa4b9b04b91caadba4a60cfd51dcb5d9a8565c795cca3eaefe3cc846f1",
+        "preview_file": "large_motion/repeat_0013.png",
+        "fallback_file": "large_motion/repeat_0013_fallback.npy",
+        "reason_fractions": {},
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 9216,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "boundary": {
+              "pixels": 0,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": null
+            },
+            "disoccluded": {
+              "pixels": 0,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": null
+            }
+          },
+          "trajectory_error_px": null,
+          "observed_marker_centroid_px": null,
+          "truth_marker_centroid_px": null,
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        }
+      },
+      "analytic": {
+        "kind": "repeated",
+        "fallback_reasons": [
+          "last_frame_hold"
+        ],
+        "fallback_fraction": 1.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "linear_file": "large_motion/analytic_0013.npy",
+        "linear_sha256": "dd18b9fa4b9b04b91caadba4a60cfd51dcb5d9a8565c795cca3eaefe3cc846f1",
+        "preview_file": "large_motion/analytic_0013.png",
+        "fallback_file": "large_motion/analytic_0013_fallback.npy",
+        "reason_fractions": {
+          "last_frame_hold": 1.0
+        },
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 9216,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "boundary": {
+              "pixels": 0,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": null
+            },
+            "disoccluded": {
+              "pixels": 0,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": null
+            }
+          },
+          "trajectory_error_px": null,
+          "observed_marker_centroid_px": null,
+          "truth_marker_centroid_px": null,
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        }
+      },
+      "mci": {
+        "kind": "repeated",
+        "fallback_reasons": [
+          "last_frame_hold"
+        ],
+        "fallback_fraction": 1.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "linear_file": "large_motion/mci_0013.npy",
+        "linear_sha256": "dd18b9fa4b9b04b91caadba4a60cfd51dcb5d9a8565c795cca3eaefe3cc846f1",
+        "preview_file": "large_motion/mci_0013.png",
+        "fallback_file": "large_motion/mci_0013_fallback.npy",
+        "reason_fractions": {
+          "last_frame_hold": 1.0
+        },
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 9216,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "boundary": {
+              "pixels": 0,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": null
+            },
+            "disoccluded": {
+              "pixels": 0,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": null
+            }
+          },
+          "trajectory_error_px": null,
+          "observed_marker_centroid_px": null,
+          "truth_marker_centroid_px": null,
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        }
+      }
+    }
+  },
+  {
+    "output_index": 14,
+    "output_pts": "7/30",
+    "source_index": 5,
+    "source_pts": "5/24",
+    "next_source_index": null,
+    "next_source_pts": null,
+    "phase": "3/5",
+    "assessed_intermediate": false,
+    "mci_assumed_lookahead_seconds": "0/1",
+    "frame_time_ms": 16.666666666666668,
+    "truth_file": "large_motion/truth_0014.npy",
+    "truth_sha256": "dd18b9fa4b9b04b91caadba4a60cfd51dcb5d9a8565c795cca3eaefe3cc846f1",
+    "regions_file": "large_motion/regions_0014.npz",
+    "modes": {
+      "repeat": {
+        "kind": "repeated",
+        "fallback_reasons": [],
+        "fallback_fraction": 0.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "linear_file": "large_motion/repeat_0014.npy",
+        "linear_sha256": "dd18b9fa4b9b04b91caadba4a60cfd51dcb5d9a8565c795cca3eaefe3cc846f1",
+        "preview_file": "large_motion/repeat_0014.png",
+        "fallback_file": "large_motion/repeat_0014_fallback.npy",
+        "reason_fractions": {},
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 9216,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "boundary": {
+              "pixels": 0,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": null
+            },
+            "disoccluded": {
+              "pixels": 0,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": null
+            }
+          },
+          "trajectory_error_px": null,
+          "observed_marker_centroid_px": null,
+          "truth_marker_centroid_px": null,
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        }
+      },
+      "analytic": {
+        "kind": "repeated",
+        "fallback_reasons": [
+          "last_frame_hold"
+        ],
+        "fallback_fraction": 1.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "linear_file": "large_motion/analytic_0014.npy",
+        "linear_sha256": "dd18b9fa4b9b04b91caadba4a60cfd51dcb5d9a8565c795cca3eaefe3cc846f1",
+        "preview_file": "large_motion/analytic_0014.png",
+        "fallback_file": "large_motion/analytic_0014_fallback.npy",
+        "reason_fractions": {
+          "last_frame_hold": 1.0
+        },
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 9216,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "boundary": {
+              "pixels": 0,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": null
+            },
+            "disoccluded": {
+              "pixels": 0,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": null
+            }
+          },
+          "trajectory_error_px": null,
+          "observed_marker_centroid_px": null,
+          "truth_marker_centroid_px": null,
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        }
+      },
+      "mci": {
+        "kind": "repeated",
+        "fallback_reasons": [
+          "last_frame_hold"
+        ],
+        "fallback_fraction": 1.0,
+        "scene_cut": false,
+        "evidence": "P",
+        "linear_file": "large_motion/mci_0014.npy",
+        "linear_sha256": "dd18b9fa4b9b04b91caadba4a60cfd51dcb5d9a8565c795cca3eaefe3cc846f1",
+        "preview_file": "large_motion/mci_0014.png",
+        "fallback_file": "large_motion/mci_0014_fallback.npy",
+        "reason_fractions": {
+          "last_frame_hold": 1.0
+        },
+        "metrics": {
+          "regions": {
+            "interior": {
+              "pixels": 9216,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": 0.0
+            },
+            "boundary": {
+              "pixels": 0,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": null
+            },
+            "disoccluded": {
+              "pixels": 0,
+              "absolute_luma_error_sum_nits": 0.0,
+              "linear_luma_mae_nits": null
+            }
+          },
+          "trajectory_error_px": null,
+          "observed_marker_centroid_px": null,
+          "truth_marker_centroid_px": null,
+          "missing_visible_marker": false,
+          "spurious_visible_marker": false
+        }
+      }
+    }
+  }
+]

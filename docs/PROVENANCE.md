@@ -1,4 +1,4 @@
-# Profile and experiment provenance (M8, M10, M13)
+# Profile and experiment provenance (M8, M10, M13, M14)
 
 Each runtime profile has a separate `sim/profiles/<name>.provenance.yaml`
 record with `schema_version: 1`. These records document the current generic
@@ -22,6 +22,8 @@ YAML files remain unchanged.
 M13 also checks the separate [synthetic OLED dynamics protocol](../research/measurements/oled_dynamics_synthetic_v1.json)
 on every invocation, including checks restricted by `--profiles`. This protocol
 is outside the profile tree and is never discovered by ordinary rendering.
+M14 checks the separate block motion config and synthetic validation protocol
+on every invocation, including `--profiles` selections.
 
 ## Evidence and unknowns
 
@@ -336,3 +338,54 @@ smoothing, backlight tracking, weighted-nit power limits and every M9 schema-1
 `.fit.json` composition. A future fitted dynamics dataset needs a new schema,
 consistent whole-sequence drive units and matched timed history; no v1 fit
 migration or measured-device claim is provided here.
+
+## Block motion config and validation schema version 1 (M14)
+
+[`motion_block_synthetic_v1.json`](../research/measurements/motion_block_synthetic_v1.json)
+records `kind: block_motion_proxy_v1`, integer `schema_version: 1`,
+`evidence: P`, `parameter_status: placeholder`, a synthetic source locator and
+`sample: NR`. `parameters` covers every `BlockMotionConfig` field with an exact
+`value`, `evidence: P` and unit. The provenance check rejects missing/unknown
+fields, invalid types, nonfinite or unsupported values, duplicate keys and a
+stale bundled default snapshot. Custom `--motion-config` files use the same
+schema and admission checks; their values are saved in the motion sidecar.
+The complete `unavailable` ledger retains measured thresholds, vendor
+algorithm, calibrated profile fitting and measured latency as `NR`.
+
+The declared P budget caps estimation at 320×180 without upscaling, with 8/16
+estimation-pixel blocks, a factor-two pyramid, coarse and refinement search
+radii and fractional refinement steps. Matching divides linear BT.709 luma by
+one fixed reference in nits, independent of each frame's peak. Histograms clip
+normalized luma to [0, 1]; SAD uses the unclipped values. SAD, texture,
+appearance-only distinct-match margin and forward/backward consistency feed
+confidence. Vectors are converted to output raster pixels per source interval.
+The confidence threshold and re-enabling margin, whole-frame fallback fraction,
+cut histogram/SAD/changed-area gates, exposure-change correlation gate, splat
+support and collision thresholds are all explicit P settings. Visibility is
+separate from texture/match confidence. Ambiguous collisions and holes hold the
+left source; normalized splat accumulation does not establish depth order.
+
+Enabled MCI motion manifests use schema 2 and embed the versioned config,
+source/profile hashes, domains, independent rational source/output PTS,
+estimation scale, assumed adjacent-frame lookahead, fallback reason fractions
+and per-pair detector/confidence summaries. `--motion-debug` writes block-vector,
+confidence, visibility and reason maps, plus per-tick fallback masks/reasons.
+Cuts clear confidence history and skip matching; the new shot never enters
+reconstructed content before its PTS. Physical panel and load histories remain
+continuous. Static pairs and exact source endpoints retain their original
+content. Phase-1 off/repeat/analytic manifests remain schema 1 with their
+original fields and exact output bytes.
+
+[`motion_validation_synthetic_v1.json`](../research/measurements/motion_validation_synthetic_v1.json)
+is a separate P-only protocol: seed, raster, rational rates, clip length,
+shared preview exposure, synthetic textures/colors/geometry, layer velocities,
+cut/flash placement and region/trajectory metric parameters. It retains named-TV
+calibration, vendor algorithms, perceptual soap-opera scale and measured
+artifact distributions as `NR`. The provenance command uses the experiment's
+strict protocol validator. It never changes the M4 report schema or TV YAMLs.
+Generated `motion-validation.json` and per-fixture PTS traces save analytic
+intermediate truth, pre-display linear-nit results, hashes, interior/boundary/
+disoccluded masks, actual rendered-marker trajectory error, separate vector
+endpoint error, fallback fractions/reasons and temporal switching counts.
+Errors and timing are D calculations under the declared P experiment.
+Short-clip previews share one fixed exposure, so flashes remain visible.
