@@ -1,0 +1,106 @@
+[
+  [
+    "eval",
+    "(()=>{const ids=[...document.querySelectorAll('.chapter')].map(x=>x.id);if(ids.join(',')!=='pipeline,panels,dimming,hdr,temporal,angle,mapping,evidence')throw Error('chapter order');return {chapters:ids,figures:document.querySelectorAll('.instrument').length,overflow:document.documentElement.scrollWidth>innerWidth}})()"
+  ],
+  [
+    "scroll",
+    "#fig-ld"
+  ],
+  [
+    "eval",
+    "(()=>{const s=document.getElementById('ld-position');s.value=88;s.dispatchEvent(new Event('input'));const f=document.getElementById('fig-ld');if(+f.dataset.position!==88||+f.dataset.halo>=1)throw Error('right-edge halo probe');const before=+f.dataset.halo,c=document.getElementById('ld-contrast');c.value='1200';c.dispatchEvent(new Event('input'));if(Math.abs(+f.dataset.halo/before-4000/1200)>.00001)throw Error('inverse contrast scaling');return {position:f.dataset.position,halo:f.dataset.halo}})()"
+  ],
+  [
+    "lines",
+    null,
+    "#fig-ld .iso-plate"
+  ],
+  [
+    "key",
+    "ArrowLeft",
+    "#ld-stage"
+  ],
+  [
+    "eval",
+    "(()=>{if(document.getElementById('ld-position').value!=='87')throw Error('keyboard');return 'window keyboard passed'})()"
+  ],
+  [
+    "eval",
+    "(()=>{const a=document.getElementById('angle-input');a.value=45;a.dispatchEvent(new Event('input'));const va=document.getElementById('angle-output-va').textContent,ips=document.getElementById('angle-output-ips').textContent;if(!va.includes('520:1')||!ips.includes('480:1'))throw Error('angular endpoints');return {va,ips}})()"
+  ],
+  [
+    "scroll",
+    "#mapping"
+  ],
+  [
+    "click",
+    "[data-map='clipped']"
+  ],
+  [
+    "eval",
+    "(()=>{if(document.getElementById('map-out-b').textContent!=='600 nits')throw Error('clip');return 'clipped: 600 / 600'})()"
+  ],
+  [
+    "scroll",
+    "#mapping"
+  ],
+  [
+    "click",
+    "[data-map='scaled']"
+  ],
+  [
+    "eval",
+    "(()=>{if(document.getElementById('map-out-b').textContent!=='200 nits')throw Error('scale');return 'scaled: 600 / 200'})()"
+  ],
+  [
+    "scroll",
+    ".cadence-block"
+  ],
+  [
+    "click",
+    "[data-cadence='120']"
+  ],
+  [
+    "eval",
+    "(()=>{if(document.querySelectorAll('#cadence-trace .cadence-group>span').length!==20)throw Error('cadence');return document.getElementById('cadence-readout').textContent})()"
+  ],
+  [
+    "scroll",
+    "#fig-hdr"
+  ],
+  [
+    "eval",
+    "(()=>{for(const [id,value]of [['hdr-code','1'],['hdr-apl','1'],['hdr-profile','qdoled']]){const e=document.getElementById(id);e.value=value;e.dispatchEvent(new Event('input'))}const t=document.getElementById('hdr-readout').textContent;if(!t.includes('199'))throw Error('HDR full load');return t})()"
+  ],
+  [
+    "lines",
+    null,
+    "#fig-hdr .iso-plate"
+  ],
+  [
+    "scroll",
+    "#fig-pursuit"
+  ],
+  [
+    "eval",
+    "(()=>{for(const [id,value]of [['pursuit-refresh','120'],['pursuit-duty','.25'],['pursuit-speed','960']]){const e=document.getElementById(id);e.value=value;e.dispatchEvent(new Event('input'))}const t=document.getElementById('pursuit-readout').textContent;if(!t.includes('2.08 ms')||!t.includes('2.00 px'))throw Error('pursuit');return t})()"
+  ],
+  [
+    "lines",
+    null,
+    "#fig-pursuit .iso-plate"
+  ],
+  [
+    "scroll",
+    ".site-header"
+  ],
+  [
+    "click",
+    "#theme-toggle"
+  ],
+  [
+    "eval",
+    "(()=>{if(document.documentElement.dataset.theme!==document.body.dataset.theme)throw Error('theme mismatch');return 'theme toggle: '+document.body.dataset.theme})()"
+  ]
+]
