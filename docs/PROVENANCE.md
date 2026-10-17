@@ -1,4 +1,4 @@
-# Profile provenance (M8)
+# Profile provenance (M8, M10)
 
 Each runtime profile has a separate `sim/profiles/<name>.provenance.yaml`
 record with `schema_version: 1`. These records document the current generic
@@ -11,9 +11,11 @@ python3 -m sim provenance --check --profiles generic_woled generic_qdoled
 ```
 
 The check reports invalid or missing records and exits unsuccessfully when
-validation fails. The default check also rejects orphan sidecars with no
+validation fails. M10 adds `sim/profiles/<name>.angular.yaml` records to this
+same check; `--profiles` selects both baseline and angular records. The default
+check also rejects orphan sidecars of either kind with no
 corresponding runtime profile. Runtime loading and the rendering pipeline do not read the
-sidecars. Profile discovery excludes `*.provenance.yaml`, so adding a record
+sidecars. Profile discovery excludes `*.provenance.yaml` and `*.angular.yaml`, so adding a record
 does not create another selectable TV profile. The four original runtime
 YAML files remain unchanged.
 
@@ -116,6 +118,64 @@ The original sources and per-node evidence remain in each record. These
 samples are not interchangeable technology curves. A 100% peak entry does
 not establish 10-second or 60-second sustained output, and another screen
 size or picture mode is a different experiment.
+
+## Angular schema version 1 (M10)
+
+The opt-in angular stage keeps its synthetic parameters in
+[`sim/viewing_angle.py`](../sim/viewing_angle.py), separately from the unchanged
+runtime profile YAML. Each `.angular.yaml` sidecar records every effective
+parameter, including the support bound, with an exact scalar or atomic RGB-list
+snapshot and the same `value`, `evidence`, `source`, `conditions`,
+`interpolation`, `support`, and `notes` fields described above. Missing labels,
+unknown fields, nonfinite values, stale snapshots, missing records and duplicate
+YAML keys fail `python3 -m sim provenance --check`. Ordinary profile loading and
+rendering do not parse angular sidecars.
+
+All shipped angular numeric values have **P** evidence and
+`parameter_status: placeholder`. Schema 1 requires this label; a placeholder
+cannot acquire measured status by changing its evidence field. Source specimen
+is `NR`; `full_angular_fit` and `calibrated_profile_fit` remain `NR` for all four
+profiles. LCD `black_leakage_fit` remains `NR`, including IPS. OLED
+`angular_spectra` remains `NR`; its emitted RGB gains are synthetic placeholders,
+with no verified numerical angular gain reference. OLED LCD leakage and LCD
+angular spectra are explicitly `not_applicable`. These records calibrate no
+named television. The older sparse VA endpoints in M5/M6 remain mechanism
+demonstrations and are not assigned to the current presets.
+
+| Model | Parameter | Definition |
+|---|---|---|
+| Both | `max_angle_deg` | P exploration bound of 45°, not measured angular support. |
+| `lcd_transmission` | `white_gain_45` | Independent RGB white transmission relative to on-axis white. |
+| `lcd_transmission` | `black_gain_45` | Independent emitted-black gain relative to on-axis black. This is not leakage relative to same-angle white. |
+| `lcd_transmission` | `gray_exponent_45` | RGB exponent on already-linearized transmission, preserving the black/white endpoints. |
+| `emissive_gain` | `emission_gain_45` | Emitter/film RGB gain only; no LCD leakage or gray exponent is applied. |
+
+Horizontal and vertical runtime angles produce the center-ray effective angle
+`theta = acos(cos(horizontal) * cos(vertical))`. Signed symmetry and independence
+from azimuth are P assumptions. They do not model per-pixel eye geometry or IPS
+corner glow. Every entry declares the numerical exploration support
+`[0, max_angle_deg]` in `radial_angle_deg` and `outside: reject`; this is not a
+claim of measured support. An out-of-support combined angle rejects even when
+the individual horizontal and vertical values lie within 45°.
+
+For `s = sin²(theta) / sin²(45°)`, the gain terms interpolate as
+`exp(log(gain_45) * s)` (`log_gain_sin2_v1`, P), and gray exponents interpolate
+as `1 + (exponent_45 - 1) * s` (`linear_sin2_v1`, P). The support bound itself
+uses `none/not_applicable` interpolation. These model choices and synthetic RGB
+differences provide independently adjustable contrast collapse, gray wash-out
+and color shift; they are not additional measurements or an angular spectrum.
+
+For positive LCD backlight `B`, the active model uses on-axis compensation
+`q = clip((target/B - epsilon0)/(1-epsilon0), 0, 1)`, where
+`epsilon0 = 1/native_contrast`. The independent interpolated white and emitted-black
+gains give `epsilon = epsilon0 * Fblack/Fwhite` and
+`L = B*Fwhite*(epsilon + (1-epsilon)*q**gray_exponent)`. Zero backlight emits
+zero; extinction above one is rejected over the model's whole support.
+An emissive model multiplies emitted RGB by its gains without LCD terms.
+Disabled and exactly on-axis configurations bypass this arithmetic and retain
+the original pipeline bit-for-bit. Angular terms precede the existing HDR/ABL
+and temporal stages; use the gallery's fixed-backlight SDR protocol to compare
+the angular mechanisms independently of emitted-load limiting.
 
 ## Measurement lookup
 

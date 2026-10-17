@@ -231,3 +231,31 @@ captions stay inside their tiles. All offline HTML references resolve.
 temporal exposure, BFI width and brightness, long-pan state/OD differences,
 shared preview exposure, all four profiles, offline HTML image dependencies,
 and caption gutters.
+
+## Opt-in viewing-angle comparison (M10)
+
+`python3 -m sim gallery --viewing-angle` appends `viewing_angle.png` to the
+ordinary offline gallery. Its two rows compare on-axis with +45° horizontal,
+0° vertical for all four generic profiles at a shared 100-nit preview exposure.
+The source contains 0/1/10/50/100-nit patches, a neutral gray ramp and
+RGB/CMY/white/black bars. Captions retain linear-nit white and black levels and
+their ratio; there is no per-profile normalization after changing angle.
+
+This is a separate **P synthetic mechanism experiment**. Its on-axis white is
+matched to 100 nits with a fixed 100-nit LCD backlight or 100-nit OLED emitter
+cap. Sharpening, optical spread, ABL/backlight tracking, motion, response lag,
+overdrive and BFI are disabled; the shoulder is above the test range.
+The manifest records the overrides and angular settings. These choices expose
+white transmission, black leakage and gray/color changes without a changing
+local-dimming map or load limit obscuring them. The OLED path applies only
+emissive luminance/color gains and retains black at zero in this dark-room
+experiment.
+
+Every angular runtime value is a **P placeholder**. Current-profile full
+angular fits, IPS leakage calibration and OLED angular spectra/gains remain
+**NR**. Older VA sparse measurements supply only separately labeled research
+demonstrations, not a fit for these generic profiles or any named TV. This
+center-angle experiment does not model seat geometry or per-pixel IPS glow.
+The ordinary gallery and its complete manifest, motion trace and eight contact
+sheets remain unchanged when the flag is absent. Even with the flag, those
+existing sheets and trace retain their captured golden hashes.
