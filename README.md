@@ -146,3 +146,48 @@ SDR experiment, shared exposure, and on-axis versus +45° pairs for all four
 profiles. Its new sheet is included only with `--viewing-angle`; ordinary
 gallery, validation, MEMC-off and M9 replay defaults retain their goldens.
 See [angular provenance](docs/PROVENANCE.md#angular-schema-version-1-m10).
+
+M13 adds **opt-in OLED capacity attack/release**, default **off**. The runtime
+config stays outside the TV profiles; both e-fold times must be supplied
+explicitly. For a synthetic black → 1% → full-field → 1% → black history:
+
+```sh
+python3 -m sim oled-dynamics --profile generic_woled \
+  --abl-dynamics capacity_attack_release_v1 \
+  --abl-attack-ms 100 --abl-release-ms 1000 --abl-initial cold \
+  --protocol research/measurements/oled_dynamics_synthetic_v1.json \
+  --trials one_full_one --output-fps 60 --gallery \
+  --out reports/oled-dynamics/example
+```
+
+All numbers in this versioned protocol are **P placeholders**; measured
+dynamics and calibration remain **NR**. The command runs independent demand
+and emitted load trials with distinct IDs; `--abl-source demand` or `emitted`
+selects one. It saves rational PTS, per-tick capacity/luminance traces,
+onset/late/recovery linear-nit arrays and complete history checkpoints. The
+optional offline gallery uses one fixed exposure across every frame.
+Other protocol trials cover black gaps, 1/2/5/10/25/50/75/100% steps and
+identical probes following different histories. Existing M4 reports are unchanged.
+
+Python callers use `Pipeline(profile, abl_dynamics=ABLDynamicsConfig(...))`
+with `ABLDynamicsConfig` from `sim.abl_dynamics`. Each `display_content` tick
+updates one global nit-capacity state and uses it for the existing HDR shoulder.
+`cold` starts at the profile peak; `settled_first_tick` erases the first
+capacity transient; `explicit` requires `initial_capacity_nits`. Display black
+pre-roll through the same pipeline to initialize pixel history and recover
+capacity. `checkpoint()` saves full history; a fresh pipeline configured with
+`initial="resume"` uses `restore_checkpoint(data)` for exact continuation.
+CLI `--state-in/--state-out` require one trial and one load source, and resume
+requires `--abl-initial resume`. New artifacts never overwrite existing files.
+
+Active mode rejects nonzero legacy APL smoothing, backlight tracking and
+weighted-nit power budgets, unsupported panels/tone mappers, and M9 v1 fit
+composition. It holds updated capacity constant during each tick's temporal
+exposure, an endpoint approximation. Thermal/static-image controllers and
+electrical watts remain unmodeled; no named TV is calibrated. See the
+[design](research/m11-oled-dynamics.md) and
+[protocol provenance](docs/PROVENANCE.md#oled-dynamics-protocol-schema-version-1-m13).
+
+Disabled rendering and histories retain exact pre-M13 goldens, including
+M10 galleries and web-export frame/asset bytes. Export manifests retain truthful
+source-code hashes, so their `implementation_sha256` metadata changes with code.

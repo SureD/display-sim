@@ -1,0 +1,444 @@
+{
+  "schema_version": 1,
+  "protocol_id": "oled_dynamics_synthetic_v1",
+  "parameter_status": "placeholder",
+  "evidence": "P",
+  "settings": {
+    "width": 384,
+    "height": 216,
+    "level_nits": 1000,
+    "input_eotf": "pq",
+    "primaries": "bt709",
+    "output_fps": "60",
+    "preview_reference_nits": 1000,
+    "onset_interval_s": "0.1",
+    "late_interval_s": "1",
+    "ambient_lux": 0,
+    "bfi_duty": 1,
+    "overdrive_gain": 0,
+    "motion_px_per_frame": 0,
+    "horizontal_deg": 0,
+    "vertical_deg": 0
+  },
+  "demonstration": {
+    "attack_ms": 100,
+    "release_ms": 1000,
+    "initial": "cold"
+  },
+  "unavailable": {
+    "measured_attack_ms": "NR",
+    "measured_release_ms": "NR",
+    "thermal_controller": "NR",
+    "static_image_controller": "NR",
+    "calibrated_profile_fit": "NR"
+  },
+  "trials": [
+    {
+      "trial_id": "one_full_one",
+      "family": "load_and_recovery",
+      "segments": [
+        {
+          "label": "black_preroll",
+          "fraction": 0,
+          "duration_s": "5"
+        },
+        {
+          "label": "small_baseline",
+          "fraction": 0.01,
+          "duration_s": "5"
+        },
+        {
+          "label": "full_load",
+          "fraction": 1,
+          "duration_s": "10"
+        },
+        {
+          "label": "small_recovery",
+          "fraction": 0.01,
+          "duration_s": "10"
+        },
+        {
+          "label": "black_release",
+          "fraction": 0,
+          "duration_s": "5"
+        }
+      ]
+    },
+    {
+      "trial_id": "ten_full_ten",
+      "family": "load_and_recovery",
+      "segments": [
+        {
+          "label": "black_preroll",
+          "fraction": 0,
+          "duration_s": "5"
+        },
+        {
+          "label": "small_baseline",
+          "fraction": 0.1,
+          "duration_s": "5"
+        },
+        {
+          "label": "full_load",
+          "fraction": 1,
+          "duration_s": "10"
+        },
+        {
+          "label": "small_recovery",
+          "fraction": 0.1,
+          "duration_s": "10"
+        }
+      ]
+    },
+    {
+      "trial_id": "black_gap_0",
+      "family": "black_gap_recovery",
+      "segments": [
+        {
+          "label": "black_preroll",
+          "fraction": 0,
+          "duration_s": "5"
+        },
+        {
+          "label": "full_load",
+          "fraction": 1,
+          "duration_s": "10"
+        },
+        {
+          "label": "black_gap",
+          "fraction": 0,
+          "duration_s": "0"
+        },
+        {
+          "label": "identical_probe",
+          "fraction": 0.01,
+          "duration_s": "5"
+        }
+      ]
+    },
+    {
+      "trial_id": "black_gap_0p1",
+      "family": "black_gap_recovery",
+      "segments": [
+        {
+          "label": "black_preroll",
+          "fraction": 0,
+          "duration_s": "5"
+        },
+        {
+          "label": "full_load",
+          "fraction": 1,
+          "duration_s": "10"
+        },
+        {
+          "label": "black_gap",
+          "fraction": 0,
+          "duration_s": "0.1"
+        },
+        {
+          "label": "identical_probe",
+          "fraction": 0.01,
+          "duration_s": "5"
+        }
+      ]
+    },
+    {
+      "trial_id": "black_gap_1",
+      "family": "black_gap_recovery",
+      "segments": [
+        {
+          "label": "black_preroll",
+          "fraction": 0,
+          "duration_s": "5"
+        },
+        {
+          "label": "full_load",
+          "fraction": 1,
+          "duration_s": "10"
+        },
+        {
+          "label": "black_gap",
+          "fraction": 0,
+          "duration_s": "1"
+        },
+        {
+          "label": "identical_probe",
+          "fraction": 0.01,
+          "duration_s": "5"
+        }
+      ]
+    },
+    {
+      "trial_id": "black_gap_5",
+      "family": "black_gap_recovery",
+      "segments": [
+        {
+          "label": "black_preroll",
+          "fraction": 0,
+          "duration_s": "5"
+        },
+        {
+          "label": "full_load",
+          "fraction": 1,
+          "duration_s": "10"
+        },
+        {
+          "label": "black_gap",
+          "fraction": 0,
+          "duration_s": "5"
+        },
+        {
+          "label": "identical_probe",
+          "fraction": 0.01,
+          "duration_s": "5"
+        }
+      ]
+    },
+    {
+      "trial_id": "step_pair_001",
+      "family": "small_large_small",
+      "segments": [
+        {
+          "label": "black_preroll",
+          "fraction": 0,
+          "duration_s": "5"
+        },
+        {
+          "label": "small_before",
+          "fraction": 0.01,
+          "duration_s": "10"
+        },
+        {
+          "label": "large_step",
+          "fraction": 0.01,
+          "duration_s": "10"
+        },
+        {
+          "label": "small_after",
+          "fraction": 0.01,
+          "duration_s": "10"
+        }
+      ]
+    },
+    {
+      "trial_id": "step_pair_002",
+      "family": "small_large_small",
+      "segments": [
+        {
+          "label": "black_preroll",
+          "fraction": 0,
+          "duration_s": "5"
+        },
+        {
+          "label": "small_before",
+          "fraction": 0.01,
+          "duration_s": "10"
+        },
+        {
+          "label": "large_step",
+          "fraction": 0.02,
+          "duration_s": "10"
+        },
+        {
+          "label": "small_after",
+          "fraction": 0.01,
+          "duration_s": "10"
+        }
+      ]
+    },
+    {
+      "trial_id": "step_pair_005",
+      "family": "small_large_small",
+      "segments": [
+        {
+          "label": "black_preroll",
+          "fraction": 0,
+          "duration_s": "5"
+        },
+        {
+          "label": "small_before",
+          "fraction": 0.01,
+          "duration_s": "10"
+        },
+        {
+          "label": "large_step",
+          "fraction": 0.05,
+          "duration_s": "10"
+        },
+        {
+          "label": "small_after",
+          "fraction": 0.01,
+          "duration_s": "10"
+        }
+      ]
+    },
+    {
+      "trial_id": "step_pair_010",
+      "family": "small_large_small",
+      "segments": [
+        {
+          "label": "black_preroll",
+          "fraction": 0,
+          "duration_s": "5"
+        },
+        {
+          "label": "small_before",
+          "fraction": 0.01,
+          "duration_s": "10"
+        },
+        {
+          "label": "large_step",
+          "fraction": 0.1,
+          "duration_s": "10"
+        },
+        {
+          "label": "small_after",
+          "fraction": 0.01,
+          "duration_s": "10"
+        }
+      ]
+    },
+    {
+      "trial_id": "step_pair_025",
+      "family": "small_large_small",
+      "segments": [
+        {
+          "label": "black_preroll",
+          "fraction": 0,
+          "duration_s": "5"
+        },
+        {
+          "label": "small_before",
+          "fraction": 0.01,
+          "duration_s": "10"
+        },
+        {
+          "label": "large_step",
+          "fraction": 0.25,
+          "duration_s": "10"
+        },
+        {
+          "label": "small_after",
+          "fraction": 0.01,
+          "duration_s": "10"
+        }
+      ]
+    },
+    {
+      "trial_id": "step_pair_050",
+      "family": "small_large_small",
+      "segments": [
+        {
+          "label": "black_preroll",
+          "fraction": 0,
+          "duration_s": "5"
+        },
+        {
+          "label": "small_before",
+          "fraction": 0.01,
+          "duration_s": "10"
+        },
+        {
+          "label": "large_step",
+          "fraction": 0.5,
+          "duration_s": "10"
+        },
+        {
+          "label": "small_after",
+          "fraction": 0.01,
+          "duration_s": "10"
+        }
+      ]
+    },
+    {
+      "trial_id": "step_pair_075",
+      "family": "small_large_small",
+      "segments": [
+        {
+          "label": "black_preroll",
+          "fraction": 0,
+          "duration_s": "5"
+        },
+        {
+          "label": "small_before",
+          "fraction": 0.01,
+          "duration_s": "10"
+        },
+        {
+          "label": "large_step",
+          "fraction": 0.75,
+          "duration_s": "10"
+        },
+        {
+          "label": "small_after",
+          "fraction": 0.01,
+          "duration_s": "10"
+        }
+      ]
+    },
+    {
+      "trial_id": "step_pair_100",
+      "family": "small_large_small",
+      "segments": [
+        {
+          "label": "black_preroll",
+          "fraction": 0,
+          "duration_s": "5"
+        },
+        {
+          "label": "small_before",
+          "fraction": 0.01,
+          "duration_s": "10"
+        },
+        {
+          "label": "large_step",
+          "fraction": 1.0,
+          "duration_s": "10"
+        },
+        {
+          "label": "small_after",
+          "fraction": 0.01,
+          "duration_s": "10"
+        }
+      ]
+    },
+    {
+      "trial_id": "probe_after_black",
+      "family": "matched_probe_history",
+      "segments": [
+        {
+          "label": "black_history",
+          "fraction": 0,
+          "duration_s": "15"
+        },
+        {
+          "label": "identical_probe",
+          "fraction": 0.01,
+          "duration_s": "5"
+        }
+      ]
+    },
+    {
+      "trial_id": "probe_after_load",
+      "family": "matched_probe_history",
+      "segments": [
+        {
+          "label": "black_preroll",
+          "fraction": 0,
+          "duration_s": "5"
+        },
+        {
+          "label": "loaded_history",
+          "fraction": 1,
+          "duration_s": "10"
+        },
+        {
+          "label": "identical_probe",
+          "fraction": 0.01,
+          "duration_s": "5"
+        }
+      ]
+    }
+  ],
+  "notes": "All settings and sequence choices inherit P: synthetic placeholders from research/m11-oled-dynamics.md sections 3, 4 and 6. Demonstration taus are explicit example inputs, never runtime defaults or measured constants. Rational timing, capacities, luminance and metrics are D under this P model. Nominal window fractions are rasterized by nearest integer dimensions and actual area/bounds are saved. The endpoint capacity is held during each temporal exposure. Unknown device and acquisition conditions remain NR; no named TV is calibrated."
+}

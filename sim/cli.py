@@ -81,7 +81,7 @@ def build_parser() -> argparse.ArgumentParser:
         default=None,
         help="Sample-and-hold eye motion in pixels per frame",
     )
-    parser.epilog = (parser.epilog or "") + " Commands: python -m sim {validate,gallery,export-web,motion,provenance,fit-windows} --help"
+    parser.epilog = (parser.epilog or "") + " Commands: python -m sim {validate,gallery,export-web,motion,provenance,fit-windows,oled-dynamics} --help"
     return parser
 
 
@@ -90,6 +90,11 @@ def main(argv: list[str] | None = None) -> None:
         argv = sys.argv[1:]
     else:
         argv = list(argv)
+    if argv and argv[0] == "oled-dynamics":
+        from sim.oled_dynamics_experiment import main as oled_dynamics_main
+
+        oled_dynamics_main(argv[1:])
+        return
     if argv and argv[0] == "export-web":
         from sim.export_web import main as export_web_main
 
