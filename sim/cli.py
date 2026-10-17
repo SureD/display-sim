@@ -37,6 +37,7 @@ from PIL import Image
 from sim.pipeline import Pipeline
 from sim.profile import available_profiles, load_profile
 from sim.stages.decode import as_code_values
+from sim.viewing_angle import ViewingAngleConfig
 
 
 def load_image(path: Path) -> np.ndarray:
@@ -60,7 +61,15 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--input", required=True, type=Path, help="Encoded input image")
     parser.add_argument("--output", required=True, type=Path, help="Preview PNG path")
     parser.add_argument("--input-eotf", choices=("srgb", "pq", "hlg"), default=None)
-    parser.add_argument("--viewing-angle", type=float, default=None, help="Off-axis degrees")
+    parser.add_argument(
+        "--viewing-angle-horizontal", "--viewing-angle", dest="viewing_angle_horizontal",
+        type=float, default=None,
+        help="Opt into P placeholder angular model: horizontal degrees (combined support 0–45°)",
+    )
+    parser.add_argument(
+        "--viewing-angle-vertical", type=float, default=None,
+        help="Opt into P placeholder angular model: vertical degrees (default 0)",
+    )
     parser.add_argument("--ambient-lux", type=float, default=None, help="Room illuminance")
     parser.add_argument(
         "--motion-px",
@@ -102,14 +111,23 @@ def main(argv: list[str] | None = None) -> None:
 
         gallery_main(argv[1:])
         return
-    args = build_parser().parse_args(argv)
+    parser = build_parser()
+    args = parser.parse_args(argv)
     profile = load_profile(args.profile).with_overrides(
         input_eotf=args.input_eotf,
-        viewing_angle_deg=args.viewing_angle,
         ambient_lux=args.ambient_lux,
         motion_px=args.motion_px,
     )
-    preview = Pipeline(profile).run(load_image(args.input))
+    try:
+        config = ViewingAngleConfig(
+            enabled=args.viewing_angle_horizontal is not None or args.viewing_angle_vertical is not None,
+            horizontal_deg=args.viewing_angle_horizontal if args.viewing_angle_horizontal is not None else 0.0,
+            vertical_deg=args.viewing_angle_vertical if args.viewing_angle_vertical is not None else 0.0,
+        )
+        pipeline = Pipeline(profile, viewing_angle=config)
+    except ValueError as exc:
+        parser.error(str(exc))
+    preview = pipeline.run(load_image(args.input))
     save_image(args.output, preview)
 
 

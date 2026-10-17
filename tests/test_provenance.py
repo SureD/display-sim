@@ -51,6 +51,9 @@ def _copy_profiles(destination):
         (destination / f"{name}.yaml").write_bytes(
             (PROFILE_DIR / f"{name}.yaml").read_bytes()
         )
+        (destination / f"{name}.angular.yaml").write_bytes(
+            (PROFILE_DIR / f"{name}.angular.yaml").read_bytes()
+        )
 
 
 @pytest.mark.parametrize("name", PROFILES)

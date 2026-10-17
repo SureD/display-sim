@@ -1,4 +1,4 @@
-# Status — 2026-10-17 06:30 CST
+# Status — 2026-10-17 (M10 implementation)
 
 ## Milestone progress
 - **M1 research docs**: DONE (`37cc504`).
@@ -13,6 +13,7 @@
 - **M8 profile provenance sidecar**: DONE (merge `94f248b` of `codex/m8-provenance`, commit `d0ca06f`). Four versioned `sim/profiles/*.provenance.yaml` sidecars cover all 220 effective profile values (M/D/P/NR, source locators, conditions, support ranges); strict lookup fails out of support; `python3 -m sim provenance --check`; schema in `docs/PROVENANCE.md`. Runtime YAMLs unchanged, parity tested.
 - **M7 MEMC implementation phase 1**: DONE (merge `c311510` of `codex/m7-memc`, commit `1600d8a`). Captured pre-change hashes; independent rational source/output PTS and repeat cadence (D); analytic translation/known-layer reconstruction (P), exact endpoints, declared cuts and safe source-hold fallback; separate opt-in `motion` CLI/runtime configuration, default off. Added a 24p repeat/interpolated gallery comparison with exact position traces. TV profile YAMLs unchanged; vendor algorithms/calibration remain NR.
 - **M9 opt-in window replay / drive fitting**: DONE (merge `f89047a` of `codex/m9-window-replay`, commit `202dbff`). `python3 -m sim fit-windows` fits independent `P` internal-drive scales against final pipeline luminance using strict M8 lookup. Explicit amplitude/color/settling/hold matching, black pre-roll, `P` exploratory assumptions for `NR` conditions, separate new `.fit.json` dataset IDs, preserved source evidence/placeholders, baseline fingerprints and no double limiting. Generic profile YAMLs and sidecars are unchanged. Default pipeline, validation, complete gallery and MEMC-off parity are protected by static goldens, including a current-main gallery capture.
+- **M10 opt-in viewing-angle model**: DONE (uncommitted on `codex/m10-viewing-angle`, ready for PM review). Separate horizontal/vertical runtime configuration; independent LCD white transmission, emitted-black leakage and RGB gray-response terms; OLED emission gains only. Four versioned `*.angular.yaml` records label all numeric choices `P` placeholders, with current full fits, IPS leakage fits and OLED measured gains/spectra `NR`; the provenance CLI validates both sidecar schemas. Still CLI angle options and opt-in `gallery --viewing-angle` add a shared-exposure 0°/+45° comparison. Original runtime YAMLs and baseline provenance sidecars are unchanged; disabled/zero-angle paths and existing goldens remain bit-identical.
 
 ## Workers (this cycle)
 - Cursor run10: **failed at start** (`RetriableError: Connection stalled repeatedly`), no work done; stale empty `cursor/m7-memc` branch deleted.
@@ -20,24 +21,25 @@
 - Codex run11: **finished** M7 MEMC phase 1 (uncommitted → PM committed + merged).
 - Cursor run11: **failed at start** (`RetriableError: Connection stalled repeatedly`), no work done. Cursor worker paused until the CLI connection is fixed.
 - Codex run12: **finished** M9 window replay / drive fitting (uncommitted → PM committed + merged).
-- Started: Codex run13 → M10 opt-in viewing-angle model (worktree `/workspace/tv-sim-codex`, branch `codex/m10-viewing-angle`).
-- **M10 opt-in viewing-angle model**: IN PROGRESS (Codex).
+- Codex run13: **finished** M10 opt-in viewing-angle model (uncommitted for PM review; worktree `/workspace/tv-sim-codex`, branch `codex/m10-viewing-angle`).
 
 ## Tests
-- **387/387 pytest** on `main` after the M9 merge (PM re-run: `387 passed in 42.52s`).
-- `python3 -m sim provenance --check` → **OK**, all four profiles, schema version 1.
-- Coverage includes synthetic fit convergence with active demand/emitted ABL, strict amplitude/color/time/support rejection, preserved `P`/`NR` targets, dataset/file separation, one limiter pass per display tick, timing/history, malformed/stale fit rejection and CLI behavior. Default pipeline/validation/gallery/MEMC-off static goldens remain bit-identical after fit save/load/replay; current-main gallery manifest and M7 timing trace hashes also match.
+- `python3 -m pytest -q` → **534 passed in 55.50s** on the M10 worktree; test temporary outputs used the worktree's `.tmp` via `TMPDIR`.
+- `python3 -m sim provenance --check` → **OK**, all four profiles, baseline/angular schema version 1. `git diff --check` passes.
+- M10 coverage includes exact disabled/on-axis output and history parity, LCD monotonic contrast collapse, independent white/leakage/gray and RGB color terms, OLED isolation from LCD terms, signed/combined-angle support and invalid-coordinate rejection, strict provenance labeling, CLI behavior and the optional gallery comparison. The generated comparison sheet was visually inspected.
+- Existing coverage includes synthetic fit convergence with active demand/emitted ABL, strict amplitude/color/time/support rejection, preserved `P`/`NR` targets, dataset/file separation, one limiter pass per display tick, timing/history and malformed/stale fit rejection. Default pipeline/validation/gallery/MEMC-off static goldens remain bit-identical after M9 fit save/load/replay; complete default gallery manifest and M7 timing trace hashes also match. The opt-in angular gallery retains all eight previous sheets and trace hashes.
 
 ## Drift / risks
 - Profile numbers remain placeholders; do not present as emulating a specific TV.
 - MEMC must be off by default and leave the MEMC-off path bit-identical.
+- M10 uses P synthetic endpoints over a center-ray angle of 0–45°, with unsigned symmetry and azimuth independence. It does not model per-pixel viewing geometry or IPS corner glow. Angular panel terms precede the existing HDR/ABL/temporal stages, so emitted-load ABL can interact with angular gains; the gallery isolates the terms with fixed-backlight SDR and disabled load limiting. No named TV is calibrated.
 - M9 is opt-in with separate fitted dataset IDs. Shipped records have `NR` amplitude/timing, so exploratory assumptions are required; low fitting residuals do not establish a calibrated TV, sustained capability or arbitrary-content replay. Strict geometry rejects raster area mismatch; exploratory rounding remains `P`.
 - Cursor CLI connection stalls are recurring (4 of the last 6 runs); all work now goes to Codex until Cursor connectivity is fixed.
-- Still stubbed: measured OD/BFI/PWM waveforms, measured PSFs/zone maps, spectral subpixels, gamut mapping, glare, CRT/plasma, GPU path, zone temporal smoothing, full watt solver, angular leakage LUTs, OLED attack/release, block-estimation MEMC.
+- Still stubbed: measured OD/BFI/PWM waveforms, measured PSFs/zone maps, spectral subpixels, gamut mapping, glare, CRT/plasma, GPU path, zone temporal smoothing, full watt solver, measured full angular leakage/RGB LUTs, OLED attack/release, block-estimation MEMC.
 - GPU path on `dscs2pc` (RTX 3070) still **blocked on user OK** + local-machine approval.
 
 ## Next (assigned this cycle)
 1. **M7 follow-ups (deferred)**: block estimation, automatic cut detection, vendor calibration, video/audio plumbing and full observer integration remain deferred per the research boundary.
-2. **M10 viewing-angle model (Codex, `codex/m10-viewing-angle`)**: per `research/m6-profile-wiring.md` §8 item 4 — opt-in LCD angular transmission with independently identified white/leakage/gray terms (VA sparse endpoints as labeled demonstrations, IPS leakage/full fits NR), OLED angular gains NR/placeholder; default off, existing outputs bit-identical; tests + one gallery row.
+2. **M10 PM review**: implementation complete on `codex/m10-viewing-angle`; changes remain uncommitted as requested. Review the independent angular terms, P/NR sidecars, strict support and optional shared-exposure gallery.
 3. **Measurement follow-ups**: acquire matched amplitude/color/time and sustained traces before any named-TV calibration or independent dynamics fit; current source gaps remain `NR`.
 4. **GPU path (PyTorch on dscs2pc)**: still awaiting user confirm.

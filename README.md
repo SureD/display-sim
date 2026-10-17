@@ -95,3 +95,37 @@ an extra ABL/output limiter. These fits identify a proposed per-window drive
 normalization, not a calibrated TV or arbitrary-content response. See the
 [M9 contract](docs/PROVENANCE.md#m9-window-replay-and-drive-fitting) for the
 amplitude, color, time and no-double-limiting rules.
+
+M10 adds an **opt-in viewing-angle model** with signed horizontal and vertical
+runtime angles. For a still preview and an offline comparison:
+
+```sh
+python3 -m sim --profile generic_va_fald_miniled --input in.png --output out.png \
+  --viewing-angle-horizontal 45 --viewing-angle-vertical 0
+python3 -m sim gallery --viewing-angle --out reports/gallery-angle
+```
+
+`--viewing-angle` is an alias for the horizontal option. Supplying either
+angle opts in; omitting both, or setting both to zero, preserves the original
+pipeline exactly. Python callers use
+`Pipeline(profile, viewing_angle=ViewingAngleConfig(enabled=True, horizontal_deg=45))`
+with `ViewingAngleConfig` from `sim.viewing_angle`.
+
+LCD transmission separates angular white gain, emitted-black leakage gain,
+and RGB gray-response exponents, so contrast loss and gamma/color wash-out
+can be varied independently. Emissive panels use RGB emission gains only.
+Every shipped angular value is a **P placeholder**, with current-profile
+full fits, IPS leakage fits, and OLED measured gains/spectra **NR**. The
+separate versioned `*.angular.yaml` records are checked by the provenance
+command; the original TV YAMLs retain all runtime values.
+
+The synthetic model supports a combined angle of 0–45° and rejects
+extrapolation. Its center ray uses `cos(theta) = cos(horizontal)*cos(vertical)`;
+unsigned symmetry and azimuth independence are P assumptions. It does not
+predict per-pixel angles or IPS corner glow. Angular terms precede the existing
+HDR/ABL and temporal stages; emitted-load ABL can therefore interact with them.
+The gallery isolates the mechanisms with a labeled fixed-backlight 100-nit
+SDR experiment, shared exposure, and on-axis versus +45° pairs for all four
+profiles. Its new sheet is included only with `--viewing-angle`; ordinary
+gallery, validation, MEMC-off and M9 replay defaults retain their goldens.
+See [angular provenance](docs/PROVENANCE.md#angular-schema-version-1-m10).

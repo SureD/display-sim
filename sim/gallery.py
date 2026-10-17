@@ -32,6 +32,8 @@ HDR_REFERENCE = 2000.0
 SHADOW_REFERENCE = 10.0
 MOTION_REFERENCE = 100.0
 MACRO_REFERENCE = 1000.0
+VIEWING_ANGLE_REFERENCE = 100.0
+VIEWING_ANGLE_HORIZONTAL = 45.0
 PRE_ROLL = 12
 PAN_FRAMES = 36
 PAN_SPEED = 8.0
@@ -136,6 +138,71 @@ def render_still(profile: TVProfile, source: np.ndarray) -> np.ndarray:
     return Pipeline(_gallery_profile(profile)).run_linear(pq_oetf(source)).rgb
 
 
+def viewing_angle_scene(width: int, height: int) -> np.ndarray:
+    """P: matched-white black/gray/color stimulus, in absolute linear nits."""
+    source = np.zeros((height, width, 3), dtype=np.float32)
+    # Broad uniform patches make white and leakage statistics independent of
+    # the ramp. The LCD experiment fixes the backlight rather than dimming it.
+    for index, level in enumerate((0.0, 1.0, 10.0, 50.0, 100.0)):
+        source[:height//3, width*index//5:width*(index+1)//5] = level
+    ramp = np.linspace(0, VIEWING_ANGLE_REFERENCE, width, dtype=np.float32)
+    source[height//3:height*2//3] = ramp[None, :, None]
+    colors = ((100, 0, 0), (0, 100, 0), (0, 0, 100), (100, 100, 0),
+              (0, 100, 100), (100, 0, 100), (100, 100, 100), (0, 0, 0))
+    for index, color in enumerate(colors):
+        source[height*2//3:, width*index//8:width*(index+1)//8] = color
+    return source
+
+
+def _viewing_angle_profile(profile: TVProfile) -> TVProfile:
+    """P: isolate angular transmission/emission from dimming, load and optics.
+
+    This separate experiment leaves the ordinary gallery profiles untouched.
+    The fixed LCD backlight and OLED emitter cap are both 100 nits. A 1,000-nit
+    shoulder stays above every test sample, including the off-axis output.
+    """
+    configured = _gallery_profile(profile)
+    return replace(
+        configured,
+        processing=replace(configured.processing, sharpen_amount=0),
+        backlight=replace(
+            configured.backlight, peak_nits=VIEWING_ANGLE_REFERENCE,
+            floor_nits=0 if profile.self_emissive else VIEWING_ANGLE_REFERENCE,
+            psf_sigma_zones=0, psf_sigma_y_zones=0,
+            psf_tail_weight=0, psf_profile=None,
+        ),
+        hdr=replace(
+            configured.hdr, panel_peak_nits=1000, abl_enabled=False,
+            abl_power_budget_nits=0, abl_backlight_tracking=0,
+        ),
+        temporal=replace(
+            configured.temporal, response_time_ms=0, sample_and_hold=False,
+            overdrive_gain=0, bfi_duty=1, integration_samples=1,
+        ),
+    )
+
+
+def render_viewing_angle(
+    profile: TVProfile, source: np.ndarray, horizontal_deg: float = 0.0,
+) -> np.ndarray:
+    """Use a fresh, explicitly enabled angular pipeline for each still."""
+    from sim.viewing_angle import ViewingAngleConfig
+
+    return Pipeline(
+        _viewing_angle_profile(profile),
+        viewing_angle=ViewingAngleConfig(enabled=True, horizontal_deg=horizontal_deg),
+    ).run_linear(pq_oetf(source)).rgb
+
+
+def _viewing_angle_caption(rgb: np.ndarray) -> str:
+    height, width = rgb.shape[:2]
+    patch = luminance(rgb[:height//3])
+    black = float(patch[:, :width//5].mean())
+    white = float(patch[:, width*4//5:].mean())
+    ratio = f"{white/black:.0f}:1" if black > 1e-7 else "infinite (model)"
+    return f"P placeholder | white {white:.2f}, black {black:.4f} nit | W/B {ratio}"
+
+
 def render_pan(profile: TVProfile, source: np.ndarray, mode: str) -> dict[int, np.ndarray]:
     """Pre-roll, then advance one persistent pipeline through the whole pan."""
     configured = _gallery_profile(profile, motion=PAN_SPEED)
@@ -225,7 +292,9 @@ class Row:
     captions: list[str] | None = None
 
 
-def contact_sheet(path: Path, title: str, rows: list[Row]) -> None:
+def contact_sheet(
+    path: Path, title: str, rows: list[Row], *, footer_note: str | None = None,
+) -> None:
     """Four TV columns with transform labels retained in the PNG itself."""
     width = rows[0].images[0].shape[1]
     gap, header, row_label = 12, 104, 46
@@ -268,7 +337,8 @@ def contact_sheet(path: Path, title: str, rows: list[Row]) -> None:
             for line, caption in enumerate(captions[i]):
                 draw.text((x, y+rgb.shape[0]+6+16*line), caption, fill="#b6c3d1", font=caption_font)
         y += row.images[0].shape[0] + caption_h + gap
-    draw.text((gap, total_h-24), "HDR is scaled into sRGB. Shadow rows amplify leakage; macro rows show synthetic apertures.", fill="#f1bc79", font=_font(12))
+    footer = footer_note if footer_note is not None else "HDR is scaled into sRGB. Shadow rows amplify leakage; macro rows show synthetic apertures."
+    draw.text((gap, total_h-24), footer, fill="#f1bc79", font=_font(12))
     sheet.save(path)
 
 
@@ -333,11 +403,28 @@ QD-OLED has a placeholder 0.45-pixel optical PSF; WOLED has none. The two OLED p
 </details>__SECTIONS__
 <p>Reproduce: <code>python3 -m sim gallery</code>. In the source repository, docs/REPORT.md
 and research/m5-fidelity.md describe validation and model boundaries.</p></main></html>'''
+    if "angular_experiment" in manifest:
+        page = page.replace(
+            "ambient is 0 lux, on-axis, and profile spatial processing stays enabled.</p>",
+            "ambient is 0 lux, on-axis, and profile spatial processing stays enabled.</p>"
+            '<p>The optional <a href="#viewing_angle">viewing-angle experiment</a> '
+            "compares 0&deg; and +45&deg; horizontal at one shared 100-nit exposure. "
+            "Its black/gray/color bands use a fixed 100-nit LCD backlight or OLED emitter cap, "
+            "with sharpening, optical spread and load limiting disabled. "
+            "Angular values are <strong>P placeholders</strong>; current-profile fits, IPS "
+            "leakage calibration and OLED angular spectra/gains remain <strong>NR</strong>. "
+            "No named TV is calibrated.</p>",
+        ).replace(
+            "python3 -m sim gallery</code>",
+            "python3 -m sim gallery --viewing-angle</code>",
+        )
     nav = "".join(f'<a href="#{escape(s["id"])}">{escape(s["title"])}</a>' for s in manifest["sheets"])
     (out / "index.html").write_text(page.replace("__NAV__", nav).replace("__PROFILES__", profiles).replace("__SECTIONS__", "\n".join(sections)), encoding="utf-8")
 
 
-def generate_gallery(out: Path, width: int = 320, height: int = 180) -> dict:
+def generate_gallery(
+    out: Path, width: int = 320, height: int = 180, *, viewing_angle: bool = False,
+) -> dict:
     """Render all four shipped profiles without modifying their YAML files."""
     from sim.macro import render_macro
 
@@ -359,9 +446,9 @@ def generate_gallery(out: Path, width: int = 320, height: int = 180) -> dict:
                 "profiles": [dict(asdict(p), yaml_sha256=sha256(profile_path(p.name).read_bytes()).hexdigest()) for p in profiles],
                 "sheets": []}
 
-    def save(identifier: str, title: str, description: str, rows: list[Row]):
+    def save(identifier: str, title: str, description: str, rows: list[Row], *, footer_note: str | None = None):
         filename = f"{identifier}.png"
-        contact_sheet(out / filename, title, rows)
+        contact_sheet(out / filename, title, rows, footer_note=footer_note)
         manifest["sheets"].append({"id": identifier, "title": title, "description": description,
                                     "file": filename, "rows": [dict(title=r.title, note=r.note,
                                      reference_nits=r.reference, statistics=_stats(r.images), captions=r.captions) for r in rows]})
@@ -441,6 +528,59 @@ def generate_gallery(out: Path, width: int = 320, height: int = 180) -> dict:
     (out / "memc_trace.json").write_text(json.dumps(memc_trace, indent=2, allow_nan=False)+"\n", encoding="utf-8")
     manifest["memc_pan"] = {key: value for key, value in memc_trace.items() if key not in ("position_trace", "profiles")}
     manifest["memc_pan"]["trace_file"] = "memc_trace.json"
+    if viewing_angle:
+        from sim.viewing_angle import angular_parameters
+
+        source = viewing_angle_scene(width, height)
+        rows = []
+        for angle in (0.0, VIEWING_ANGLE_HORIZONTAL):
+            images = [render_viewing_angle(profile, source, angle) for profile in profiles]
+            rows.append(Row(
+                f"P angular placeholders / horizontal {angle:+.0f} deg, vertical +0 deg",
+                "100 nits -> white; fixed LCD backlight; patches / neutral ramp / RGB-CMY bars",
+                images, VIEWING_ANGLE_REFERENCE,
+                [_viewing_angle_caption(rgb) for rgb in images],
+            ))
+        save(
+            "viewing_angle", "Viewing angle / synthetic placeholders (P)",
+            "On-axis versus +45 deg horizontal at shared exposure. Independent LCD white, "
+            "leakage and gray/color terms; OLED emitter gains only. Current-profile fits, "
+            "IPS leakage calibration and OLED angular spectra/gains remain NR. No named-TV calibration.",
+            rows,
+            footer_note="P placeholders; full fits, IPS leakage, OLED spectra/gains NR. Center angle only; 100-nit exposure.",
+        )
+        manifest["angular_experiment"] = {
+            "evidence": "P", "current_profile_calibration": "NR",
+            "horizontal_deg": [0.0, VIEWING_ANGLE_HORIZONTAL], "vertical_deg": 0.0,
+            "reference_nits": VIEWING_ANGLE_REFERENCE,
+            "source": "P: 0/1/10/50/100-nit patches; neutral 0-100 ramp; RGB/CMY/white/black bars",
+            "protocol": "Matched on-axis 100-nit white; each angle uses a fresh pipeline; no per-TV normalization",
+            "profile_overrides": {
+                "input_eotf": "pq", "ambient_lux": 0, "legacy_viewing_angle_deg": 0,
+                "backlight_peak_nits": VIEWING_ANGLE_REFERENCE,
+                "lcd_backlight_floor_nits": VIEWING_ANGLE_REFERENCE,
+                "oled_emitter_floor_nits": 0, "psf_sigma_zones": 0,
+                "psf_sigma_y_zones": 0, "psf_tail_weight": 0, "psf_profile": None,
+                "sharpen_amount": 0, "hdr_panel_peak_nits": 1000,
+                "abl_enabled": False, "abl_power_budget_nits": 0,
+                "abl_backlight_tracking": 0, "response_time_ms": 0,
+                "sample_and_hold": False, "motion_px_per_frame": 0,
+                "overdrive_gain": 0, "bfi_duty": 1, "integration_samples": 1,
+            },
+            "models": [
+                {"profile": p.name, "technology": p.technology,
+                 "path": "emitter angular luminance/color gains" if p.self_emissive
+                         else "LCD independent white transmission / black leakage / gray-color shift",
+                 "runtime_parameters": "P placeholders", "full_angular_fit": "NR",
+                 "parameters": {key: {"value": value, "status": "P"}
+                                for key, value in asdict(angular_parameters(p)).items()},
+                 "provenance_sidecar": f"sim/profiles/{p.name}.angular.yaml",
+                 "additional_limits": "OLED angular spectra/gains NR" if p.self_emissive
+                                      else "IPS leakage NR; generic LCD calibration NR" if p.technology == "ips_lcd"
+                                      else "Current VA full angular fit NR; older sparse endpoints are separate demonstrations"}
+                for p in profiles
+            ],
+        }
     (out / "manifest.json").write_text(json.dumps(manifest, indent=2, allow_nan=False)+"\n", encoding="utf-8")
     _html(out, manifest)
     return manifest
@@ -451,10 +591,12 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument("--out", type=Path, default=Path("reports/gallery"))
     parser.add_argument("--width", type=int, default=320)
     parser.add_argument("--height", type=int, default=180)
+    parser.add_argument("--viewing-angle", action="store_true",
+                        help="Append a P placeholder 0/+45-degree matched-white angular comparison")
     args = parser.parse_args(argv)
     if args.width < 160 or args.height < 96:
         parser.error("resolution must be at least 160x96")
-    result = generate_gallery(args.out, args.width, args.height)
+    result = generate_gallery(args.out, args.width, args.height, viewing_angle=args.viewing_angle)
     print(f"Wrote {len(result['sheets'])} contact sheets and {args.out / 'index.html'}")
 
 

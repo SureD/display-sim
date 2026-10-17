@@ -97,7 +97,11 @@ class BacklightParams:
 
 @dataclass
 class PanelParams:
-    """LCD transmission, subpixel mosaic, and a placeholder viewing-angle law."""
+    """LCD transmission, subpixel mosaic, and the legacy chroma-only angle law.
+
+    The independent M10 runtime model lives in :mod:`sim.viewing_angle`;
+    these existing fields and values remain the compatibility baseline.
+    """
 
     native_contrast: float = 1000.0
     subpixel: str = "rgb_stripe"
@@ -232,13 +236,13 @@ def available_profiles() -> list[str]:
     return sorted(
         path.stem
         for path in PROFILES_DIR.glob("*.yaml")
-        if not path.name.endswith(".provenance.yaml")
+        if not path.name.endswith((".provenance.yaml", ".angular.yaml"))
     )
 
 
 def profile_path(name: str) -> Path:
     path = PROFILES_DIR / f"{name}.yaml"
-    if name.endswith(".provenance") or not path.is_file():
+    if name.endswith((".provenance", ".angular")) or not path.is_file():
         known = ", ".join(available_profiles()) or "(none)"
         raise FileNotFoundError(f"Unknown profile {name!r}. Available: {known}")
     return path

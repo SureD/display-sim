@@ -19,9 +19,11 @@ mosaic is energy-preserving for a flat color, which keeps the rest of the
 pipeline at the original resolution. A separate illustration of these layout
 families, with synthetic apertures and a black matrix, lives in :mod:`sim.macro`.
 
-Viewing angle is a placeholder, not a measured BRDF. Off axis, RGB is mixed
+The legacy viewing angle is a placeholder, not a measured BRDF. Off axis, RGB is mixed
 toward the pixel luminance so chroma falls:
 ``factor = 1 / (1 + angle_loss_per_deg * degrees)``.
+The separate M10 opt-in model replaces that law with angular LCD transmission
+or emissive RGB gains; see :mod:`sim.stages.viewing_angle`. Both are synthetic.
 """
 
 from __future__ import annotations
@@ -34,6 +36,7 @@ from sim.color import apply_matrix, luminance
 from sim.frame import Frame
 from sim.profile import BacklightParams, PanelParams
 from sim.stages.backlight import apply_light_spread, psf_axis_kernels
+from sim.viewing_angle import AngularParams, ViewingAngleConfig
 
 
 @dataclass(frozen=True)
@@ -157,20 +160,41 @@ def simulate_panel(
     self_emissive: bool,
     peak_nits: float,
     psf: EmissionPsf | None = None,
+    viewing_angle: ViewingAngleConfig | None = None,
+    angular_params: AngularParams | None = None,
 ) -> Frame:
     """Turn the target picture plus backlight into emitted linear light."""
 
     if frame.backlight is None:
         raise ValueError("panel stage requires a backlight map")
+    angular_active = viewing_angle is not None and viewing_angle.active
+    if angular_active:
+        from sim.viewing_angle import validate_angular_path
+
+        if angular_params is None:
+            raise ValueError("active viewing angle requires angular parameters")
+        validate_angular_path(viewing_angle, angular_params,
+                              self_emissive=self_emissive, contrast=params.native_contrast)
     if self_emissive:
         emitted = np.clip(frame.rgb, 0.0, np.float32(peak_nits))
         if psf is not None:
             emitted = spread_emission(emitted, psf)
+        if angular_active:
+            from sim.stages.viewing_angle import emissive_angular_gain
+
+            emitted = emissive_angular_gain(emitted, viewing_angle, angular_params)
     else:
-        emitted = lcd_transmit(frame.rgb, frame.backlight, params.native_contrast)
+        if angular_active:
+            from sim.stages.viewing_angle import lcd_angular_transmit
+
+            emitted = lcd_angular_transmit(frame.rgb, frame.backlight, params.native_contrast,
+                                           viewing_angle, angular_params)
+        else:
+            emitted = lcd_transmit(frame.rgb, frame.backlight, params.native_contrast)
     emitted = apply_matrix(emitted, _matrix(params.color_matrix))
     mosaic = render_subpixels(emitted, params.subpixel)
     emitted = composite_subpixels(mosaic, params.subpixel)
-    emitted = apply_viewing_angle(emitted, params.viewing_angle_deg, params.angle_loss_per_deg)
+    if not angular_active:
+        emitted = apply_viewing_angle(emitted, params.viewing_angle_deg, params.angle_loss_per_deg)
     emitted = np.clip(emitted, 0.0, None)
     return Frame(emitted, frame.backlight)

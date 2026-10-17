@@ -3,6 +3,11 @@
 decode → image processing → backlight / local dimming → panel →
 HDR tone map / ABL → ambient reflection → temporal → encode.
 
+The opt-in runtime viewing-angle model runs inside LCD transmission, or as
+RGB emission gains on emissive panels, before the panel matrix/mosaic. It
+replaces the legacy chroma law only when active. Disabled and zero-angle
+configurations retain the original path and arithmetic exactly.
+
 The ABL load is read between image processing and the backlight, on the
 picture the content requests: see :mod:`sim.load`.
 
@@ -34,6 +39,9 @@ from sim.stages.panel import emission_psf, simulate_panel
 from sim.stages.process import process_image
 from sim.stages.temporal import TemporalState, apply_temporal
 from sim.stages.tonemap import tone_map
+from sim.viewing_angle import (
+    AngularParams, ViewingAngleConfig, angular_parameters, validate_angular_path,
+)
 
 if TYPE_CHECKING:
     from sim.sequence import MotionConfig, SequenceOutput
@@ -44,6 +52,9 @@ class Pipeline:
 
     Two histories are kept: the temporal state (panel level and pursuit
     history) and the ABL load state (smoothed demand APL).
+
+    ``viewing_angle`` and optional synthetic ``angular_params`` are separate
+    runtime controls; neither changes the profile or loads a fitted dataset.
     """
 
     def __init__(
@@ -51,10 +62,20 @@ class Pipeline:
         profile: TVProfile,
         state: TemporalState | None = None,
         load_state: LoadState | None = None,
+        *,
+        viewing_angle: ViewingAngleConfig | None = None,
+        angular_params: AngularParams | None = None,
     ):
         self.profile = profile
         self.state = state if state is not None else TemporalState()
         self.load_state = load_state if load_state is not None else LoadState()
+        self.viewing_angle = viewing_angle if viewing_angle is not None else ViewingAngleConfig()
+        self.angular_params = angular_params
+        if self.viewing_angle.active:
+            self.angular_params = angular_params if angular_params is not None else angular_parameters(profile)
+            validate_angular_path(self.viewing_angle, self.angular_params,
+                                  self_emissive=profile.self_emissive,
+                                  contrast=profile.panel.native_contrast)
 
     def run_linear(self, encoded: np.ndarray) -> Frame:
         """Run every stage except output encode. RGB is linear nits."""
@@ -97,6 +118,8 @@ class Pipeline:
             self_emissive=profile.self_emissive,
             peak_nits=profile.backlight.peak_nits,
             psf=emission_psf(profile.backlight) if profile.self_emissive else None,
+            viewing_angle=self.viewing_angle,
+            angular_params=self.angular_params,
         )
         frame = tone_map(frame, profile.hdr, demand_apl_nits=apl)
         frame = add_ambient(frame, profile.ambient)

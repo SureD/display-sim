@@ -398,6 +398,8 @@ def lookup_measurement(data: dict, dataset_id: str, fraction: float) -> Measurem
 
 
 def main(argv: list[str] | None = None) -> None:
+    from sim.angular_provenance import validate_angular_provenance
+
     parser = argparse.ArgumentParser(description="Check offline profile provenance and measurement sidecars.")
     parser.add_argument("--check", action="store_true", required=True, help="Validate all selected sidecars")
     parser.add_argument("--profiles", nargs="+", default=None, help="Profile names (default: all)")
@@ -405,23 +407,25 @@ def main(argv: list[str] | None = None) -> None:
     names = args.profiles if args.profiles is not None else profiles.available_profiles()
     failures = []
     if args.profiles is None:
-        for path in sorted(profiles.PROFILES_DIR.glob("*.provenance.yaml")):
-            stem = path.name.removesuffix(".provenance.yaml")
-            if stem not in names:
-                failures.append(f"{path.name}: no runtime profile {stem!r}")
+        for suffix in (".provenance.yaml", ".angular.yaml"):
+            for path in sorted(profiles.PROFILES_DIR.glob(f"*{suffix}")):
+                stem = path.name.removesuffix(suffix)
+                if stem not in names:
+                    failures.append(f"{path.name}: no runtime profile {stem!r}")
     if not names:
         failures.append("no runtime profiles found")
     for name in names:
-        try:
-            errors = validate_provenance(name)
-        except (ProvenanceError, FileNotFoundError) as exc:
-            errors = [str(exc)]
-        failures.extend(f"{name}: {error}" for error in errors)
+        for validate in (validate_provenance, validate_angular_provenance):
+            try:
+                errors = validate(name)
+            except (ProvenanceError, FileNotFoundError) as exc:
+                errors = [str(exc)]
+            failures.extend(f"{name}: {error}" for error in errors)
     if failures:
         for error in failures:
             print(error, file=sys.stderr)
         raise SystemExit(1)
-    print(f"Provenance OK: {len(names)} profile(s), schema_version {SCHEMA_VERSION}")
+    print(f"Provenance OK: {len(names)} profile(s), baseline/angular schema_version {SCHEMA_VERSION}")
 
 
 if __name__ == "__main__":
