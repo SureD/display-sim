@@ -134,6 +134,7 @@ def tone_map(
     params: HdrParams,
     *,
     demand_apl_nits: float | None = None,
+    capacity_nits: float | None = None,
 ) -> Frame:
     """Compress highlights into the panel budget and optionally limit load."""
 
@@ -141,7 +142,12 @@ def tone_map(
         raise ValueError(
             f"Unsupported tone_map {params.tone_map!r}. This build implements soft_clip."
         )
-    peak = effective_peak(frame.rgb, params, demand_apl_nits=demand_apl_nits)
+    if capacity_nits is None:
+        peak = effective_peak(frame.rgb, params, demand_apl_nits=demand_apl_nits)
+    else:
+        peak = float(capacity_nits)
+        if not np.isfinite(peak) or peak <= 0:
+            raise ValueError("capacity_nits must be positive and finite")
     y = luminance(frame.rgb).astype(np.float32)
     y_out = soft_shoulder(y, peak, float(params.knee_ratio))
     scale = np.ones_like(y, dtype=np.float32)

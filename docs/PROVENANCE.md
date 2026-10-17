@@ -1,4 +1,4 @@
-# Profile provenance (M8, M10)
+# Profile and experiment provenance (M8, M10, M13)
 
 Each runtime profile has a separate `sim/profiles/<name>.provenance.yaml`
 record with `schema_version: 1`. These records document the current generic
@@ -18,6 +18,10 @@ corresponding runtime profile. Runtime loading and the rendering pipeline do not
 sidecars. Profile discovery excludes `*.provenance.yaml` and `*.angular.yaml`, so adding a record
 does not create another selectable TV profile. The four original runtime
 YAML files remain unchanged.
+
+M13 also checks the separate [synthetic OLED dynamics protocol](../research/measurements/oled_dynamics_synthetic_v1.json)
+on every invocation, including checks restricted by `--profiles`. This protocol
+is outside the profile tree and is never discovered by ordinary rendering.
 
 ## Evidence and unknowns
 
@@ -292,3 +296,43 @@ stay `P`. Raw `NR` nodes remain `NR`. Forward outputs, APL and residuals are
 `calibrated_profile_fit` and `timed_sustained_trace` remain `NR`. A low fitting
 residual does not establish dynamics, color power, sustained capability,
 arbitrary-content replay, or a calibrated named television.
+
+## OLED dynamics protocol schema version 1 (M13)
+
+The synthetic protocol/config uses `schema_version: 1`, a distinct
+`protocol_id`, `parameter_status: placeholder`, and `evidence: P`. Its
+`settings` declare the raster, PQ/BT.709 requested level, rational output rate,
+fixed preview exposure, onset/late reporting intervals and explicit ambient,
+BFI, overdrive, pursuit and angle overrides. `demonstration` supplies the
+explicit **P** attack/release e-fold times and initialization policy; these
+are experiment inputs, never runtime defaults. Each named trial saves its
+complete ordered window fractions and rational segment durations. Durations
+must contain whole display ticks; a zero-duration gap contributes no tick.
+Unknown fields, nonfinite values, conflicting conditions and invalid timing
+fail validation. The provenance check uses the same strict protocol validator
+as the experiment runner.
+
+All protocol choices and constants, including the example 100/1000-ms taus,
+are **P placeholders**. The `unavailable` ledger keeps measured attack/release,
+thermal/static-image controllers and calibrated-profile fitting **NR**. It
+does not transfer named-sample measurements or estimate a TV controller.
+Runtime profile values retain their baseline provenance, and all original
+runtime YAMLs and baseline/angular sidecars remain unchanged.
+
+Generated manifests preserve the effective profile/config identities,
+overrides, initialization and history. Traces identify instantaneous selected
+APL, target capacity and endpoint capacity in nits, with **D under P** output
+and state values. Shared-exposure previews never normalize individual frames.
+Capacity timing is separate from the existing pixel-response tau. The model
+holds each updated endpoint capacity constant for that tick's temporal
+exposure; this is a P approximation, not continuous within-tick evolution.
+Full checkpoints retain exact scalar/array representations and profile,
+evolution, target-map, angle and geometry identities. Resume preserves the
+original initialization provenance; restoring capacity alone is only partial
+initialization. Unknown elapsed-time gaps and mismatched histories reject.
+
+Active dynamics replace the HDR capacity once and reject nonzero legacy APL
+smoothing, backlight tracking, weighted-nit power limits and every M9 schema-1
+`.fit.json` composition. A future fitted dynamics dataset needs a new schema,
+consistent whole-sequence drive units and matched timed history; no v1 fit
+migration or measured-device claim is provided here.

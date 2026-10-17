@@ -22,6 +22,7 @@ import re
 import numpy as np
 
 from sim.color import luminance, pq_oetf
+from sim.abl_dynamics import ABLDynamicsConfig, reject_fit_composition
 from sim.frame import Frame
 from sim.load import demand_apl
 from sim.pipeline import Pipeline
@@ -205,13 +206,15 @@ def _pattern(width: int, height: int, fraction: float, conditions: ReplayConditi
 
 
 def replay_window(profile: TVProfile, fraction: float, conditions: ReplayConditions,
-                  drive_scale: float = 1.0, *, width: int = 160, height: int = 90) -> WindowReplay:
+                  drive_scale: float = 1.0, *, width: int = 160, height: int = 90,
+                  abl_dynamics: ABLDynamicsConfig | None = None) -> WindowReplay:
     """Forward model for one specified experiment; no target enters this call.
 
     A new pipeline per experiment, one shared pipeline for all its ticks.
     The metric is maximum center luminance during the hold, matching M8's
     peak-center metric. The returned frame is the final hold frame.
     """
+    reject_fit_composition(abl_dynamics)
     _grid(profile, width, height)
     encoded, actual, apl = _pattern(width, height, fraction, conditions)
     pipeline = Pipeline(drive_profile(profile, drive_scale))
@@ -261,13 +264,15 @@ def fit_windows(profile: TVProfile, provenance: dict, source_dataset_id: str,
                 fitted_dataset_id: str, *, conditions: ReplayConditions,
                 fractions: list[float] | None = None, exploratory: bool = False,
                 width: int = 160, height: int = 90, atol_nits: float = 0.01,
-                rtol: float = 1e-5, max_iterations: int = 60) -> dict:
+                rtol: float = 1e-5, max_iterations: int = 60,
+                abl_dynamics: ABLDynamicsConfig | None = None) -> dict:
     """Fit independent P drive scales using strict M8 measurement lookup.
 
     NR source nodes remain in the embedded source snapshot. Default fits
     skip them; an explicitly queried gap uses M8 interpolation and stays P.
     There is no interpolation of fitted drive scales or arbitrary content.
     """
+    reject_fit_composition(abl_dynamics)
     _grid(profile, width, height)
     if provenance.get("profile") != profile.name:
         raise ProvenanceError("source sidecar must belong to the baseline profile")
@@ -418,8 +423,10 @@ def _validate_fit(data: dict) -> ReplayConditions:
         raise ProvenanceError(f"invalid window fit: {exc}") from exc
 
 
-def replay_fit(profile: TVProfile, data: dict) -> list[WindowReplay]:
+def replay_fit(profile: TVProfile, data: dict, *,
+               abl_dynamics: ABLDynamicsConfig | None = None) -> list[WindowReplay]:
     """Explicit replay of the recorded experiments, never arbitrary content."""
+    reject_fit_composition(abl_dynamics)
     conditions = _validate_fit(data)
     if data["baseline_profile"] != profile.name or data["baseline_sha256"] != _fingerprint(profile):
         raise ProvenanceError("fit baseline profile changed; refit instead of silently reusing drives")
