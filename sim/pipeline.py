@@ -33,6 +33,11 @@ from sim.abl_dynamics import (
     ABLCapacityState, ABLDynamicsConfig, digest, finite_number, initial_capacity,
     target_trace, update_capacity, validate_dynamics, validate_state,
 )
+from sim.colorimetry import (
+    ColorimetryConfig, D65, PanelColorimetry, RGB_SPACES, convert_rgb, decode_source,
+    gamut_map, joint_tone_map, metadata as colorimetry_metadata,
+    panel_luminance, rgb_to_xyz_matrix, source_to_panel_matrix, xyz_to_rgb_matrix,
+)
 from sim.frame import Frame
 from sim.load import LoadState, backlight_derate, demand_apl, smooth_apl
 from sim.profile import TVProfile
@@ -75,8 +80,14 @@ class Pipeline:
         angular_params: AngularParams | None = None,
         abl_dynamics: ABLDynamicsConfig | None = None,
         capacity_state: ABLCapacityState | None = None,
+        colorimetry: ColorimetryConfig | None = None,
+        panel_colorimetry: PanelColorimetry | None = None,
     ):
         self.profile = profile
+        self.colorimetry = colorimetry if colorimetry is not None else ColorimetryConfig()
+        self._initial_colorimetry = self.colorimetry
+        self.panel_colorimetry = panel_colorimetry
+        self._colorimetry_active = self.colorimetry.active
         self.state = state if state is not None else TemporalState()
         self.load_state = load_state if load_state is not None else LoadState()
         self.viewing_angle = viewing_angle if viewing_angle is not None else ViewingAngleConfig()
@@ -86,6 +97,27 @@ class Pipeline:
             validate_angular_path(self.viewing_angle, self.angular_params,
                                   self_emissive=profile.self_emissive,
                                   contrast=profile.panel.native_contrast)
+        if self._colorimetry_active:
+            if self.panel_colorimetry is None:
+                from sim.colorimetry_provenance import panel_parameters
+
+                self.panel_colorimetry = panel_parameters(profile)
+            matrix = np.asarray(profile.panel.color_matrix, dtype=np.float64)
+            if matrix.size != 9 or not np.array_equal(matrix.reshape(3, 3), np.eye(3)):
+                raise ValueError("M15 colorimetry requires an identity legacy color_matrix")
+            if not self.viewing_angle.active and profile.panel.viewing_angle_deg != 0:
+                raise ValueError("M15 colorimetry requires M10 for nonzero viewing angle")
+            if profile.hdr.abl_power_budget_nits != 0 or profile.hdr.abl_backlight_tracking != 0:
+                raise ValueError("M15 joint capacity conflicts with channel-power/backlight-tracking limiters")
+            if profile.hdr.tone_map != "soft_clip":
+                raise ValueError("M15 colorimetry requires soft_clip tone mapper")
+            self._source_to_panel = source_to_panel_matrix(self.colorimetry, self.panel_colorimetry)
+            self._source_y = rgb_to_xyz_matrix(RGB_SPACES[self.colorimetry.source_primaries],
+                                              self.colorimetry.source_white_xy)[1]
+            self.last_colorimetry_diagnostics = None
+        elif panel_colorimetry is not None:
+            raise ValueError("panel_colorimetry requires active M15 colorimetry")
+        self._initial_panel_colorimetry = self.panel_colorimetry
         self.abl_dynamics = abl_dynamics
         self._initial_abl_dynamics = abl_dynamics
         self._dynamics_active = abl_dynamics is not None and abl_dynamics.active
@@ -123,14 +155,15 @@ class Pipeline:
             raise ValueError("capacity_state requires active ABL dynamics")
 
     def run_linear(self, encoded: np.ndarray) -> Frame:
-        """Run every stage except output encode. RGB is linear nits."""
+        """Run all stages except encode; active M15 RGB uses the declared panel basis."""
 
         return self.display_content(self.prepare_content(encoded))
 
     def prepare_content(self, encoded: np.ndarray) -> Frame:
-        """Decode and spatially process one source, without advancing histories."""
+        """Decode/process in the source basis, without advancing display histories."""
 
-        frame = decode_encoded(encoded, self.profile.input)
+        frame = (decode_source(encoded, self.profile.input, self.colorimetry)
+                 if self._colorimetry_active else decode_encoded(encoded, self.profile.input))
         return process_image(frame, self.profile.processing)
 
     def display_content(self, frame: Frame, *, frame_time_ms: float | None = None,
@@ -143,6 +176,9 @@ class Pipeline:
 
         if self.abl_dynamics is not self._initial_abl_dynamics:
             raise ValueError("changing ABL dynamics mode/config requires a fresh Pipeline history")
+        if (self.colorimetry != self._initial_colorimetry
+                or self.panel_colorimetry != self._initial_panel_colorimetry):
+            raise ValueError("changing colorimetry requires a fresh Pipeline history")
         if self._dynamics_active:
             return self._display_capacity(frame, frame_time_ms=frame_time_ms,
                                           timestamp_ms=timestamp_ms)
@@ -154,10 +190,12 @@ class Pipeline:
         # research/m3-hdr-abl-params.md requires the load to be read here.
         apl = smooth_apl(
             self.load_state,
-            demand_apl(frame.rgb),
+            self._source_apl(frame.rgb) if self._colorimetry_active else demand_apl(frame.rgb),
             profile.hdr,
             temporal.frame_time_ms,
         )
+        if self._colorimetry_active:
+            frame = self._convert_colorimetry(frame)
         frame = simulate_backlight(
             frame,
             profile.backlight,
@@ -171,8 +209,19 @@ class Pipeline:
             psf=emission_psf(profile.backlight) if profile.self_emissive else None,
             viewing_angle=self.viewing_angle,
             angular_params=self.angular_params,
+            defer_emissive_peak=self._colorimetry_active,
         )
-        frame = tone_map(frame, profile.hdr, demand_apl_nits=apl)
+        if self._colorimetry_active:
+            from sim.load import abl_capacity
+
+            load = apl if str(profile.hdr.abl_source).lower() == "demand" else self._panel_apl(frame.rgb)
+            if str(profile.hdr.abl_source).lower() not in ("demand", "emitted"):
+                raise ValueError("unknown abl_source; use demand or emitted")
+            frame, diagnostics = joint_tone_map(frame, profile.hdr, self.panel_colorimetry,
+                                                capacity_nits=abl_capacity(load, profile.hdr))
+            self.last_colorimetry_diagnostics.update(diagnostics)
+        else:
+            frame = tone_map(frame, profile.hdr, demand_apl_nits=apl)
         frame = add_ambient(frame, profile.ambient)
         return apply_temporal(frame, temporal, self.state)
 
@@ -210,20 +259,28 @@ class Pipeline:
             or not np.isfinite(self.state.previous).all() or np.any(self.state.previous < 0)
         ):
             raise ValueError("panel history geometry/dtype or values do not match capacity history")
-        requested_apl = demand_apl(frame.rgb)
-        panel = simulate_backlight(frame, profile.backlight)
+        requested_apl = (self._source_apl(frame.rgb) if self._colorimetry_active else demand_apl(frame.rgb))
+        panel = self._convert_colorimetry(frame) if self._colorimetry_active else frame
+        panel = simulate_backlight(panel, profile.backlight)
         panel = simulate_panel(
             panel, profile.panel, self_emissive=profile.self_emissive,
             peak_nits=profile.backlight.peak_nits, psf=emission_psf(profile.backlight),
             viewing_angle=self.viewing_angle, angular_params=self.angular_params,
+            defer_emissive_peak=self._colorimetry_active,
         )
-        apl = requested_apl if str(profile.hdr.abl_source).lower() == "demand" else demand_apl(panel.rgb)
+        emitted_apl = self._panel_apl(panel.rgb) if self._colorimetry_active else demand_apl(panel.rgb)
+        apl = requested_apl if str(profile.hdr.abl_source).lower() == "demand" else emitted_apl
         trace = target_trace(apl, profile.hdr)
         candidate = replace(state)
         before = initial_capacity(candidate, trace["target_nits"], profile.hdr.panel_peak_nits, config)
         capacity = update_capacity(candidate, trace["target_nits"], profile.hdr.panel_peak_nits,
                                    profile.hdr.abl_full_field_nits, dt, config)
-        mapped = tone_map(panel, profile.hdr, capacity_nits=capacity)
+        if self._colorimetry_active:
+            mapped, diagnostics = joint_tone_map(panel, profile.hdr, self.panel_colorimetry,
+                                                 capacity_nits=capacity)
+            self.last_colorimetry_diagnostics.update(diagnostics)
+        else:
+            mapped = tone_map(panel, profile.hdr, capacity_nits=capacity)
         pre_temporal = add_ambient(mapped, profile.ambient)
         temporal_state = TemporalState(self.state.previous)
         temporal = replace(profile.temporal, frame_time_ms=dt)
@@ -286,4 +343,41 @@ class Pipeline:
     def run(self, encoded: np.ndarray) -> np.ndarray:
         """Return a ``uint8`` preview image."""
 
-        return encode_frame(self.run_linear(encoded), self.profile.output)
+        frame = self.run_linear(encoded)
+        if self._colorimetry_active:
+            frame = Frame(self.output_in_space(frame, "bt709"), frame.backlight)
+        return encode_frame(frame, self.profile.output)
+
+    def _source_apl(self, rgb):
+        return float(np.mean(np.asarray(rgb, dtype=np.float64) @ self._source_y, dtype=np.float64))
+
+    def _panel_apl(self, rgb):
+        return float(np.mean(panel_luminance(rgb, self.panel_colorimetry), dtype=np.float64))
+
+    def _convert_colorimetry(self, frame):
+        converted = convert_rgb(frame.rgb, self._source_to_panel)
+        rgb, diagnostics = gamut_map(converted, self.panel_colorimetry,
+                                     self.colorimetry.gamut_mapping, self.colorimetry.compression_knee)
+        self.last_colorimetry_diagnostics = diagnostics
+        return Frame(rgb, frame.backlight)
+
+    def colorimetry_metadata(self) -> dict:
+        """Explicit source/panel/mapping declarations for an active M15 output."""
+
+        if not self._colorimetry_active:
+            raise ValueError("colorimetry metadata requires active M15 colorimetry")
+        return colorimetry_metadata(self.colorimetry, self.panel_colorimetry)
+
+    def output_in_space(self, frame: Frame, space: str) -> np.ndarray:
+        """Signed linear XYZ or named RGB coordinates, without a preview clamp."""
+
+        if not self._colorimetry_active:
+            raise ValueError("declared output space requires active M15 colorimetry")
+        panel = rgb_to_xyz_matrix(self.panel_colorimetry.primaries_xy, self.panel_colorimetry.white_xy)
+        if space == "xyz":
+            matrix = panel
+        elif space in RGB_SPACES:
+            matrix = xyz_to_rgb_matrix(RGB_SPACES[space], D65) @ panel
+        else:
+            raise ValueError("output color space must be xyz, bt709, display_p3, or bt2020")
+        return convert_rgb(frame.rgb, matrix)

@@ -399,6 +399,7 @@ def lookup_measurement(data: dict, dataset_id: str, fraction: float) -> Measurem
 
 def main(argv: list[str] | None = None) -> None:
     from sim.angular_provenance import validate_angular_provenance
+    from sim.colorimetry_provenance import validate_colorimetry_provenance
     from sim.oled_dynamics_provenance import validate_oled_dynamics_provenance
     from sim.motion_provenance import validate_motion_provenance
     from sim.motion_validate import validate_motion_validation_provenance
@@ -410,7 +411,7 @@ def main(argv: list[str] | None = None) -> None:
     names = args.profiles if args.profiles is not None else profiles.available_profiles()
     failures = []
     if args.profiles is None:
-        for suffix in (".provenance.yaml", ".angular.yaml"):
+        for suffix in (".provenance.yaml", ".angular.yaml", ".colorimetry.yaml"):
             for path in sorted(profiles.PROFILES_DIR.glob(f"*{suffix}")):
                 stem = path.name.removesuffix(suffix)
                 if stem not in names:
@@ -418,7 +419,7 @@ def main(argv: list[str] | None = None) -> None:
     if not names:
         failures.append("no runtime profiles found")
     for name in names:
-        for validate in (validate_provenance, validate_angular_provenance):
+        for validate in (validate_provenance, validate_angular_provenance, validate_colorimetry_provenance):
             try:
                 errors = validate(name)
             except (ProvenanceError, FileNotFoundError) as exc:
@@ -431,7 +432,7 @@ def main(argv: list[str] | None = None) -> None:
         for error in failures:
             print(error, file=sys.stderr)
         raise SystemExit(1)
-    print(f"Provenance OK: {len(names)} profile(s), baseline/angular/OLED-dynamics/motion schema_version {SCHEMA_VERSION}")
+    print(f"Provenance OK: {len(names)} profile(s), baseline/angular/colorimetry/OLED-dynamics/motion schema_version {SCHEMA_VERSION}")
 
 
 if __name__ == "__main__":

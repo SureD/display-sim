@@ -4,7 +4,7 @@ import {readFile} from 'node:fs/promises';
 import test from 'node:test';
 
 const moduleSource = await readFile(new URL('../mapping.js', import.meta.url), 'utf8');
-const {halfToFloat, decodeFrame, extendedSRGB, linear709ToP3, mappingGain, rgba} =
+const {halfToFloat, decodeFrame, extendedSRGB, linear709ToP3, mappingGain, rgba, toLinear709} =
   await import(`data:text/javascript;base64,${Buffer.from(moduleSource).toString('base64')}`);
 
 const near = (actual, expected, tolerance = 1e-10) =>
@@ -118,4 +118,18 @@ test('GPU upload expands interleaved RGB to opaque RGBA without clipping HDR val
   const input = new Float32Array([0.25, 0.5, 2, 100, 2000, 4]);
   assert.deepEqual(Array.from(rgba(input)), [0.25,0.5,2,1, 100,2000,4,1]);
   assert.deepEqual(Array.from(input), [0.25,0.5,2, 100,2000,4]);
+});
+
+test('M15 declared linear matrices preserve signed gamut coordinates and legacy bytes', () => {
+  const legacy = new Float32Array([100, 200, 300]);
+  assert.equal(toLinear709(legacy, {color_space:'linear-srgb'}), legacy);
+  // BT.2020→BT.709 D65 from normalized primary matrices, no transfer or clip.
+  const matrix = [[1.6604910021,-0.5876411388,-0.0728498633],
+    [-0.1245504745,1.1328998971,-0.0083494226],[-0.0181507634,-0.1005788980,1.1187296614]];
+  const red = toLinear709(new Float32Array([100,0,0]), {color_space:'linear-bt2020',to_linear_srgb:matrix});
+  near(red[0],166.04910021,1e-5);near(red[1],-12.45504745,1e-6);assert.ok(red[2]<0);
+  const white = toLinear709(legacy.fill(100), {color_space:'linear-bt2020',to_linear_srgb:matrix});
+  for(const component of white) near(component,100,1e-5);
+  assert.throws(()=>toLinear709(legacy,{color_space:'linear-xyz'}),/Missing linear/);
+  assert.throws(()=>toLinear709(legacy,{color_space:'linear-xyz',to_linear_srgb:[[NaN]]}),/Invalid linear/);
 });

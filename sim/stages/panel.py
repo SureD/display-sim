@@ -5,7 +5,7 @@ to ``[1/contrast, 1]``. Where local dimming spills light onto a dark pixel, the
 cell is already at its floor and the spill is visible as a halo
 (``backlight / contrast``).
 
-OLED path. There is no shutter. The target is clipped to the emitter peak,
+OLED path. There is no shutter. The legacy target is clipped to the emitter peak,
 then an optional emission PSF spreads each channel: this is the near-field
 glow of the stack, encapsulation and front glass, so unlike an LCD halo it
 acts on emitted RGB rather than on a shared backlight. ``emission_psf``
@@ -13,6 +13,9 @@ carries the ``per_pixel`` sigmas from the backlight profile section (pixels,
 not zone pitches) because that is where they are declared. The kernel is
 unit-sum, so a flat field is unchanged and no light is created. There is
 still no measured OLED PSF behind those numbers.
+
+The opt-in M15 path defers the emitter peak to the joint HDR/ABL/color-volume
+capacity owner, so an earlier channel clip cannot destroy chromaticity.
 
 Subpixel layout still runs so the mosaic can be inspected; the box-filtered
 mosaic is energy-preserving for a flat color, which keeps the rest of the
@@ -162,6 +165,7 @@ def simulate_panel(
     psf: EmissionPsf | None = None,
     viewing_angle: ViewingAngleConfig | None = None,
     angular_params: AngularParams | None = None,
+    defer_emissive_peak: bool = False,
 ) -> Frame:
     """Turn the target picture plus backlight into emitted linear light."""
 
@@ -176,7 +180,10 @@ def simulate_panel(
         validate_angular_path(viewing_angle, angular_params,
                               self_emissive=self_emissive, contrast=params.native_contrast)
     if self_emissive:
-        emitted = np.clip(frame.rgb, 0.0, np.float32(peak_nits))
+        # M15 owns the joint HDR/ABL/color-volume capacity after this stage.
+        # Preserve over-peak chromaticity until that single common-gain map.
+        emitted = (np.clip(frame.rgb, 0.0, None) if defer_emissive_peak else
+                   np.clip(frame.rgb, 0.0, np.float32(peak_nits)))
         if psf is not None:
             emitted = spread_emission(emitted, psf)
         if angular_active:

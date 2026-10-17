@@ -19,6 +19,47 @@ mapping. All profile parameters remain placeholders. See the
 The exporter preserves linear-nit frames and provenance in `web/data/` without
 changing ordinary simulator or gallery outputs.
 
+M15 adds **opt-in colorimetry and color volume**, default **off**. Declare the
+source container separately from its transfer function; existing paths assume
+BT.709. For example:
+
+```sh
+python3 -m sim --profile generic_woled --input in.png --output out.png \
+  --colorimetry --source-primaries display_p3 --gamut-mapping compress
+python3 -m sim colorimetry --out reports/colorimetry-m15
+python3 -m sim gallery --colorimetry --out reports/gallery-color
+python3 -m sim export-web --out web/data --colorimetry \
+  --source-primaries bt2020 --colorimetry-output bt2020
+```
+
+The separate colorimetry gallery compares clip/compression across all four
+profiles at one exposure and reports CIE 1976 u′v′ and luminance errors against
+synthetic source intent. Its skin/foliage-like patches are illustrative colors.
+The [saved comparison](reports/colorimetry-m15/index.html) includes interpretation
+and [numerical results](reports/colorimetry-m15/README.md). `export-web` can also
+write linear `xyz`, `display_p3` or `bt709`; metadata preserves signed coordinates,
+exact derived matrices, source/panel declarations and evidence. The viewer
+converts those coordinates before its shared host presentation transform.
+
+Python callers use `Pipeline(profile, colorimetry=ColorimetryConfig(enabled=True,
+source_primaries="bt2020"))` from `sim.colorimetry`. `run_linear()` then returns
+panel-basis RGB; use `colorimetry_metadata()` and `output_in_space(frame, "xyz")`
+for a renderer. Source white defaults to D65; `--source-white x y` explicitly
+changes it with absolute XYZ preservation and no chromatic adaptation. PQ/HLG
+does not infer primaries. M15 HLG uses the declared source luminance coefficients.
+
+Panel primaries/white and the WOLED saturation envelope are **P placeholders** in
+versioned `*.colorimetry.yaml` sidecars, checked by `provenance --check`.
+Compression preserves the straight hue ray from panel white in CIE u′v′; it
+does not promise constant perceived hue. WOLED white boost helps desaturated
+colors; one joint HDR capacity combines its color ceiling with ABL or the M13
+capacity state. M10 and M13 compose through the Python runtime controls.
+Active M15 rejects nonidentity legacy matrices, legacy off-axis color loss,
+weighted-nit power limits and backlight tracking. Measured spectra, RGBW power,
+color-volume calibration and host light-output validation remain **NR**.
+Omitting M15 retains captured exact output/asset/history parity. See
+[research and primary sources](research/m15-colorimetry.md).
+
 Build the offline visual gallery and open `reports/gallery/index.html`:
 
 ```sh

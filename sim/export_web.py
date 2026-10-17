@@ -130,8 +130,14 @@ def _snapshot_profiles(out: Path, profiles: list[TVProfile]) -> list[dict]:
 def generate_web_export(
     out: Path, width: int = 256, height: int = 144, *,
     motion_frames: int = DEFAULT_MOTION_FRAMES,
+    colorimetry=None, output_space: str = "bt2020",
 ) -> dict:
     """Export all four gallery profiles; return the JSON-compatible manifest."""
+    if colorimetry is not None and colorimetry.enabled:
+        from sim.colorimetry_export import generate_colorimetric_export
+
+        return generate_colorimetric_export(out, width, height, motion_frames=motion_frames,
+                                            config=colorimetry, output_space=output_space)
     if type(width) is not int or type(height) is not int or width < 160 or height < 96:
         raise ValueError("web export resolution must be integers at least 160x96")
     if type(motion_frames) is not int or motion_frames < 1:
@@ -248,12 +254,19 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument("--width", type=int, default=256)
     parser.add_argument("--height", type=int, default=144)
     parser.add_argument("--motion-frames", type=int, default=DEFAULT_MOTION_FRAMES)
+    from sim.colorimetry_cli import add_arguments, configuration
+
+    add_arguments(parser, output=True)
     args = parser.parse_args(argv)
     if args.width < 160 or args.height < 96:
         parser.error("resolution must be at least 160x96")
     if args.motion_frames < 1:
         parser.error("--motion-frames must be positive")
-    result = generate_web_export(args.out, args.width, args.height, motion_frames=args.motion_frames)
+    try:
+        result = generate_web_export(args.out, args.width, args.height, motion_frames=args.motion_frames,
+                                     colorimetry=configuration(args), output_space=args.colorimetry_output or "bt2020")
+    except ValueError as exc:
+        parser.error(str(exc))
     print(f"Wrote {len(result['scenes'])} scenes × {len(result['profiles'])} profiles ({result['asset_bytes'] / 1_000_000:.1f} MB) to {args.out / 'manifest.json'}")
 
 

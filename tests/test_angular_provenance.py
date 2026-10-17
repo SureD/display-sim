@@ -35,7 +35,7 @@ def _set_path(data, path, value):
 
 def _copy_records(destination):
     for name in PROFILES:
-        for suffix in (".yaml", ".provenance.yaml", ".angular.yaml"):
+        for suffix in (".yaml", ".provenance.yaml", ".angular.yaml", ".colorimetry.yaml"):
             (destination / f"{name}{suffix}").write_bytes(
                 (PROFILE_DIR / f"{name}{suffix}").read_bytes()
             )
