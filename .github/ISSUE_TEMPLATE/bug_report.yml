@@ -1,0 +1,22 @@
+name: Bug report
+description: Report a reproducible simulator or tooling problem.
+body:
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Reproduction
+      description: Include the command, profile, input conditions, and expected/actual result.
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: OS/architecture, Python/NumPy versions, and git revision.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence
+      description: Attach a small synthetic input, failing test, or relevant manifest; distinguish measurements from assumptions.
