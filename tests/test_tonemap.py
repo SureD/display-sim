@@ -2,9 +2,9 @@
 
 import numpy as np
 
-from sim.frame import Frame
-from sim.profile import HdrParams
-from sim.stages.tonemap import effective_peak, tone_map
+from tv_sim.frame import Frame
+from tv_sim.profile import HdrParams
+from tv_sim.stages.tonemap import effective_peak, tone_map
 
 
 def test_soft_clip_is_identity_below_the_knee_and_limits_highlights():
@@ -40,7 +40,8 @@ def test_abl_pulls_a_full_field_down_more_than_a_small_window():
 
 def test_oled_profiles_reduce_highlight_output_as_window_load_increases():
     from dataclasses import replace
-    from sim.profile import load_profile
+
+    from tv_sim.profile import load_profile
 
     for name in ("generic_woled", "generic_qdoled"):
         params = load_profile(name).hdr
@@ -69,7 +70,6 @@ def test_neutral_hdr_ramp_remains_monotone_and_bounded():
     assert np.all(np.diff(output[0, :, 0]) >= -2e-4)
     assert output.max() <= params.panel_peak_nits + 1e-3
     assert np.allclose(output[0, ramp <= 700, 0], ramp[ramp <= 700], atol=1e-4)
-
 
 
 def test_apl_is_linear_luminance_so_red_dims_less_than_white():

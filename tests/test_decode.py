@@ -2,9 +2,9 @@
 
 import numpy as np
 
-from sim.color import pq_eotf, pq_oetf, srgb_eotf, srgb_oetf
-from sim.profile import InputParams
-from sim.stages.decode import decode_encoded
+from tv_sim.color import pq_eotf, pq_oetf, srgb_eotf, srgb_oetf
+from tv_sim.profile import InputParams
+from tv_sim.stages.decode import decode_encoded
 
 
 def test_srgb_roundtrip_and_white_point():

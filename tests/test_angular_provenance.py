@@ -5,17 +5,20 @@ from copy import deepcopy
 import pytest
 import yaml
 
-import sim.profile as profiles
-from sim.angular_provenance import (
+import tv_sim.profile as profiles
+from tv_sim.angular_provenance import (
     angular_values,
     load_angular_provenance,
     validate_angular_provenance,
 )
-from sim.provenance import ProvenanceError, main as provenance_main
-
+from tv_sim.provenance import ProvenanceError
+from tv_sim.provenance import main as provenance_main
 
 PROFILES = (
-    "generic_ips_edge", "generic_qdoled", "generic_va_fald_miniled", "generic_woled",
+    "generic_ips_edge",
+    "generic_qdoled",
+    "generic_va_fald_miniled",
+    "generic_woled",
 )
 PROFILE_DIR = profiles.PROFILES_DIR
 
@@ -48,7 +51,9 @@ def test_bundled_angular_parameters_are_complete_synthetic_placeholders(name):
     assert validate_angular_provenance(name) == []
     assert data["parameter_status"] == "placeholder"
     assert data["full_angular_fit"] == data["calibrated_profile_fit"] == "NR"
-    assert {key: entry["value"] for key, entry in data["entries"].items()} == angular_values(profile)
+    assert {key: entry["value"] for key, entry in data["entries"].items()} == angular_values(
+        profile
+    )
     assert {entry["evidence"] for entry in data["entries"].values()} == {"P"}
     assert all(entry["source"]["sample"] == "NR" for entry in data["entries"].values())
     if profile.self_emissive:
@@ -60,7 +65,10 @@ def test_bundled_angular_parameters_are_complete_synthetic_placeholders(name):
         assert data["model"] == "lcd_transmission"
         assert data["black_leakage_fit"] == "NR"
         assert set(data["entries"]) == {
-            "max_angle_deg", "white_gain_45", "black_gain_45", "gray_exponent_45",
+            "max_angle_deg",
+            "white_gain_45",
+            "black_gain_45",
+            "gray_exponent_45",
         }
 
 
@@ -100,7 +108,8 @@ def test_angular_validator_rejects_stale_unlabeled_and_misleading_records(ips_da
 
 
 @pytest.mark.parametrize(
-    "missing", ["value", "evidence", "source", "conditions", "interpolation", "support", "notes"],
+    "missing",
+    ["value", "evidence", "source", "conditions", "interpolation", "support", "notes"],
 )
 def test_each_angular_parameter_requires_all_provenance_fields(ips_data, missing):
     del ips_data["entries"]["black_gain_45"][missing]
@@ -115,7 +124,16 @@ def test_angular_validator_rejects_missing_and_unknown_parameters(ips_data):
     assert any("lcd_leakage_alias" in error for error in errors)
 
 
-@pytest.mark.parametrize("path", ["invented", "entries/white_gain_45/invented", "entries/white_gain_45/source/invented", "entries/white_gain_45/conditions/invented", "entries/white_gain_45/support/invented"])
+@pytest.mark.parametrize(
+    "path",
+    [
+        "invented",
+        "entries/white_gain_45/invented",
+        "entries/white_gain_45/source/invented",
+        "entries/white_gain_45/conditions/invented",
+        "entries/white_gain_45/support/invented",
+    ],
+)
 def test_angular_validator_rejects_unknown_fields(ips_data, path):
     _set_path(ips_data, path, "P")
     assert validate_angular_provenance("generic_ips_edge", ips_data)
@@ -123,7 +141,9 @@ def test_angular_validator_rejects_unknown_fields(ips_data, path):
 
 def test_angular_conditions_require_explicit_unknowns(ips_data):
     del ips_data["entries"]["black_gain_45"]["conditions"]["dwell_s"]
-    assert any("dwell_s" in error for error in validate_angular_provenance("generic_ips_edge", ips_data))
+    assert any(
+        "dwell_s" in error for error in validate_angular_provenance("generic_ips_edge", ips_data)
+    )
 
 
 @pytest.mark.parametrize("contents", ["[unclosed", "schema_version: 1\nschema_version: 1\n"])
@@ -159,12 +179,16 @@ def test_provenance_cli_checks_angular_records_and_profile_selection(tmp_path, m
 
 
 @pytest.mark.parametrize("state", ["missing", "orphan"])
-def test_provenance_cli_rejects_missing_or_orphan_angular_records(tmp_path, monkeypatch, capsys, state):
+def test_provenance_cli_rejects_missing_or_orphan_angular_records(
+    tmp_path, monkeypatch, capsys, state
+):
     _copy_records(tmp_path)
     if state == "missing":
         (tmp_path / "generic_ips_edge.angular.yaml").unlink()
     else:
-        (tmp_path / "retired.angular.yaml").write_bytes((PROFILE_DIR / "generic_ips_edge.angular.yaml").read_bytes())
+        (tmp_path / "retired.angular.yaml").write_bytes(
+            (PROFILE_DIR / "generic_ips_edge.angular.yaml").read_bytes()
+        )
     monkeypatch.setattr(profiles, "PROFILES_DIR", tmp_path)
     with pytest.raises(SystemExit) as raised:
         provenance_main(["--check"])

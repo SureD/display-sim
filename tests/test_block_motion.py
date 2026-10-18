@@ -5,11 +5,15 @@ from fractions import Fraction
 import numpy as np
 import pytest
 
-from sim.block_motion import (
-    BlockMotionConfig, PairEstimate, REASON_CODES, estimate_pair, reconstruct_block,
+from tv_sim.block_motion import (
+    REASON_CODES,
+    BlockMotionConfig,
+    PairEstimate,
+    estimate_pair,
+    reconstruct_block,
 )
-from sim.frame import Frame
-from sim.motion import _sample
+from tv_sim.frame import Frame
+from tv_sim.motion import _sample
 
 
 def textured_pair(dx=4.0, dy=0.0, shape=(40, 56)):
@@ -21,20 +25,46 @@ def textured_pair(dx=4.0, dy=0.0, shape=(40, 56)):
 def known_estimate(shape, vector=(0, 0), block=8):
     grid = tuple((v + block - 1) // block for v in shape)
     flow = np.broadcast_to(np.asarray(vector, np.float32), (*grid, 2)).copy()
-    confidence, visible, reasons = np.ones(grid, np.float32), np.ones(grid, bool), np.zeros(grid, np.uint8)
-    return PairEstimate(flow, -flow, confidence, confidence.copy(), visible,
-                        visible.copy(), reasons, reasons.copy(), shape, shape, block)
+    confidence, visible, reasons = (
+        np.ones(grid, np.float32),
+        np.ones(grid, bool),
+        np.zeros(grid, np.uint8),
+    )
+    return PairEstimate(
+        flow,
+        -flow,
+        confidence,
+        confidence.copy(),
+        visible,
+        visible.copy(),
+        reasons,
+        reasons.copy(),
+        shape,
+        shape,
+        block,
+    )
 
 
-@pytest.mark.parametrize("settings", [
-    {"schema_version": 1.0}, {"parameter_status": "measured"},
-    {"block_size": 4}, {"estimation_width": 321}, {"estimation_height": 181},
-    {"pyramid_levels": 1000000}, {"search_radius": 1000000},
-    {"refinement_radius": 1000000}, {"cut_histogram_bins": 1000000},
-    {"subpixel_steps": (0.5,) * 1000}, {"subpixel_steps": (float("nan"),)},
-    {"texture_threshold": 0}, {"confidence_threshold": 2},
-    {"max_displacement_px": float("nan")}, {"luma_reference_nits": True},
-])
+@pytest.mark.parametrize(
+    "settings",
+    [
+        {"schema_version": 1.0},
+        {"parameter_status": "measured"},
+        {"block_size": 4},
+        {"estimation_width": 321},
+        {"estimation_height": 181},
+        {"pyramid_levels": 1000000},
+        {"search_radius": 1000000},
+        {"refinement_radius": 1000000},
+        {"cut_histogram_bins": 1000000},
+        {"subpixel_steps": (0.5,) * 1000},
+        {"subpixel_steps": (float("nan"),)},
+        {"texture_threshold": 0},
+        {"confidence_threshold": 2},
+        {"max_displacement_px": float("nan")},
+        {"luma_reference_nits": True},
+    ],
+)
 def test_config_rejects_invalid_or_unbounded_policy(settings):
     with pytest.raises(ValueError):
         BlockMotionConfig(**settings)
@@ -82,8 +112,10 @@ def test_integer_bidirectional_estimation_and_interpolation_have_known_interior(
 @pytest.mark.parametrize("phase", [Fraction(1, 100), Fraction(2, 5), Fraction(99, 100)])
 def test_known_signed_subpixel_splats_preserve_linear_plane(vector, phase):
     yy, xx = np.indices((32, 40), dtype=float)
+
     def plane(dx, dy):
         return Frame(np.repeat((50 + 0.5 * (xx - dx) + 0.25 * (yy - dy))[..., None], 3, axis=-1))
+
     left, right = plane(0, 0), plane(*vector)
     estimate = known_estimate(left.shape[:2], vector)
     result = reconstruct_block(left, right, phase, estimate, BlockMotionConfig())

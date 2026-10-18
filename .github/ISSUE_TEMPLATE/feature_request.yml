@@ -1,0 +1,19 @@
+name: Feature request
+description: Propose a scoped model, experiment, or engineering improvement.
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem and proposed outcome
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence and validation
+      description: Cite primary sources, state unknowns, and describe how to validate the result.
+  - type: textarea
+    id: compatibility
+    attributes:
+      label: Compatibility
+      description: Describe default behavior, opt-in controls, and golden-output impact.

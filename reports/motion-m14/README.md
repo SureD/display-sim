@@ -23,7 +23,7 @@ The artifact-generation interval from first source write through the final sidec
 Reproduce into a new directory:
 
 ```sh
-python3 -m sim motion validate --width 128 --height 72 --source-count 6 \
+python3 -m tv_sim motion validate --width 128 --height 72 --source-count 6 \
   --seed 7 --gallery --out reports/motion-m14-rerun
 ```
 

@@ -249,7 +249,7 @@ function bindControls() {
 }
 function checkManifest(data) {
   const f=data.format;
-  if(data.schema_version!==1 || f?.dtype!=='float16' || f.byte_order!=='little' || f.channels!==3 || !['linear-srgb','linear-display-p3','linear-bt2020','linear-xyz'].includes(f.color_space) || f.layout!==(f.color_space==='linear-xyz'?'frame-major HWC XYZ':'frame-major HWC RGB') || f.units!=='linear-nit')throw new Error('Unsupported export format. Regenerate with python3 -m sim export-web.');
+  if(data.schema_version!==1 || f?.dtype!=='float16' || f.byte_order!=='little' || f.channels!==3 || !['linear-srgb','linear-display-p3','linear-bt2020','linear-xyz'].includes(f.color_space) || f.layout!==(f.color_space==='linear-xyz'?'frame-major HWC XYZ':'frame-major HWC RGB') || f.units!=='linear-nit')throw new Error('Unsupported export format. Regenerate with python3 -m tv_sim export-web.');
   toLinear709(new Float32Array(3),f); // Validate the declared conversion before loading assets.
   for(const s of data.scenes) for(const p of data.profiles) {
     const a=s.assets[p.id];
@@ -258,7 +258,7 @@ function checkManifest(data) {
 }
 async function main() {
   const response=await fetch('data/manifest.json');
-  if(!response.ok)throw new Error('Missing web data. Run python3 -m sim export-web, then serve the repository with python3 -m http.server.');
+  if(!response.ok)throw new Error('Missing web data. Run python3 -m tv_sim export-web, then serve the repository with python3 -m http.server.');
   manifest=await response.json();checkManifest(manifest);
   for(const s of manifest.scenes){const option=new Option(s.title,s.id);$('scene').append(option);}
   $('scene').options[0].remove();$('scene').value=state.scene;

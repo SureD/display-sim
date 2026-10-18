@@ -1,17 +1,20 @@
 """Every block-motion budget and safeguard remains a versioned P placeholder."""
 
+import json
 from copy import deepcopy
 from dataclasses import asdict, fields, replace
-import json
 
 import pytest
 
-from sim.block_motion import BlockMotionConfig
-from sim.motion_provenance import (
-    CONFIG_PATH, block_config_record, load_block_config, validate_block_config,
+from tv_sim.block_motion import BlockMotionConfig
+from tv_sim.motion_provenance import (
+    CONFIG_PATH,
+    block_config_record,
+    load_block_config,
+    validate_block_config,
     validate_motion_provenance,
 )
-from sim.provenance import main
+from tv_sim.provenance import main
 
 
 def test_default_snapshot_covers_all_estimator_fields_and_unknown_device_data():
@@ -24,23 +27,37 @@ def test_default_snapshot_covers_all_estimator_fields_and_unknown_device_data():
     assert "profiles" not in CONFIG_PATH.parts
 
 
-@pytest.mark.parametrize("key,value", [
-    ("schema_version", True), ("schema_version", 2), ("evidence", "M"),
-    ("parameter_status", "calibrated"), ("unavailable", {"measured_thresholds": 0}),
-    ("invented_threshold", 0.5),
-])
+@pytest.mark.parametrize(
+    "key,value",
+    [
+        ("schema_version", True),
+        ("schema_version", 2),
+        ("evidence", "M"),
+        ("parameter_status", "calibrated"),
+        ("unavailable", {"measured_thresholds": 0}),
+        ("invented_threshold", 0.5),
+    ],
+)
 def test_invalid_evidence_or_unknown_fields_reject(key, value):
     data = block_config_record()
     data[key] = value
     assert validate_block_config(data)
 
 
-@pytest.mark.parametrize("field,value", [
-    ("confidence_threshold", float("nan")), ("confidence_threshold", -1),
-    ("block_size", 4), ("block_size", True), ("pyramid_levels", 1000000),
-    ("search_radius", -1), ("estimation_width", 0),
-    ("luma_reference_nits", 0), ("max_displacement_px", float("inf")),
-])
+@pytest.mark.parametrize(
+    "field,value",
+    [
+        ("confidence_threshold", float("nan")),
+        ("confidence_threshold", -1),
+        ("block_size", 4),
+        ("block_size", True),
+        ("pyramid_levels", 1000000),
+        ("search_radius", -1),
+        ("estimation_width", 0),
+        ("luma_reference_nits", 0),
+        ("max_displacement_px", float("inf")),
+    ],
+)
 def test_invalid_numerical_parameters_reject(field, value):
     data = block_config_record()
     data["parameters"][field]["value"] = value
@@ -71,7 +88,7 @@ def test_duplicate_keys_and_missing_config_fail_explicitly(tmp_path):
 
 
 def test_provenance_cli_checks_motion_config_with_profile_selection(tmp_path, monkeypatch, capsys):
-    import sim.motion_provenance as evidence
+    import tv_sim.motion_provenance as evidence
 
     data = block_config_record()
     data["evidence"] = "M"

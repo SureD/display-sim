@@ -1,9 +1,9 @@
-"""ABL load limiting against the research/m3-hdr-abl-params.md contract."""
+"""ABL load limiting against the docs/research/m3-hdr-abl-params.md contract."""
 
 import numpy as np
 import pytest
 
-from sim.load import (
+from tv_sim.load import (
     LoadState,
     abl_capacity,
     backlight_derate,
@@ -11,8 +11,8 @@ from sim.load import (
     load_fraction,
     smooth_apl,
 )
-from sim.profile import HdrParams
-from sim.stages.tonemap import effective_peak
+from tv_sim.profile import HdrParams
+from tv_sim.stages.tonemap import effective_peak
 
 
 def _hdr(**kwargs) -> HdrParams:
@@ -31,7 +31,7 @@ def test_demand_apl_is_mean_linear_luminance():
 @pytest.mark.parametrize(
     "fraction, peak, full, expected",
     [
-        # Analytic table in research/m3-hdr-abl-params.md ("ABL versus load").
+        # Analytic table in docs/research/m3-hdr-abl-params.md ("ABL versus load").
         (0.01, 800.0, 150.0, 787.065),
         (0.10, 800.0, 150.0, 676.5),
         (0.25, 800.0, 150.0, 515.625),

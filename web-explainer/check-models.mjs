@@ -10,15 +10,15 @@ const python=String.raw`
 import json
 import numpy as np
 from dataclasses import replace
-from sim.frame import Frame
-from sim.profile import load_profile
-from sim.stages.backlight import simulate_backlight
-from sim.stages.panel import lcd_transmit
-from sim.color import pq_eotf
-from sim.load import abl_capacity
-from sim.stages.tonemap import soft_shoulder
+from tv_sim.frame import Frame
+from tv_sim.profile import load_profile
+from tv_sim.stages.backlight import simulate_backlight
+from tv_sim.stages.panel import lcd_transmit
+from tv_sim.color import pq_eotf
+from tv_sim.load import abl_capacity
+from tv_sim.stages.tonemap import soft_shoulder
 from pathlib import Path
-base=Path('sim/profiles')
+base=Path('src/tv_sim/profiles')
 p=load_profile('generic_va_fald_miniled')
 ld=[]
 for x in [0,17,40,85,88]:

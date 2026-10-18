@@ -3,14 +3,14 @@
 [Open the inspected gallery](index.html). Reproduce from the repository root:
 
 ```sh
-python3 -m sim colorimetry --out reports/colorimetry-m15
+python3 -m tv_sim colorimetry --out reports/colorimetry-m15
 ```
 
 All panel assignments, source stimuli and exposure choices are **P**. Matrices,
 mask fractions and errors are **D calculations under those P inputs**. No named
 TV is calibrated. Measured panel primaries, spectra, RGBW allocation/current,
 per-hue luminance envelopes and host optical output remain **NR**. Primary-source
-references and model definitions are in [the research note](../../research/m15-colorimetry.md).
+references and model definitions are in [the research note](../../docs/research/m15-colorimetry.md).
 
 The **P** experiment uses a 320 × 180 raster, BT.2020/D65 linear RGB encoded as
 float PQ, and one shared **P 2,000-nit** preview white across every tile, method

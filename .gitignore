@@ -1,4 +1,19 @@
 __pycache__/
 .pytest_cache/
-*.pyc
+*.py[cod]
 .venv/
+venv/
+env/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.tox/
+build/
+dist/
+*.egg-info/
+.DS_Store
+# Full-precision experiment arrays and browser transport are regenerated.
+*.npy
+*.npz
+web/data/frames/

@@ -2,8 +2,8 @@
 
 import json
 
-from sim.cli import main
-from sim.validate import WINDOW_FRACTIONS
+from tv_sim.cli import main
+from tv_sim.validate import WINDOW_FRACTIONS
 
 
 def test_validate_writes_reports_for_one_profile(tmp_path):
@@ -26,7 +26,10 @@ def test_validate_writes_reports_for_one_profile(tmp_path):
         ]
     )
     document = json.loads((out / "metrics.json").read_text(encoding="utf-8"))
-    assert "placeholder" in document["disclaimer"].lower() or "not laboratory" in document["disclaimer"].lower()
+    assert (
+        "placeholder" in document["disclaimer"].lower()
+        or "not laboratory" in document["disclaimer"].lower()
+    )
     profile = document["profiles"]["generic_woled"]
     assert len(profile["windows"]) == len(WINDOW_FRACTIONS)
     assert profile["windows"][-1]["halo_nits"] is None
@@ -44,8 +47,8 @@ def test_validate_writes_reports_for_one_profile(tmp_path):
 
 
 def test_ips_temporal_width_is_not_the_backlight_edge():
-    from sim.profile import load_profile
-    from sim.validate import _edge_blur
+    from tv_sim.profile import load_profile
+    from tv_sim.validate import _edge_blur
 
     profile = load_profile("generic_ips_edge").with_overrides(motion_px=8.0)
     # Wide enough that the edge-lit PSF is tens of pixels. At a narrow frame

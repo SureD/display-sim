@@ -16,10 +16,10 @@ export const HDR_NOTES = {
   title: '亮度预算仪 / Luminance budget meter',
   hint: '调节 PQ 信号与归一化 APL；左表读输出，右表读容量占比。',
   caption: '独立的中性像素 soft_clip 演示，手动指定归一化负载 a。左表量程 0–2000 nits，右表量程 0–100% P₀，十格指示条显示 a。装置比例仅为插画。三组容量、拐点与 ABL 形状均为 P 级占位参数，并非实测电视。原始 profile 默认 abl_source=emitted；demand 模式改由上游请求图像提供 APL。此处手动覆盖负载以单独展示函数。',
-  sources: ['sim/color.py', 'sim/load.py', 'sim/stages/tonemap.py', 'sim/profiles/generic_woled.yaml', 'sim/profiles/generic_qdoled.yaml', 'sim/profiles/generic_va_fald_miniled.yaml', 'research/03-color-hdr.md', 'research/m3-hdr-abl-params.md'],
+  sources: ['src/tv_sim/color.py', 'src/tv_sim/load.py', 'src/tv_sim/stages/tonemap.py', 'src/tv_sim/profiles/generic_woled.yaml', 'src/tv_sim/profiles/generic_qdoled.yaml', 'src/tv_sim/profiles/generic_va_fald_miniled.yaml', 'docs/research/03-color-hdr.md', 'docs/research/m3-hdr-abl-params.md'],
 };
 
-// Same scalar equations as sim/color.py, sim/load.py and stages/tonemap.py.
+// Same scalar equations as src/tv_sim/color.py, src/tv_sim/load.py and stages/tonemap.py.
 // APL is explicitly independent here, rather than inferred from a PQ code.
 export function hdrModel(code, a, profile = 'woled') {
   const p = HDR_PROFILES[profile] || HDR_PROFILES.woled;

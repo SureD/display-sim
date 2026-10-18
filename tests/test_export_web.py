@@ -1,20 +1,27 @@
 """The web transport preserves absolute units, pipeline history and evidence."""
 
-from hashlib import sha256
 import json
+from hashlib import sha256
 
 import numpy as np
 import pytest
 
-from sim.cli import main
-from sim.color import pq_oetf
-from sim.export_web import generate_web_export
-from sim.gallery import (
-    INTEGRATION_SAMPLES, PAN_SPEED, PRE_ROLL, PROFILE_NAMES, _gallery_profile,
-    render_still, scenes,
+from tv_sim.cli import main
+from tv_sim.color import pq_oetf
+from tv_sim.export_web import generate_web_export
+from tv_sim.gallery import (
+    INTEGRATION_SAMPLES,
+    PAN_SPEED,
+    PRE_ROLL,
+    PROFILE_NAMES,
+    _gallery_profile,
+    render_still,
+    scenes,
 )
-from sim.pipeline import Pipeline
-from sim.profile import load_profile, profile_path
+from tv_sim.pipeline import Pipeline
+from tv_sim.profile import load_profile, profile_path
+
+pytestmark = [pytest.mark.slow, pytest.mark.e2e]
 
 
 @pytest.fixture(scope="module")
@@ -25,7 +32,19 @@ def exported(tmp_path_factory):
         for suffix in (".yaml", ".provenance.yaml", ".angular.yaml"):
             path = profile_path(name).with_name(name + suffix)
             baseline[path] = path.read_bytes()
-    main(["export-web", "--out", str(out), "--width", "160", "--height", "96", "--motion-frames", "3"])
+    main(
+        [
+            "export-web",
+            "--out",
+            str(out),
+            "--width",
+            "160",
+            "--height",
+            "96",
+            "--motion-frames",
+            "3",
+        ]
+    )
     assert all(path.read_bytes() == contents for path, contents in baseline.items())
     return out, json.loads((out / "manifest.json").read_text())
 
@@ -36,7 +55,10 @@ def _scene(manifest, identifier):
 
 def _frames(out, asset):
     return np.fromfile(out / asset["file"], dtype="<f2").reshape(
-        asset["frame_count"], asset["height"], asset["width"], 3,
+        asset["frame_count"],
+        asset["height"],
+        asset["width"],
+        3,
     )
 
 
@@ -52,7 +74,10 @@ def test_export_cli_preserves_settings_and_ships_complete_profile_evidence(expor
     assert manifest["format"]["primaries"] == "BT.709 / sRGB"
     assert "does not imply BT.2020" in manifest["format"]["pq_source_note"]
     assert "no calibrated gamut" in manifest["format"]["colorimetry_status"]
-    assert set(manifest["implementation_sha256"]) >= {"sim/export_web.py", "sim/pipeline.py"}
+    assert set(manifest["implementation_sha256"]) >= {
+        "src/tv_sim/export_web.py",
+        "src/tv_sim/pipeline.py",
+    }
     for profile in manifest["profiles"]:
         assert profile["settings"]["input"]["eotf"] == "srgb"
         assert profile["settings"]["temporal"]["integration_samples"] == 1
@@ -62,21 +87,34 @@ def test_export_cli_preserves_settings_and_ships_complete_profile_evidence(expor
             assert settings["ambient"]["lux"] == 0
             assert settings["temporal"]["integration_samples"] == INTEGRATION_SAMPLES
         assert profile["effective_settings"]["still"]["temporal"]["motion_px_per_frame"] == 0
-        assert profile["effective_settings"]["motion"]["temporal"]["motion_px_per_frame"] == PAN_SPEED
+        assert (
+            profile["effective_settings"]["motion"]["temporal"]["motion_px_per_frame"] == PAN_SPEED
+        )
         assert set(profile["snapshots"]) == {"profile", "provenance", "angular"}
         assert profile["yaml_sha256"] == profile["snapshots"]["profile"]["sha256"]
         for snapshot in profile["snapshots"].values():
             payload = (out / snapshot["file"]).read_bytes()
             assert len(payload) == snapshot["byte_length"]
             assert sha256(payload).hexdigest() == snapshot["sha256"]
-            assert payload == profile_path(profile["id"]).with_name(snapshot["file"].split("/")[-1]).read_bytes()
+            assert (
+                payload
+                == profile_path(profile["id"])
+                .with_name(snapshot["file"].split("/")[-1])
+                .read_bytes()
+            )
 
 
 def test_every_scene_has_valid_headerless_absolute_nit_fp16_for_all_four_profiles(exported):
     out, manifest = exported
     assert {scene["id"] for scene in manifest["scenes"]} == {
-        "starfield", "subtitles", "bright_window", "wide_window", "gradients",
-        "macro_subpixel", "macro_apertures", "motion_pan",
+        "starfield",
+        "subtitles",
+        "bright_window",
+        "wide_window",
+        "gradients",
+        "macro_subpixel",
+        "macro_apertures",
+        "motion_pan",
     }
     total_bytes = 0
     for scene in manifest["scenes"]:
@@ -84,9 +122,17 @@ def test_every_scene_has_valid_headerless_absolute_nit_fp16_for_all_four_profile
         for asset in scene["assets"].values():
             payload = (out / asset["file"]).read_bytes()
             assert sha256(payload).hexdigest() == asset["sha256"]
-            assert len(payload) == asset["byte_length"] == asset["frame_count"] * asset["frame_stride_bytes"]
+            assert (
+                len(payload)
+                == asset["byte_length"]
+                == asset["frame_count"] * asset["frame_stride_bytes"]
+            )
             assert asset["frame_stride_bytes"] == asset["width"] * asset["height"] * 3 * 2
-            assert [asset["width"], asset["height"], asset["frame_count"]] == [scene["width"], scene["height"], scene["frame_count"]]
+            assert [asset["width"], asset["height"], asset["frame_count"]] == [
+                scene["width"],
+                scene["height"],
+                scene["frame_count"],
+            ]
             rgb = _frames(out, asset)
             assert np.isfinite(rgb).all() and np.all(rgb >= 0)
             assert rgb.max() > 1  # unencoded nits, no 0–1 or per-TV normalization
@@ -108,7 +154,8 @@ def test_stills_are_ordinary_gallery_linear_outputs_with_only_fp16_quantization(
             actual = _frames(out, asset)[0]
             assert np.array_equal(actual, expected.astype("<f2"))
             assert np.max(np.abs(actual.astype(np.float32) - expected)) == pytest.approx(
-                asset["statistics"]["float16_max_absolute_error_nits"], abs=1e-6,
+                asset["statistics"]["float16_max_absolute_error_nits"],
+                abs=1e-6,
             )
 
 
@@ -119,7 +166,7 @@ def test_pan_transports_real_persistent_history_and_correct_frame_timing(exporte
     assert protocol["pre_roll_frames"] == PRE_ROLL
     assert scene["frame_source_indices"] == [1, 2, 3]
     assert scene["fps"] == pytest.approx(1000 / 16.666)
-    assert scene["pts_seconds"] == pytest.approx([0, .016666, .033332])
+    assert scene["pts_seconds"] == pytest.approx([0, 0.016666, 0.033332])
     assert "Not a continuous loop" in scene["loop_boundary"]
     encoded = pq_oetf(scenes(160, 96)["motion_pan"])
     for name in PROFILE_NAMES:
@@ -147,18 +194,29 @@ def test_macro_apertures_keep_logical_cell_energy_and_disclose_synthetic_peaks(e
     scale = scene["macro"]["scale"]
     cy, cx, height, width = scene["macro"]["crop_yxhw"]
     for name in PROFILE_NAMES:
-        logical = _frames(out, _scene(manifest, "macro_subpixel")["assets"][name])[0].astype(np.float32)
+        logical = _frames(out, _scene(manifest, "macro_subpixel")["assets"][name])[0].astype(
+            np.float32
+        )
         apertures = _frames(out, scene["assets"][name])[0].astype(np.float32)
         recovered = apertures.reshape(height, scale, width, scale, 3).mean(axis=(1, 3))
-        np.testing.assert_allclose(recovered, logical[cy:cy+height, cx:cx+width], rtol=.001, atol=.02)
+        np.testing.assert_allclose(
+            recovered, logical[cy : cy + height, cx : cx + width], rtol=0.001, atol=0.02
+        )
         assert apertures.max() > recovered.max()
         assert np.count_nonzero(apertures.sum(axis=-1) == 0) > 0  # black matrix
 
 
-@pytest.mark.parametrize("kwargs", [
-    {"width": 159}, {"height": 95}, {"width": 160.0},
-    {"motion_frames": 0}, {"motion_frames": -1}, {"motion_frames": True},
-])
+@pytest.mark.parametrize(
+    "kwargs",
+    [
+        {"width": 159},
+        {"height": 95},
+        {"width": 160.0},
+        {"motion_frames": 0},
+        {"motion_frames": -1},
+        {"motion_frames": True},
+    ],
+)
 def test_invalid_export_dimensions_and_duration_fail_before_writing(tmp_path, kwargs):
     out = tmp_path / "must-not-exist"
     with pytest.raises(ValueError):

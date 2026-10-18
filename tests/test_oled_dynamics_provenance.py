@@ -1,12 +1,12 @@
 """Synthetic protocol evidence stays separate from unchanged TV records."""
 
-from copy import deepcopy
 import json
+from copy import deepcopy
 
 import pytest
 
-from sim.oled_dynamics_provenance import PROTOCOL_PATH, validate_oled_dynamics_provenance
-from sim.provenance import main as provenance_main
+from tv_sim.oled_dynamics_provenance import PROTOCOL_PATH, validate_oled_dynamics_provenance
+from tv_sim.provenance import main as provenance_main
 
 
 @pytest.fixture
@@ -23,16 +23,24 @@ def test_bundled_protocol_has_only_placeholder_choices_and_explicit_unknowns(pro
     assert "profiles" not in PROTOCOL_PATH.parts
 
 
-@pytest.mark.parametrize("path,value", [
-    ("schema_version", 2), ("schema_version", True),
-    ("evidence", "M"), ("parameter_status", "calibrated"),
-    ("unavailable/measured_attack_ms", 100),
-    ("unavailable/measured_release_ms", 0),
-    ("unavailable/calibrated_profile_fit", "M"),
-    ("demonstration/attack_ms", None), ("demonstration/release_ms", -1),
-    ("settings/level_nits", float("inf")), ("settings/ambient_lux", 10),
-    ("settings/output_fps", "0"), ("settings/invented", 1),
-])
+@pytest.mark.parametrize(
+    "path,value",
+    [
+        ("schema_version", 2),
+        ("schema_version", True),
+        ("evidence", "M"),
+        ("parameter_status", "calibrated"),
+        ("unavailable/measured_attack_ms", 100),
+        ("unavailable/measured_release_ms", 0),
+        ("unavailable/calibrated_profile_fit", "M"),
+        ("demonstration/attack_ms", None),
+        ("demonstration/release_ms", -1),
+        ("settings/level_nits", float("inf")),
+        ("settings/ambient_lux", 10),
+        ("settings/output_fps", "0"),
+        ("settings/invented", 1),
+    ],
+)
 def test_provenance_rejects_unlabeled_invalid_or_unknown_constants(protocol, path, value):
     changed = deepcopy(protocol)
     parts = path.split("/")
@@ -43,8 +51,10 @@ def test_provenance_rejects_unlabeled_invalid_or_unknown_constants(protocol, pat
     assert validate_oled_dynamics_provenance(changed)
 
 
-def test_provenance_checks_protocol_even_with_profile_selection(protocol, tmp_path, monkeypatch, capsys):
-    import sim.oled_dynamics_provenance as evidence
+def test_provenance_checks_protocol_even_with_profile_selection(
+    protocol, tmp_path, monkeypatch, capsys
+):
+    import tv_sim.oled_dynamics_provenance as evidence
 
     protocol["evidence"] = "M"
     path = tmp_path / "invalid.json"
@@ -57,7 +67,7 @@ def test_provenance_checks_protocol_even_with_profile_selection(protocol, tmp_pa
 
 
 def test_provenance_missing_protocol_is_actionable(tmp_path, monkeypatch):
-    import sim.oled_dynamics_provenance as evidence
+    import tv_sim.oled_dynamics_provenance as evidence
 
     monkeypatch.setattr(evidence, "PROTOCOL_PATH", tmp_path / "absent.json")
     assert "OLED dynamics protocol" in validate_oled_dynamics_provenance()[0]

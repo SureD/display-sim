@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generator": "python3 -m sim export-web",
+  "generator": "python3 -m tv_sim export-web",
   "disclaimer": "PLACEHOLDER PARAMETERS - synthetic mechanisms, not measured TVs.",
   "resolution": [
     256,
@@ -45,39 +45,52 @@
     "loop_boundary": "Not a continuous loop; response/load history jumps from the final saved frame to the first saved frame."
   },
   "implementation_sha256": {
-    "sim/__init__.py": "0c4ed728d382a31cc2ed782724285764332e862dbbcf06872ac3f82f0499a9ef",
-    "sim/__main__.py": "f87892debba3cb477ee200d9dd88fea38e495b8c32371e848274ed36f1aa7747",
-    "sim/anchors.py": "ea8391d00d766465ae9d430fb73a0391a2269bab59aa93230e10dcf375c477e8",
-    "sim/angular_provenance.py": "605eebb180a67aada5dc39054be4a7dc557853d8fd53064c1b7a6c01080c22e4",
-    "sim/cli.py": "7704831ca1acaa8e71c973aff970debbd946c264628b347c6de1975a3e26a972",
-    "sim/color.py": "ce2f89aebf413d069bfcd1c9b0d959be8de1ba048b9e94e5ac94fc66df8247a3",
-    "sim/export_web.py": "aa18a0dd63a9f0e926837d4f55a041ba233eece9b828a1fe76e1b7d44d77bc8f",
-    "sim/filters.py": "32b612b053f498a908361a8d91ed9531463409f2a0c26769da62bb209bd89cfe",
-    "sim/frame.py": "9d86ffa47818200b4e776404273dc259044c450bad389aa5477920177e9ec5fc",
-    "sim/gallery.py": "1e2ea03addf0dcec803efdcc442de958f4456efc7b47095122f5db090d25febe",
-    "sim/load.py": "e8a889a5fda1009d00c90ea56af84890e9b0df08ac1e76d75c112f759ab38181",
-    "sim/macro.py": "743ba8520319e9aeef5cd0dcab9beff80a483c1940e8c995eb31f19ce7f2b187",
-    "sim/metrics.py": "b27c51b13ff71932cd7dc75f685d76f0a516d1f68f3ae968724aab08bfb45ba1",
-    "sim/motion.py": "3ce04bda3cf9aa1c7083c85001e8df0166a48f148bf45dcb0efdd4f5734c9b5e",
-    "sim/motion_cli.py": "0b7727f05cb483c50fd582cb0936d358fdc05c38fb5e6d56909cff1aa6518ebb",
-    "sim/patterns.py": "18cd7c003a9bf84687646a57a7776833a8f620e7ca17fb45b95b80dbb8d7b1ec",
-    "sim/pipeline.py": "79b718d149cd7891b6f14e128928cad4f53b2219f08e5ecc29c312ca0a51328b",
-    "sim/profile.py": "ed8fbac7fae934c5a2b83acb644c50edb2cb8e52271cc0eec3c2e16b6dc98037",
-    "sim/provenance.py": "637e8024e819d4b409b3b29ccbf36ddfb59a24ee9a5b6f3fd0d5860d8056b259",
-    "sim/sequence.py": "ce11b4ef39df16711fd8537ad48f9d5552f3e25a0d60b8aee4b5961db3007be0",
-    "sim/stages/__init__.py": "3da572d2184b3ee22e891869fbb66053148d30c7ca9d607c25cff971ee0992e6",
-    "sim/stages/ambient.py": "c021c8df23628051b554f98683cb3dddd3a2f9e84f780a8620fd42b485eaaeda",
-    "sim/stages/backlight.py": "83eeb0f1194d7483547a501ad62ba35de7fd37494254acfb7c620e40a23e7067",
-    "sim/stages/decode.py": "f802aea0d3ffc9ade61bd77f83cb574ada13aa02f45ff668fe1af829f0e03101",
-    "sim/stages/encode.py": "b39950ead1eaa5d6facfe96c398ed8eb2715cff3d3ce422bc249f07b0a57db84",
-    "sim/stages/panel.py": "db95f0bb03cd56bac825e649d18d53ca31bb0755cc91b195931015ab6c68c625",
-    "sim/stages/process.py": "b99ffa954eff465409228ab0629be2bdffd703969c8d4a9f9714c4f4b09fbdc5",
-    "sim/stages/temporal.py": "a5708c8767e8dd63d3d25c806a47f8b9ea52913b8092abaa49dfa4287698867f",
-    "sim/stages/tonemap.py": "93673b5fed57ee5cf3b7cf1fc65549e268d5e2e84f91223b8a1e56967d183124",
-    "sim/stages/viewing_angle.py": "b03fbb51eb7a0baf58e345e98c358bc51040816bd1207435f1fdc6b05ea87150",
-    "sim/validate.py": "41ec44e3b7fb301e0880148e578b0f28a7a5c980c50f3d164eca5f3b0bc874e6",
-    "sim/viewing_angle.py": "53666f14a7b705d14860e72eff372a8e4aaa2c057500038cea1395152239d186",
-    "sim/window_replay.py": "8f4237b7c51f4b3b7beee6cfb9c8db4d3f94599f46516d352b69921c84dafdad"
+    "src/tv_sim/__init__.py": "cd533935dc39c023e7f45597dc9ae214bc2790b09ca076670cd2acad47629e91",
+    "src/tv_sim/__main__.py": "ea2f9e491874a88f8a407e4a0b37f8fcdc4692ddbab9c9d8dbdd031ba8472d88",
+    "src/tv_sim/abl_dynamics.py": "50fe223539fb873124f4f21973a7b3d811424aff2336af453e0486ce1a79dba3",
+    "src/tv_sim/abl_history.py": "5fc0291b884c84f769e7293ef9e525b401b8e17ed04aead4d11a68e69e91dee3",
+    "src/tv_sim/anchors.py": "b3ac5511aacda94b399b10da4c171078ce8b035625abf076c1bb458759a2c457",
+    "src/tv_sim/angular_provenance.py": "b7249effcf9c6656519b317a597bf866e4ce7bd75dbd00832e2140d8ae2471cb",
+    "src/tv_sim/block_motion.py": "cbdc5ff665c534607c590b3be74d2a6017269f5962c60c0fb7833cfc671931be",
+    "src/tv_sim/block_sequence.py": "fddc8bec59fa2ec835693876cede7f79c4cc812910ee81c7ea56a9a8bdd05044",
+    "src/tv_sim/cli.py": "de90a65399e24e425ca6ab0217b3b71781fb3de31cfdb6a48664e0535a466b61",
+    "src/tv_sim/color.py": "ce2f89aebf413d069bfcd1c9b0d959be8de1ba048b9e94e5ac94fc66df8247a3",
+    "src/tv_sim/colorimetry.py": "5541a791d1504a82f87adee397cc6bc1214265dbf248bd196036346530ce8b49",
+    "src/tv_sim/colorimetry_cli.py": "f50a62eec0a1de7cd3a36aaee3b7b1e866425e1c71294e9b684ba1e2bd506d26",
+    "src/tv_sim/colorimetry_export.py": "d3d68c5b4e45bcaba2d08bb9ab1675509ceab0b660af791b69e3610e9dcc9067",
+    "src/tv_sim/colorimetry_gallery.py": "cc2c965c7553980480e66e195ab70061c79448967f6d27d4e9cc3bfe6f3ce6c0",
+    "src/tv_sim/colorimetry_provenance.py": "d1f336d99abb256e92ffa8286bc508e25ee4040f5c09a18ae6ee5c3ff33d9af8",
+    "src/tv_sim/export_web.py": "3715702289a8d6e4be95ce60382f7906ad168fdbc0cc04d09389811fbefbd1f6",
+    "src/tv_sim/filters.py": "76cbfc3789adc0220f261617b604066d3b7dec0edb4c1ed17cdb26498be55913",
+    "src/tv_sim/frame.py": "53df77bc2b01aefe3f07a2bef7cf217b2124b916a026ce66cf504f5d3071314d",
+    "src/tv_sim/gallery.py": "ede96a1d5921cfdda361301685d7d5563ce87b61e3898de773b0bab12c5eb257",
+    "src/tv_sim/load.py": "9f7311a7b15c22017f6076ebc7aa3c76dbcbf04bdd7665a8a5db2a26129b564c",
+    "src/tv_sim/macro.py": "35667c0a1118488fb2c212aa566d2b8129de78e13b111a9e1326bc716534c68c",
+    "src/tv_sim/metrics.py": "cbec135acac5d102bb1aea68ab0b8c8b1649fd319dc74e7209f575c311768626",
+    "src/tv_sim/motion.py": "44d75c269a1f228cef8b8869298e3371635095e3c739e882b77f1abf3b3f2c11",
+    "src/tv_sim/motion_cli.py": "db9f6c0c1a844475c9e4553cc626ef0717068c15ae20efa2e400754e0c52ff05",
+    "src/tv_sim/motion_provenance.py": "182fa6997bb1644b130b6f80d495f81c7b4739e3a7be38529376964c6bf154ab",
+    "src/tv_sim/motion_validate.py": "e43e2949e8c546119fdf7c62a37a9220e91e9cbb69012b5afbd8ef03bf886a9b",
+    "src/tv_sim/oled_dynamics_experiment.py": "01f84cbc9d0dd930560837415f54d3841607ac9722ea970b75c3eb3015824e15",
+    "src/tv_sim/oled_dynamics_provenance.py": "884877e176823a4c37c11a43b4d70f50475681b93e239e440564b694ff295e6a",
+    "src/tv_sim/patterns.py": "6ee3b456aa225018b8fac521bd8d3af3f65453c7248477bc6753930ac6cf8b4e",
+    "src/tv_sim/pipeline.py": "9d74199aa492be088e12bbb926a3e3272a08174f2e4386fcc6eb401e660c32cb",
+    "src/tv_sim/profile.py": "9f69765d6e8e5df779644d89f75ef546a3602489c381dd3f7d1b2ad38aaccc1a",
+    "src/tv_sim/provenance.py": "f67316bead15a4351424bc1ec256e3a72eabef4416603a5220ecb6aac442b3b1",
+    "src/tv_sim/sequence.py": "5f2fdefef65084a538c5dd0dca211d36c478f5c23a82167066ad1a6c38c5e3ae",
+    "src/tv_sim/stages/__init__.py": "e849623e227c411d27b0eb9e7d6196b25582bec07bf2ecd155da47356cebd243",
+    "src/tv_sim/stages/ambient.py": "5e202fc65d7a21b2510ab904bd3a825abd596e8853ac1687392a3c2719158f59",
+    "src/tv_sim/stages/backlight.py": "120ae031aac3864262d64b3f7d983c6e3f283dd39257a8b8fa8a037f660280b1",
+    "src/tv_sim/stages/decode.py": "13fd6a3159ba21557157f274b804f77ef04eb6e52417a63c621de43dd24e3ae5",
+    "src/tv_sim/stages/encode.py": "39ee1e19a6dcc7d9605a0c12e1ad1abdc66ad1a3aa9dd1d9c77e2fec1a1bdd26",
+    "src/tv_sim/stages/panel.py": "1794899926f759978ae16f0c781fd20de842fa312e801d8278ed09ada391f5d1",
+    "src/tv_sim/stages/process.py": "42821f5b64d5048dcc87392b8eda805b34ffc67a957de22a01d567693a6f520f",
+    "src/tv_sim/stages/temporal.py": "92f5f5db4d630b5fe4b4e655e55043868e9077045bd81873fcdefe8f917c2874",
+    "src/tv_sim/stages/tonemap.py": "a40980838ad344eff41c1a80caf8fc60f6deb7b9ed7b97da7076457f4a892067",
+    "src/tv_sim/stages/viewing_angle.py": "694b7936c898eeca88214465582947aee0a66bbfc9874a01e8c0c2378f72c78d",
+    "src/tv_sim/validate.py": "89a06e91cf68d90707b0b18c60b90f5ae789804a244b7a377c97f9c7b04feca4",
+    "src/tv_sim/viewing_angle.py": "fd23184e7dc1e0801ef5d5669027e435cee16f06b753d259a4547adafaa63067",
+    "src/tv_sim/window_replay.py": "edc76f3ecbc66e94dd7f3ed2b346ec71211287d0d64ed75c3044e26c4cbd6a29"
   },
   "profiles": [
     {
@@ -184,19 +197,19 @@
           "file": "metadata/generic_va_fald_miniled.yaml",
           "sha256": "bee4a76b147110ba8d8cb4c21d4be5dd6e5728ecfaa9c00a68206882f7b64f32",
           "byte_length": 3037,
-          "source": "sim/profiles/generic_va_fald_miniled.yaml"
+          "source": "src/tv_sim/profiles/generic_va_fald_miniled.yaml"
         },
         "provenance": {
           "file": "metadata/generic_va_fald_miniled.provenance.yaml",
           "sha256": "d6a74927af90d64cea49b7d6c06f58117a75722f91b20732b1cf80cfa9723b27",
           "byte_length": 29855,
-          "source": "sim/profiles/generic_va_fald_miniled.provenance.yaml"
+          "source": "src/tv_sim/profiles/generic_va_fald_miniled.provenance.yaml"
         },
         "angular": {
           "file": "metadata/generic_va_fald_miniled.angular.yaml",
           "sha256": "6e1428f8c8b07eebe0c79198fcb732d054ba735c502d98a7be7233387482d4fa",
           "byte_length": 3220,
-          "source": "sim/profiles/generic_va_fald_miniled.angular.yaml"
+          "source": "src/tv_sim/profiles/generic_va_fald_miniled.angular.yaml"
         }
       },
       "effective_settings": {
@@ -493,19 +506,19 @@
           "file": "metadata/generic_ips_edge.yaml",
           "sha256": "eaf893126a59bf17ff44cd90d9120d8912c21e56498da8b7ca0eeed6da331a85",
           "byte_length": 2660,
-          "source": "sim/profiles/generic_ips_edge.yaml"
+          "source": "src/tv_sim/profiles/generic_ips_edge.yaml"
         },
         "provenance": {
           "file": "metadata/generic_ips_edge.provenance.yaml",
           "sha256": "aa03abf383439bb219e3bca2bc0fdd20a6e821e5d515b331d881494d21d07ab3",
           "byte_length": 29098,
-          "source": "sim/profiles/generic_ips_edge.provenance.yaml"
+          "source": "src/tv_sim/profiles/generic_ips_edge.provenance.yaml"
         },
         "angular": {
           "file": "metadata/generic_ips_edge.angular.yaml",
           "sha256": "6d94a6f2ef44bd9ff4cc172402aaab9a4658c7ada48cbfef1bab8b69114444bc",
           "byte_length": 3211,
-          "source": "sim/profiles/generic_ips_edge.angular.yaml"
+          "source": "src/tv_sim/profiles/generic_ips_edge.angular.yaml"
         }
       },
       "effective_settings": {
@@ -802,19 +815,19 @@
           "file": "metadata/generic_woled.yaml",
           "sha256": "e89d82029dfdcfaba1b229011f7c0bcd177445e9d3d823839b084c6549532ba7",
           "byte_length": 2608,
-          "source": "sim/profiles/generic_woled.yaml"
+          "source": "src/tv_sim/profiles/generic_woled.yaml"
         },
         "provenance": {
           "file": "metadata/generic_woled.provenance.yaml",
           "sha256": "bbcf272bea2334e811868819a4f9b97ed53a853e5f9c4f19413d3d9bd32cde59",
           "byte_length": 29615,
-          "source": "sim/profiles/generic_woled.provenance.yaml"
+          "source": "src/tv_sim/profiles/generic_woled.provenance.yaml"
         },
         "angular": {
           "file": "metadata/generic_woled.angular.yaml",
           "sha256": "5846dfcf1989306a2c3798bed4b166bc48580f58a0bfe1794dbb943f83009c1c",
           "byte_length": 2363,
-          "source": "sim/profiles/generic_woled.angular.yaml"
+          "source": "src/tv_sim/profiles/generic_woled.angular.yaml"
         }
       },
       "effective_settings": {
@@ -1111,19 +1124,19 @@
           "file": "metadata/generic_qdoled.yaml",
           "sha256": "d4b377b346eec1506f80ce58ae8034b48b06d1b0dc40ab420373e91b7209527e",
           "byte_length": 2348,
-          "source": "sim/profiles/generic_qdoled.yaml"
+          "source": "src/tv_sim/profiles/generic_qdoled.yaml"
         },
         "provenance": {
           "file": "metadata/generic_qdoled.provenance.yaml",
           "sha256": "dd299a60e8e475bb3fc948a3231dd2a6b0fa75ee47580f78297e554c4e2717f6",
           "byte_length": 29802,
-          "source": "sim/profiles/generic_qdoled.provenance.yaml"
+          "source": "src/tv_sim/profiles/generic_qdoled.provenance.yaml"
         },
         "angular": {
           "file": "metadata/generic_qdoled.angular.yaml",
           "sha256": "060e999aec8e7c2d3186ed693aaad9a4ddffd1b79c9342874ef4ed67d9882c4b",
           "byte_length": 2364,
-          "source": "sim/profiles/generic_qdoled.angular.yaml"
+          "source": "src/tv_sim/profiles/generic_qdoled.angular.yaml"
         }
       },
       "effective_settings": {

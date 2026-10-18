@@ -2,9 +2,9 @@
 
 import numpy as np
 
-from sim.frame import Frame
-from sim.profile import ProcessingParams
-from sim.stages.process import process_image
+from tv_sim.frame import Frame
+from tv_sim.profile import ProcessingParams
+from tv_sim.stages.process import process_image
 
 
 def test_scale_changes_shape_and_identity_scale_does_not():

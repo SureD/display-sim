@@ -1,28 +1,29 @@
 """Sequence integration gates: source/display domains and independent histories."""
 
+import json
 from dataclasses import replace
 from fractions import Fraction
-import json
 
 import numpy as np
-from PIL import Image
 import pytest
+from PIL import Image
 
-from sim.cli import main
-from sim.color import srgb_oetf
-from sim.frame import Frame
-from sim.motion import AnalyticLayer, LayerScene
-from sim.pipeline import Pipeline
-from sim.profile import load_profile
-from sim.sequence import MotionConfig
-from sim.stages.encode import encode_frame
+from tv_sim.cli import main
+from tv_sim.color import srgb_oetf
+from tv_sim.motion import AnalyticLayer, LayerScene
+from tv_sim.pipeline import Pipeline
+from tv_sim.profile import load_profile
+from tv_sim.sequence import MotionConfig
+from tv_sim.stages.encode import encode_frame
 
 
 def _profile():
     profile = load_profile("generic_woled")
-    return replace(profile,
-                   processing=replace(profile.processing, sharpen_amount=0),
-                   temporal=replace(profile.temporal, sample_and_hold=False, motion_px_per_frame=0))
+    return replace(
+        profile,
+        processing=replace(profile.processing, sharpen_amount=0),
+        temporal=replace(profile.temporal, sample_and_hold=False, motion_px_per_frame=0),
+    )
 
 
 class _RecordingPipeline(Pipeline):
@@ -52,9 +53,17 @@ def test_repeat_prepares_each_source_once_and_advances_display_only_at_output_ti
     assert len(results) == len(pipeline.targets) == 5
     assert pipeline.durations == [1000 / 60] * 5
     assert [result.diagnostics["source_index"] for result in results] == [0, 0, 0, 1, 1]
-    assert [result.diagnostics["phase"] for result in results] == ["0/1", "2/5", "4/5", "1/5", "3/5"]
+    assert [result.diagnostics["phase"] for result in results] == [
+        "0/1",
+        "2/5",
+        "4/5",
+        "1/5",
+        "3/5",
+    ]
     assert pipeline.profile is profile  # timing override does not mutate it
-    reference = Pipeline(replace(profile, temporal=replace(profile.temporal, frame_time_ms=1000/60)))
+    reference = Pipeline(
+        replace(profile, temporal=replace(profile.temporal, frame_time_ms=1000 / 60))
+    )
     for result, index in zip(results, (0, 0, 0, 1, 1)):
         expected = reference.run_linear(sources[index])
         assert np.array_equal(result.frame.rgb, expected.rgb)
@@ -72,9 +81,13 @@ def test_analytic_reconstruction_is_before_panel_and_never_decoded_twice():
     scene = LayerScene(background, (AnalyticLayer(texture, mask, velocity=(4, 0)),))
     sources = [srgb_oetf(scene.render(t).rgb / profile.input.sdr_white_nits) for t in (0, 1)]
     pipeline = _RecordingPipeline(profile)
-    results = list(pipeline.run_sequence(
-        sources, MotionConfig(mode="analytic", output_fps=48), scenes={0: scene},
-    ))
+    results = list(
+        pipeline.run_sequence(
+            sources,
+            MotionConfig(mode="analytic", output_fps=48),
+            scenes={0: scene},
+        )
+    )
     assert len(pipeline.prepared) == 2 and len(pipeline.targets) == 4
     assert results[1].diagnostics["kind"] == "interpolated"
     assert results[1].diagnostics["fallback_fraction"] == 0
@@ -87,11 +100,17 @@ def test_analytic_reconstruction_is_before_panel_and_never_decoded_twice():
 
 def test_cut_holds_old_requested_content_without_resetting_physical_history():
     profile = _profile()
-    pipeline = _RecordingPipeline(replace(profile, temporal=replace(profile.temporal, response_time_ms=20)))
+    pipeline = _RecordingPipeline(
+        replace(profile, temporal=replace(profile.temporal, response_time_ms=20))
+    )
     sources = [np.zeros((8, 20, 3), np.uint8), np.full((8, 20, 3), 255, np.uint8)]
-    results = list(pipeline.run_sequence(
-        sources, MotionConfig(mode="analytic", output_fps=48, translation_px=(0, 0)), cuts=[1],
-    ))
+    results = list(
+        pipeline.run_sequence(
+            sources,
+            MotionConfig(mode="analytic", output_fps=48, translation_px=(0, 0)),
+            cuts=[1],
+        )
+    )
     assert results[1].diagnostics["scene_cut"] is True
     assert results[1].diagnostics["fallback_reasons"] == ["scene_cut"]
     assert pipeline.targets[1] is pipeline.prepared[0]
@@ -103,35 +122,56 @@ def test_cut_holds_old_requested_content_without_resetting_physical_history():
 
 def test_irregular_source_pts_and_final_duration():
     sources = [np.zeros((4, 4, 3), np.uint8)] * 3
-    results = list(Pipeline(_profile()).run_sequence(
-        sources, MotionConfig(mode="repeat", output_fps=10),
-        source_pts=["1", "11/10", "13/10"], last_duration="1/5",
-    ))
-    assert [result.diagnostics["output_pts"] for result in results] == ["1/1", "11/10", "6/5", "13/10", "7/5"]
+    results = list(
+        Pipeline(_profile()).run_sequence(
+            sources,
+            MotionConfig(mode="repeat", output_fps=10),
+            source_pts=["1", "11/10", "13/10"],
+            last_duration="1/5",
+        )
+    )
+    assert [result.diagnostics["output_pts"] for result in results] == [
+        "1/1",
+        "11/10",
+        "6/5",
+        "13/10",
+        "7/5",
+    ]
     assert [result.diagnostics["source_index"] for result in results] == [0, 1, 1, 2, 2]
 
 
-@pytest.mark.parametrize("kwargs", [
-    {"mode": "off", "output_fps": 60}, {"mode": "repeat"},
-    {"mode": "bad"}, {"source_fps": 0}, {"source_fps": "nan"},
-    {"translation_px": (np.nan, 0)}, {"max_displacement_px": -1},
-    {"source_fps": True}, {"endpoint_tolerance_nits": np.nan},
-])
+@pytest.mark.parametrize(
+    "kwargs",
+    [
+        {"mode": "off", "output_fps": 60},
+        {"mode": "repeat"},
+        {"mode": "bad"},
+        {"source_fps": 0},
+        {"source_fps": "nan"},
+        {"translation_px": (np.nan, 0)},
+        {"max_displacement_px": -1},
+        {"source_fps": True},
+        {"endpoint_tolerance_nits": np.nan},
+    ],
+)
 def test_invalid_motion_configuration_is_rejected(kwargs):
     with pytest.raises(ValueError):
         MotionConfig(**kwargs)
 
 
-@pytest.mark.parametrize("sources,kwargs", [
-    ([], {}),
-    ([np.zeros((4, 4, 3)), np.zeros((4, 5, 3))], {}),
-    ([np.zeros((4, 4, 3)), np.zeros((4, 4, 3), np.uint8)], {}),
-    ([np.full((4, 4, 3), np.nan)], {}),
-    ([np.zeros((4, 4, 3))], {"source_pts": [0]}),
-    ([np.zeros((4, 4, 3))], {"source_pts": [0, 1], "last_duration": 1}),
-    ([np.zeros((4, 4, 3))] * 2, {"source_pts": [1, 0], "last_duration": 1}),
-    ([np.zeros((4, 4, 3))] * 2, {"cuts": [2]}),
-])
+@pytest.mark.parametrize(
+    "sources,kwargs",
+    [
+        ([], {}),
+        ([np.zeros((4, 4, 3)), np.zeros((4, 5, 3))], {}),
+        ([np.zeros((4, 4, 3)), np.zeros((4, 4, 3), np.uint8)], {}),
+        ([np.full((4, 4, 3), np.nan)], {}),
+        ([np.zeros((4, 4, 3))], {"source_pts": [0]}),
+        ([np.zeros((4, 4, 3))], {"source_pts": [0, 1], "last_duration": 1}),
+        ([np.zeros((4, 4, 3))] * 2, {"source_pts": [1, 0], "last_duration": 1}),
+        ([np.zeros((4, 4, 3))] * 2, {"cuts": [2]}),
+    ],
+)
 def test_enabled_sequence_rejects_inconsistent_clips_before_state_advances(sources, kwargs):
     pipeline = _RecordingPipeline(_profile())
     with pytest.raises(ValueError):
@@ -142,21 +182,32 @@ def test_enabled_sequence_rejects_inconsistent_clips_before_state_advances(sourc
 
 def test_memc_off_does_not_buffer_an_input_generator():
     pipeline = Pipeline(_profile())
+
     def sources():
         yield np.zeros((4, 4, 3), np.uint8)
         assert pipeline.state.previous is not None
         yield np.ones((4, 4, 3), np.uint8)
+
     assert len(list(pipeline.run_sequence(sources()))) == 2
 
 
 def test_off_diagnostics_separate_declared_source_pts_from_legacy_profile_timing():
     profile = _profile()
-    results = list(Pipeline(profile).run_sequence(
-        [np.zeros((4, 4, 3), np.uint8)] * 3, source_pts=[1, "25/24", "13/12"],
-    ))
+    results = list(
+        Pipeline(profile).run_sequence(
+            [np.zeros((4, 4, 3), np.uint8)] * 3,
+            source_pts=[1, "25/24", "13/12"],
+        )
+    )
     step = Fraction(str(profile.temporal.frame_time_ms)) / 1000
-    assert [Fraction(result.diagnostics["source_pts"]) for result in results] == [1, Fraction(25, 24), Fraction(13, 12)]
-    assert [Fraction(result.diagnostics["output_pts"]) for result in results] == [1 + i * step for i in range(3)]
+    assert [Fraction(result.diagnostics["source_pts"]) for result in results] == [
+        1,
+        Fraction(25, 24),
+        Fraction(13, 12),
+    ]
+    assert [Fraction(result.diagnostics["output_pts"]) for result in results] == [
+        1 + i * step for i in range(3)
+    ]
     assert all(result.diagnostics["timing_policy"] == "legacy_profile" for result in results)
 
 
@@ -172,11 +223,24 @@ def test_motion_cli_defaults_off_and_saves_same_preview_and_linear_output(tmp_pa
     source = np.full((8, 20, 3), 150, np.uint8)
     Image.fromarray(source).save(tmp_path / "source.png")
     out = tmp_path / "motion"
-    main(["motion", "--profile", "generic_woled", "--input-frames", str(tmp_path / "source.png"), "--out", str(out)])
+    main(
+        [
+            "motion",
+            "--profile",
+            "generic_woled",
+            "--input-frames",
+            str(tmp_path / "source.png"),
+            "--out",
+            str(out),
+        ]
+    )
     manifest = json.loads((out / "manifest.json").read_text())
     expected = Pipeline(load_profile("generic_woled")).run_linear(source)
     assert np.array_equal(np.load(out / "frame_000000.npy"), expected.rgb)
-    assert np.array_equal(np.asarray(Image.open(out / "frame_000000.png")), encode_frame(expected, load_profile("generic_woled").output))
+    assert np.array_equal(
+        np.asarray(Image.open(out / "frame_000000.png")),
+        encode_frame(expected, load_profile("generic_woled").output),
+    )
     assert manifest["config"]["mode"] == "off" and len(manifest["frames"]) == 1
     assert manifest["profile_yaml_sha256"]
 
@@ -185,9 +249,28 @@ def test_motion_cli_analytic_records_cut_fallback_and_separate_pts(tmp_path):
     for index, level in enumerate((0, 255)):
         Image.fromarray(np.full((8, 20, 3), level, np.uint8)).save(tmp_path / f"in_{index}.png")
     out = tmp_path / "motion"
-    main(["motion", "--profile", "generic_woled", "--input-frames", str(tmp_path / "in_*.png"),
-          "--source-fps", "24000/1001", "--output-fps", "60000/1001", "--memc", "analytic",
-          "--translation-px", "0", "0", "--cut-before", "1", "--out", str(out)])
+    main(
+        [
+            "motion",
+            "--profile",
+            "generic_woled",
+            "--input-frames",
+            str(tmp_path / "in_*.png"),
+            "--source-fps",
+            "24000/1001",
+            "--output-fps",
+            "60000/1001",
+            "--memc",
+            "analytic",
+            "--translation-px",
+            "0",
+            "0",
+            "--cut-before",
+            "1",
+            "--out",
+            str(out),
+        ]
+    )
     manifest = json.loads((out / "manifest.json").read_text())
     records = manifest["frames"]
     assert len(records) == 5
@@ -200,4 +283,14 @@ def test_motion_cli_analytic_records_cut_fallback_and_separate_pts(tmp_path):
 
 def test_cli_rejects_rate_conversion_when_off(tmp_path):
     with pytest.raises(SystemExit):
-        main(["motion", "--profile", "generic_woled", "--input-frames", "missing*", "--output-fps", "60"])
+        main(
+            [
+                "motion",
+                "--profile",
+                "generic_woled",
+                "--input-frames",
+                "missing*",
+                "--output-fps",
+                "60",
+            ]
+        )

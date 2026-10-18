@@ -1,34 +1,55 @@
 """Independent synthetic truth, timing, safety and artifact provenance gates."""
 
+import json
 from copy import deepcopy
 from fractions import Fraction
 from hashlib import sha256
-import json
-from pathlib import Path
 
 import numpy as np
-from PIL import Image
 import pytest
+from PIL import Image
 
-from sim.abl_dynamics import ABLDynamicsConfig
-from sim.block_motion import BlockMotionConfig
-from sim.motion import AnalyticLayer, LayerScene
-from sim.motion_validate import (
-    FIXTURE_NAMES, MotionFixture, _frame_metrics, default_validation_protocol, main, make_fixture, run_validation,
-    validate_motion_validation_provenance, validate_validation_protocol,
+from tv_sim.abl_dynamics import ABLDynamicsConfig
+from tv_sim.block_motion import BlockMotionConfig
+from tv_sim.motion import AnalyticLayer, LayerScene
+from tv_sim.motion_validate import (
+    FIXTURE_NAMES,
+    MotionFixture,
+    _frame_metrics,
+    default_validation_protocol,
+    main,
+    make_fixture,
+    run_validation,
+    validate_motion_validation_provenance,
+    validate_validation_protocol,
     validate_validation_sidecar,
 )
-from sim.profile import load_profile
+from tv_sim.profile import load_profile
+
+pytestmark = [pytest.mark.slow]
 
 
 def small_config():
-    return BlockMotionConfig(estimation_width=64, estimation_height=40, pyramid_levels=2,
-                             search_radius=2, refinement_radius=1, subpixel_steps=())
+    return BlockMotionConfig(
+        estimation_width=64,
+        estimation_height=40,
+        pyramid_levels=2,
+        search_radius=2,
+        refinement_radius=1,
+        subpixel_steps=(),
+    )
 
 
 def experiment(out, fixtures=("pan",), **kwargs):
-    return run_validation(out, fixtures=fixtures, width=64, height=40, source_count=4,
-                          block_config=small_config(), **kwargs)
+    return run_validation(
+        out,
+        fixtures=fixtures,
+        width=64,
+        height=40,
+        source_count=4,
+        block_config=small_config(),
+        **kwargs,
+    )
 
 
 def test_shipped_motion_protocol_is_explicitly_placeholder_and_provenance_valid():
@@ -39,17 +60,20 @@ def test_shipped_motion_protocol_is_explicitly_placeholder_and_provenance_valid(
     assert validate_motion_validation_provenance() == []
 
 
-@pytest.mark.parametrize("mutate", [
-    lambda p: p.update(evidence="M"),
-    lambda p: p.update(parameter_status="calibrated"),
-    lambda p: p.update(unrecognized=1),
-    lambda p: p["settings"].update(seed=True),
-    lambda p: p["settings"].update(output_fps="0/1"),
-    lambda p: p["settings"].update(preview_reference_nits=float("nan")),
-    lambda p: p["fixtures"]["pan"].update(background_velocity_px=[float("inf"), 0]),
-    lambda p: p["visual"].update(marker_rect_fraction=[0.9, 0.1, 0.8, 0.1]),
-    lambda p: p["unavailable"].update(named_tv_calibration="implemented"),
-])
+@pytest.mark.parametrize(
+    "mutate",
+    [
+        lambda p: p.update(evidence="M"),
+        lambda p: p.update(parameter_status="calibrated"),
+        lambda p: p.update(unrecognized=1),
+        lambda p: p["settings"].update(seed=True),
+        lambda p: p["settings"].update(output_fps="0/1"),
+        lambda p: p["settings"].update(preview_reference_nits=float("nan")),
+        lambda p: p["fixtures"]["pan"].update(background_velocity_px=[float("inf"), 0]),
+        lambda p: p["visual"].update(marker_rect_fraction=[0.9, 0.1, 0.8, 0.1]),
+        lambda p: p["unavailable"].update(named_tv_calibration="implemented"),
+    ],
+)
 def test_protocol_rejects_unknown_or_unlabelled_or_nonfinite_parameters(mutate):
     protocol = default_validation_protocol()
     mutate(protocol)
@@ -66,7 +90,7 @@ def test_protocol_file_rejects_duplicate_json_keys_and_nonfinite_values(tmp_path
 
 
 def test_selected_profile_provenance_still_checks_motion_protocol(tmp_path, monkeypatch, capsys):
-    from sim import motion_validate, provenance
+    from tv_sim import motion_validate, provenance
 
     protocol = default_validation_protocol()
     protocol["evidence"] = "M"
@@ -84,8 +108,10 @@ def test_fixture_truth_is_finite_deterministic_and_regions_partition(name):
     assert np.array_equal(fixture.render(Fraction(2, 5)).rgb, again.render(Fraction(2, 5)).rgb)
     assert np.isfinite(fixture.render(Fraction(2, 5)).rgb).all()
     masks = fixture.regions(0.4, 0)
-    assert np.array_equal(sum(mask.astype(int) for mask in masks.values()),
-                          np.ones(fixture.scene.background.shape[:2], int))
+    assert np.array_equal(
+        sum(mask.astype(int) for mask in masks.values()),
+        np.ones(fixture.scene.background.shape[:2], int),
+    )
     assert masks["interior"].any() and masks["boundary"].any()
 
 
@@ -93,10 +119,12 @@ def test_occlusion_has_independent_newly_visible_region_and_text_alias():
     fixture = make_fixture("occlusion")
     masks = fixture.regions(0.6, 0)
     assert masks["disoccluded"].any()
-    assert not np.array_equal(fixture.render(0).rgb[masks["disoccluded"]],
-                              fixture.render(0.6).rgb[masks["disoccluded"]])
-    assert np.array_equal(make_fixture("thin_text").render(0.4).rgb,
-                          make_fixture("text").render(0.4).rgb)
+    assert not np.array_equal(
+        fixture.render(0).rgb[masks["disoccluded"]], fixture.render(0.6).rgb[masks["disoccluded"]]
+    )
+    assert np.array_equal(
+        make_fixture("thin_text").render(0.4).rgb, make_fixture("text").render(0.4).rgb
+    )
 
 
 def test_disocclusion_tracks_material_visibility_on_a_moving_background():
@@ -114,8 +142,10 @@ def test_hidden_fractional_layer_edges_do_not_become_visible_boundary_flags():
     rear, front = np.zeros(base.shape[:2], bool), np.zeros(base.shape[:2], bool)
     rear[24:32, 24:32] = True
     front[20:40, 20:40] = True
-    scene = LayerScene(base, (AnalyticLayer(base + 30, rear, (1, 0), 1),
-                              AnalyticLayer(base + 100, front, (0, 0), 2)))
+    scene = LayerScene(
+        base,
+        (AnalyticLayer(base + 30, rear, (1, 0), 1), AnalyticLayer(base + 100, front, (0, 0), 2)),
+    )
     protocol = default_validation_protocol()
     fixture = MotionFixture("occlusion", scene, protocol["settings"], protocol["visual"])
     _, _, fractional = fixture.labels_and_velocity(0.5)
@@ -125,13 +155,18 @@ def test_hidden_fractional_layer_edges_do_not_become_visible_boundary_flags():
 def test_cut_keeps_trackable_marker_and_event_indices_stay_inside_sources():
     fixture = make_fixture("cut")
     mask = fixture.scene.layers[-1].mask
-    assert np.all(fixture.render(fixture.cut_index).rgb[..., 0][mask]
-                  > fixture.render(fixture.cut_index).rgb[..., 1][mask])
+    assert np.all(
+        fixture.render(fixture.cut_index).rgb[..., 0][mask]
+        > fixture.render(fixture.cut_index).rgb[..., 1][mask]
+    )
     protocol = default_validation_protocol()
     protocol["visual"]["cut_source_fraction"] = 0.999
     protocol["visual"]["flash_source_fraction"] = 0.999
     assert make_fixture("cut", protocol).cut_index == protocol["settings"]["source_count"] - 1
-    assert make_fixture("flash", protocol).event_index("flash_source_fraction") == protocol["settings"]["source_count"] - 1
+    assert (
+        make_fixture("flash", protocol).event_index("flash_source_fraction")
+        == protocol["settings"]["source_count"] - 1
+    )
 
 
 def test_marker_metrics_record_missing_and_spurious_positions():
@@ -196,9 +231,15 @@ def test_rational_trace_and_shared_preview_exposure_are_saved(tmp_path):
         for result in record["modes"].values():
             linear = np.load(out / result["linear_file"])
             assert linear.dtype == np.float32 and np.isfinite(linear).all()
-            assert sha256((out / result["linear_file"]).read_bytes()).hexdigest() == result["linear_sha256"]
+            assert (
+                sha256((out / result["linear_file"]).read_bytes()).hexdigest()
+                == result["linear_sha256"]
+            )
     record = fixture["frames"][0]
-    arrays = [np.asarray(Image.open(out / record["modes"][mode]["preview_file"])) for mode in ("repeat", "analytic", "mci")]
+    arrays = [
+        np.asarray(Image.open(out / record["modes"][mode]["preview_file"]))
+        for mode in ("repeat", "analytic", "mci")
+    ]
     assert np.array_equal(arrays[0], arrays[1]) and np.array_equal(arrays[0], arrays[2])
 
 
@@ -215,18 +256,38 @@ def test_all_saved_artifact_bytes_are_deterministic_and_existing_outputs_reject(
 
 def test_optional_display_advances_capacity_once_per_mode_per_tick(tmp_path):
     dynamics = ABLDynamicsConfig(model="capacity_attack_release_v1", attack_ms=100, release_ms=1000)
-    report = experiment(tmp_path / "display", profile=load_profile("generic_woled"), abl_dynamics=dynamics)
+    report = experiment(
+        tmp_path / "display", profile=load_profile("generic_woled"), abl_dynamics=dynamics
+    )
     records = report["fixtures"][0]["frames"]
     for mode in ("repeat", "analytic", "mci"):
-        assert [r["modes"][mode]["capacity_trace"]["ticks"] for r in records] == list(range(1, len(records) + 1))
-        assert records[-1]["modes"][mode]["capacity_trace"]["elapsed_ms"] == pytest.approx(len(records) * 1000 / 60)
+        assert [r["modes"][mode]["capacity_trace"]["ticks"] for r in records] == list(
+            range(1, len(records) + 1)
+        )
+        assert records[-1]["modes"][mode]["capacity_trace"]["elapsed_ms"] == pytest.approx(
+            len(records) * 1000 / 60
+        )
     assert report["display"]["effective_profile"]["temporal"]["motion_px_per_frame"] == 0
 
 
 def test_cli_writes_offline_artifact_comparison_and_playback(tmp_path, capsys):
     out = tmp_path / "gallery"
-    main(["--fixtures", "occlusion", "thin_text", "--width", "48", "--height", "32",
-          "--source-count", "4", "--gallery", "--out", str(out)])
+    main(
+        [
+            "--fixtures",
+            "occlusion",
+            "thin_text",
+            "--width",
+            "48",
+            "--height",
+            "32",
+            "--source-count",
+            "4",
+            "--gallery",
+            "--out",
+            str(out),
+        ]
+    )
     assert "occlusion:" in capsys.readouterr().out
     html = (out / "index.html").read_text()
     assert "requestAnimationFrame" in html and "No named TV" in html

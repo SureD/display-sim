@@ -10,26 +10,36 @@ an additional baseline captured from committed pre-M9 HEAD protects M7's
 gallery additions, full manifest, and motion trace.
 All checks run after an M9 fit has been saved, loaded, and replayed, so opting
 into a separate fitting experiment cannot change later default rendering.
+Numeric report/gallery metadata uses authenticated captures and a tight
+tolerance for cross-platform floating-point roundoff; rendered bytes stay exact.
 """
 
 from __future__ import annotations
 
+import json
 from copy import deepcopy
 from hashlib import sha256
-import json
 from pathlib import Path
 
 import numpy as np
-from PIL import Image
 import pytest
+from golden_support import (
+    assert_numeric_metadata,
+    assert_validation_metrics,
+    gallery_manifest_baseline,
+    legacy_labels,
+)
+from PIL import Image
 
-from sim.gallery import PROFILE_NAMES, generate_gallery
-from sim.patterns import white_window
-from sim.pipeline import Pipeline
-import sim.profile as profiles
-from sim.profile import load_profile
-from sim.stages.encode import encode_frame
-from sim.validate import run_validation
+import tv_sim.profile as profiles
+from tv_sim.gallery import PROFILE_NAMES, generate_gallery
+from tv_sim.patterns import white_window
+from tv_sim.pipeline import Pipeline
+from tv_sim.profile import load_profile
+from tv_sim.stages.encode import encode_frame
+from tv_sim.validate import run_validation
+
+pytestmark = [pytest.mark.slow, pytest.mark.golden]
 
 BASELINE = Path(__file__).parent / "fixtures" / "memc_off_baseline.json"
 WINDOW_BASELINE = Path(__file__).parent / "fixtures" / "window_replay_off_baseline.json"
@@ -43,17 +53,19 @@ def after_window_fit(tmp_path_factory):
     No fitted result is installed as a default profile, and the fitter must
     leave its caller's profile untouched as well as the files on disk.
     """
-    from sim.provenance import load_provenance
-    from sim.window_replay import (
-        ReplayConditions, fit_windows, load_fit, replay_fit, save_fit,
+    from tv_sim.provenance import load_provenance
+    from tv_sim.window_replay import (
+        ReplayConditions,
+        fit_windows,
+        load_fit,
+        replay_fit,
+        save_fit,
     )
 
     root = tmp_path_factory.mktemp("m9-default-parity")
     profile_dir = root / "profiles"
     profile_dir.mkdir()
-    original_files = {
-        path.name: path.read_bytes() for path in profiles.PROFILES_DIR.glob("*.yaml")
-    }
+    original_files = {path.name: path.read_bytes() for path in profiles.PROFILES_DIR.glob("*.yaml")}
     for name, contents in original_files.items():
         (profile_dir / name).write_bytes(contents)
     with pytest.MonkeyPatch.context() as patch:
@@ -84,11 +96,15 @@ def after_window_fit(tmp_path_factory):
         assert replay_fit(baseline, restored)
         assert baseline == original_profile
         assert profiles.available_profiles() == original_names
-        assert {path.name: path.read_bytes() for path in profile_dir.glob("*.yaml")} == original_files
+        assert {
+            path.name: path.read_bytes() for path in profile_dir.glob("*.yaml")
+        } == original_files
         yield artifact
         assert baseline == original_profile
         assert profiles.available_profiles() == original_names
-        assert {path.name: path.read_bytes() for path in profile_dir.glob("*.yaml")} == original_files
+        assert {
+            path.name: path.read_bytes() for path in profile_dir.glob("*.yaml")
+        } == original_files
 
 
 def _array_digest(array: np.ndarray | None) -> dict | None:
@@ -106,12 +122,18 @@ def _inputs() -> tuple[list[np.ndarray], list[np.ndarray]]:
     """Fixed encoded test pictures, independent of the motion implementation."""
     height, width = 48, 96
     y, x = np.indices((height, width), dtype=np.int32)
-    pattern = np.stack(((3*x + 5*y) % 256, (11*x + y) % 256,
-                        (x + 13*y) % 256), axis=-1).astype(np.uint8)
-    stills = [white_window(height, width, fraction=.1), pattern]
-    sequence = [np.zeros_like(pattern), pattern,
-                np.roll(pattern, 7, axis=1), np.full_like(pattern, 255),
-                np.roll(pattern, -5, axis=1), np.zeros_like(pattern)]
+    pattern = np.stack(
+        ((3 * x + 5 * y) % 256, (11 * x + y) % 256, (x + 13 * y) % 256), axis=-1
+    ).astype(np.uint8)
+    stills = [white_window(height, width, fraction=0.1), pattern]
+    sequence = [
+        np.zeros_like(pattern),
+        pattern,
+        np.roll(pattern, 7, axis=1),
+        np.full_like(pattern, 255),
+        np.roll(pattern, -5, axis=1),
+        np.zeros_like(pattern),
+    ]
     return stills, sequence
 
 
@@ -127,7 +149,8 @@ def _state_digest(pipeline: Pipeline) -> dict:
     return {
         "panel_previous": _array_digest(pipeline.state.previous),
         "load_apl_nits_hex": (
-            None if pipeline.load_state.apl_nits is None
+            None
+            if pipeline.load_state.apl_nits is None
             else float(pipeline.load_state.apl_nits).hex()
         ),
     }
@@ -139,8 +162,9 @@ def _pipeline_snapshot(profile) -> dict:
     for source in stills:
         pipeline = Pipeline(profile)
         frame = pipeline.run_linear(source)
-        still_results.append(dict(_frame_digest(frame, profile),
-                                  final_state=_state_digest(pipeline)))
+        still_results.append(
+            dict(_frame_digest(frame, profile), final_state=_state_digest(pipeline))
+        )
         # Exercise the public preview entry point with an independent history.
         assert _array_digest(Pipeline(profile).run(source)) == still_results[-1]["preview"]
     pipeline = Pipeline(profile)
@@ -149,29 +173,24 @@ def _pipeline_snapshot(profile) -> dict:
     assert [_array_digest(previews.run(source)) for source in sequence] == [
         frame["preview"] for frame in frames
     ]
-    return {"stills": still_results, "sequence": frames,
-            "final_state": _state_digest(pipeline)}
+    return {"stills": still_results, "sequence": frames, "final_state": _state_digest(pipeline)}
 
 
 def _png_digests(out: Path, names: list[str] | None = None) -> dict:
     paths = sorted(out.glob("*.png")) if names is None else [out / name for name in names]
-    return {path.name: _array_digest(np.asarray(Image.open(path).convert("RGB")))
-            for path in paths}
+    return {path.name: _array_digest(np.asarray(Image.open(path).convert("RGB"))) for path in paths}
 
 
-def _validation_snapshot(out: Path) -> dict:
+def _assert_validation_snapshot(out: Path, expected: dict) -> None:
     run_validation(list(PROFILE_NAMES), out)
-    return {
-        "metrics_json_sha256": sha256((out / "metrics.json").read_bytes()).hexdigest(),
-        "metrics_csv_sha256": sha256((out / "metrics.csv").read_bytes()).hexdigest(),
-        "decoded_previews": _png_digests(out),
-    }
+    assert_validation_metrics(out, expected)
+    assert _png_digests(out) == expected["decoded_previews"]
 
 
 def _gallery_snapshot(out: Path) -> dict:
     manifest = generate_gallery(out, width=160, height=96)
     return {
-        "manifest": manifest,
+        "manifest": legacy_labels(manifest),
         "decoded_previews": _png_digests(out),
         "manifest_json_sha256": sha256((out / "manifest.json").read_bytes()).hexdigest(),
         "memc_trace_json_sha256": sha256((out / "memc_trace.json").read_bytes()).hexdigest(),
@@ -194,11 +213,13 @@ def test_default_pipeline_matches_pre_memc_golden(name, memc_off_baseline):
 
 
 def test_original_validation_harness_matches_pre_memc_golden(tmp_path, memc_off_baseline):
-    assert _validation_snapshot(tmp_path / "validate") == memc_off_baseline["validation"]
+    _assert_validation_snapshot(tmp_path / "validate", memc_off_baseline["validation"])
 
 
 def test_existing_gallery_matches_pre_memc_golden(
-    tmp_path, memc_off_baseline, window_replay_off_baseline,
+    tmp_path,
+    memc_off_baseline,
+    window_replay_off_baseline,
 ):
     current = _gallery_snapshot(tmp_path / "gallery")
     expected = memc_off_baseline["gallery"]
@@ -207,19 +228,31 @@ def test_existing_gallery_matches_pre_memc_golden(
     current_manifest = current["manifest"]
     # The second static capture includes M7's opt-in demonstrations. It was
     # generated by isolated committed HEAD code, never this implementation.
-    assert current["manifest_json_sha256"] == expected_m9["manifest_json_sha256"]
+    assert_numeric_metadata(
+        current_manifest, gallery_manifest_baseline(expected_m9["manifest_json_sha256"])
+    )
     assert current["memc_trace_json_sha256"] == expected_m9["memc_trace_json_sha256"]
-    assert [sheet for sheet in current_manifest["sheets"] if sheet["id"] not in legacy_ids] == expected_m9["additional_sheets"]
-    assert {name: current["decoded_previews"][name] for name in expected_m9["decoded_previews"]} == expected_m9["decoded_previews"]
+    assert_numeric_metadata(
+        [sheet for sheet in current_manifest["sheets"] if sheet["id"] not in legacy_ids],
+        expected_m9["additional_sheets"],
+    )
+    assert {
+        name: current["decoded_previews"][name] for name in expected_m9["decoded_previews"]
+    } == expected_m9["decoded_previews"]
     # Retain every older sheet, row, exposure, profile setting and pixel too.
-    current_manifest["sheets"] = [sheet for sheet in current_manifest["sheets"]
-                                  if sheet["id"] in legacy_ids]
-    assert {key: current_manifest[key] for key in expected["manifest"]} == expected["manifest"]
-    assert {name: current["decoded_previews"][name] for name in expected["decoded_previews"]} == expected["decoded_previews"]
+    current_manifest["sheets"] = [
+        sheet for sheet in current_manifest["sheets"] if sheet["id"] in legacy_ids
+    ]
+    assert_numeric_metadata(
+        {key: current_manifest[key] for key in expected["manifest"]}, expected["manifest"]
+    )
+    assert {
+        name: current["decoded_previews"][name] for name in expected["decoded_previews"]
+    } == expected["decoded_previews"]
 
 
 def _sequence_api_snapshot(profile, *, explicit_off: bool) -> dict:
-    from sim.sequence import MotionConfig
+    from tv_sim.sequence import MotionConfig
 
     stills, sequence = _inputs()
     config = MotionConfig(mode="off") if explicit_off else None
@@ -228,17 +261,23 @@ def _sequence_api_snapshot(profile, *, explicit_off: bool) -> dict:
         pipeline = Pipeline(profile)
         outputs = list(pipeline.run_sequence([source], config))
         assert len(outputs) == 1
-        still_results.append(dict(_frame_digest(outputs[0].frame, profile),
-                                  final_state=_state_digest(pipeline)))
+        still_results.append(
+            dict(_frame_digest(outputs[0].frame, profile), final_state=_state_digest(pipeline))
+        )
     pipeline = Pipeline(profile)
     outputs = list(pipeline.run_sequence(sequence, config))
     assert len(outputs) == len(sequence)
-    return {"stills": still_results,
-            "sequence": [_frame_digest(output.frame, profile) for output in outputs],
-            "final_state": _state_digest(pipeline)}
+    return {
+        "stills": still_results,
+        "sequence": [_frame_digest(output.frame, profile) for output in outputs],
+        "final_state": _state_digest(pipeline),
+    }
 
 
 @pytest.mark.parametrize("name", PROFILE_NAMES)
 @pytest.mark.parametrize("explicit_off", [False, True], ids=["default", "explicit-off"])
 def test_sequence_bypass_matches_pre_memc_golden(name, explicit_off, memc_off_baseline):
-    assert _sequence_api_snapshot(load_profile(name), explicit_off=explicit_off) == memc_off_baseline["pipeline"][name]
+    assert (
+        _sequence_api_snapshot(load_profile(name), explicit_off=explicit_off)
+        == memc_off_baseline["pipeline"][name]
+    )
