@@ -14,6 +14,7 @@ contain conclusions superseded by later milestones; use the
 | [M16 repository engineering](M16-repo-engineering.md) | Repository migration, verification, and suggested commit split. |
 | [M17 LCD zone dynamics](M17-zone-temporal.md) | Zone-controller model, synthetic artifacts, verification and suggested commit split. |
 | [M18 sub-frame temporal emission](M18-subframe-temporal.md) | LC/OD/PWM/strobe/BFI model, pursuit/flicker artifacts and exact verification. |
+| [M19 CI portability](M19-ci-green.md) | NumPy typing, authenticated numerical goldens and complete Python 3.11/3.12 Linux verification. |
 
 Generated assets remain under [`reports/`](../../reports/):
 [default gallery](../../reports/gallery/index.html),

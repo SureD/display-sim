@@ -2,7 +2,9 @@
 
 ## Setup
 
-Use Python 3.11 or 3.12 to match CI. The package also declares Python ≥3.11.
+The runtime supports Python ≥3.11 (no declared upper bound); the required CI
+matrix covers CPython 3.11 and 3.12 on Ubuntu and macOS. Python 3.13 is also
+declared in the package classifiers. Use 3.11 or 3.12 to reproduce CI.
 From the repository root:
 
 ```sh
@@ -19,10 +21,17 @@ is on `PATH`. NumPy, Pillow, and PyYAML are the runtime dependencies. The src
 layout requires installing the package before invoking the CLI or Python API;
 loading bundled profiles/protocols does not depend on the working directory.
 
-The dev extra pins Matplotlib to the renderer used by historical trace-chart
-goldens. Normal runtime installs can use the existing Pillow chart fallback;
-run the full golden suite with the dev extra installed so its chart backend is
-reproducible. Matplotlib is not required for simulation or ordinary previews.
+The dev extra pins NumPy 2.4.6 (including its bundled type stubs), Pillow 13.0.0,
+PyYAML 6.0.3, pytest 8.4.2, Ruff 0.14.1, mypy 1.18.2,
+types-PyYAML 6.0.12.20250915, pre-commit 4.3.0, build 1.3.0 and Matplotlib
+3.11.2. The Ruff pre-commit revision matches the dev extra. CI and `make install`
+both install this same extra; runtime-only installs retain their broader lower
+bounds. NumPy 2.5.4 requires Python ≥3.12, so an unpinned install selected
+different NumPy versions and typing overloads on the two CI Python versions.
+
+Matplotlib supplies the historical trace-chart backend. Normal runtime installs
+can use the Pillow chart fallback; run the full golden suite with the dev extra
+installed. Matplotlib is not required for simulation or ordinary previews.
 
 ## Checks and tests
 
@@ -48,9 +57,41 @@ python -m pytest -q -m slow
 
 The full suite, including slow tests, is required for a model or packaging change.
 CI runs lint/type checks plus tests on Linux and macOS with Python 3.11/3.12.
-Platform-sensitive numerical checks use the documented tolerance while exact
-parity remains required for byte-stable outputs on the reference platform.
+Historical rendered values use the tolerances documented in
+[the test guide](../tests/README.md). Same-machine default-path off/on comparisons,
+checkpoint continuation, discrete data and rational traces retain exact parity.
 Do not regenerate golden expectations to conceal an unreviewed behavior change.
+
+To run both Linux CI environments without reusing another worktree's install:
+
+```sh
+export UV_CACHE_DIR=/tmp/m19-uv-cache
+export UV_PYTHON_INSTALL_DIR=/tmp/m19-python
+uv python install 3.11 3.12
+for version in 3.11 3.12; do
+    env_dir="/tmp/m19-py${version//./}"
+    uv venv --seed --python "$version" "$env_dir"
+    "$env_dir/bin/python" -m pip install -e '.[dev]'
+    make PYTHON="$env_dir/bin/python" lint typecheck docs-check
+    "$env_dir/bin/python" -m pytest -q
+    "$env_dir/bin/python" -m build --outdir "/tmp/m19-dist-${version}"
+    uv venv --seed --python "$version" "/tmp/m19-wheel-${version}"
+    "/tmp/m19-wheel-${version}/bin/python" -m pip install "/tmp/m19-dist-${version}"/*.whl
+    (
+        cd /tmp
+        "/tmp/m19-wheel-${version}/bin/tv-sim" --help
+        "/tmp/m19-wheel-${version}/bin/python" -m tv_sim provenance --check
+        "/tmp/m19-wheel-${version}/bin/python" -m sim --help
+    )
+done
+```
+
+This loop uses Bash's version-string substitution. Run it from the checkout;
+use fresh environment/output paths when repeating it. The wheel smoke check uses
+a separate environment outside the checkout so it cannot import editable source.
+The workflow's quality job builds and force-reinstalls the wheel; the separate
+test matrix also checks the editable CLI and bundled evidence from a temporary
+working directory. Linux reproduction does not replace the macOS Actions jobs.
 
 ## Regenerate inspectable artifacts
 
