@@ -1,12 +1,12 @@
-"""Exact pre-M15 captures supplement the existing M7/M9/M13/M14 goldens.
+"""Authenticated pre-M15 captures supplement the M7/M9/M13/M14 goldens.
 
 The existing fixtures cover default pipelines, the full M4 validation harness,
 the default/M10 galleries, M9 replay, M7 scheduling, M13 enabled experiments,
 and every web-export asset. This fixture adds M14's inferred MCI sequence and
 CLI outputs plus its complete synthetic validation/gallery artifacts, including
-an enabled M13 display tail. Captures precede all M15 runtime edits. Array and
-asset comparisons use exact bytes; JSON excludes implementation fingerprints
-only, since implementation identity necessarily changes with new code.
+an enabled M13 display tail. Captures precede all M15 runtime edits. Historical
+rendered values use golden_support's declared tolerances; stable JSON metadata
+and rational traces remain exact. Implementation fingerprints are excluded.
 """
 
 from __future__ import annotations
@@ -19,7 +19,8 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-from golden_support import legacy_labels
+from golden_support import array_digest as _array_digest
+from golden_support import assert_historical_snapshot, legacy_labels, rendered_file_digest
 from PIL import Image
 
 from tv_sim.abl_dynamics import ABLDynamicsConfig
@@ -33,17 +34,6 @@ from tv_sim.stages.encode import encode_frame
 pytestmark = [pytest.mark.slow, pytest.mark.golden]
 
 BASELINE = Path(__file__).parent / "fixtures" / "colorimetry_off_baseline.json"
-
-
-def _array_digest(array):
-    if array is None:
-        return None
-    array = np.ascontiguousarray(array)
-    return {
-        "shape": list(array.shape),
-        "dtype": str(array.dtype),
-        "sha256": sha256(array.tobytes()).hexdigest(),
-    }
 
 
 def _inputs():
@@ -81,7 +71,9 @@ def _sequence_snapshot(name, *, pipeline_kwargs=None):
             {
                 "rgb": _array_digest(output.frame.rgb),
                 "backlight": _array_digest(output.frame.backlight),
-                "preview": _array_digest(encode_frame(output.frame, pipeline.profile.output)),
+                "preview": _array_digest(
+                    encode_frame(output.frame, pipeline.profile.output), preview=True
+                ),
                 "diagnostics": output.diagnostics,
                 "motion_maps": None
                 if output.motion_maps is None
@@ -116,16 +108,21 @@ def _artifact_snapshot(out):
             continue
         if path.suffix == ".json":
             value = json.loads(path.read_text(encoding="utf-8"))
+            if path.name.endswith(".state.json"):
+                from tv_sim.abl_dynamics import digest
+
+                assert value["checkpoint_sha256"] == digest(
+                    {key: item for key, item in value.items() if key != "checkpoint_sha256"}
+                )
             if path.name == "manifest.json" and "sources" in value:
                 for source in value["sources"]:
                     source["file"] = Path(source["file"]).name
             payload = json.dumps(_substantive_json(value), sort_keys=True, allow_nan=False).encode()
         else:
             payload = path.read_bytes()
-        files[path.relative_to(out).as_posix()] = {
-            "bytes": len(payload),
-            "sha256": sha256(payload).hexdigest(),
-        }
+        files[path.relative_to(out).as_posix()] = rendered_file_digest(
+            path, {"bytes": len(payload), "sha256": sha256(payload).hexdigest()}, payload=payload
+        )
     return files
 
 
@@ -253,7 +250,7 @@ def after_enabled_colorimetry():
 def test_m14_mci_sequence_matches_pre_m15(name, explicit_off, monkeypatch, baseline):
     if explicit_off:
         _force_explicit_off(monkeypatch)
-    assert _sequence_snapshot(name) == baseline["mci_sequence"][name]
+    assert_historical_snapshot(_sequence_snapshot(name), baseline["mci_sequence"][name])
 
 
 @pytest.mark.parametrize("name", PROFILE_NAMES)
@@ -261,7 +258,7 @@ def test_m14_mci_sequence_matches_pre_m15(name, explicit_off, monkeypatch, basel
 def test_m14_mci_cli_assets_match_pre_m15(tmp_path, name, explicit_off, monkeypatch, baseline):
     if explicit_off:
         _force_explicit_off(monkeypatch)
-    assert _motion_cli_snapshot(tmp_path, name) == baseline["mci_cli"][name]
+    assert_historical_snapshot(_motion_cli_snapshot(tmp_path, name), baseline["mci_cli"][name])
 
 
 @pytest.mark.parametrize(
@@ -275,9 +272,9 @@ def test_m14_validation_and_gallery_assets_match_pre_m15(
 ):
     if explicit_off:
         _force_explicit_off(monkeypatch)
-    assert (
-        _validation_snapshot(tmp_path / "validation", name)
-        == baseline["motion_validation"][str(name)]
+    assert_historical_snapshot(
+        _validation_snapshot(tmp_path / "validation", name),
+        baseline["motion_validation"][str(name)],
     )
 
 
@@ -287,8 +284,8 @@ def test_explicit_off_pipeline_and_m10_match_pre_m13(name, angular, monkeypatch)
     legacy = importlib.import_module("test_oled_dynamics_parity")
     _force_explicit_off(monkeypatch)
     expected = _legacy_baseline("oled_dynamics_off_baseline.json")
-    assert (
-        legacy._pipeline_snapshot(name, angular=angular) == expected["pipeline"][name][str(angular)]
+    assert_historical_snapshot(
+        legacy._pipeline_snapshot(name, angular=angular), expected["pipeline"][name][str(angular)]
     )
 
 
@@ -298,7 +295,9 @@ def test_explicit_off_m7_sequences_match_pre_m13(name, mode, monkeypatch):
     legacy = importlib.import_module("test_oled_dynamics_parity")
     _force_explicit_off(monkeypatch)
     expected = _legacy_baseline("oled_dynamics_off_baseline.json")
-    assert legacy._sequence_snapshot(name, mode) == expected["sequence"][name][mode]
+    assert_historical_snapshot(
+        legacy._sequence_snapshot(name, mode), expected["sequence"][name][mode]
+    )
 
 
 @pytest.mark.parametrize("name", PROFILE_NAMES)
@@ -306,7 +305,7 @@ def test_explicit_off_m9_replay_matches_pre_m13(name, monkeypatch):
     legacy = importlib.import_module("test_oled_dynamics_parity")
     _force_explicit_off(monkeypatch)
     expected = _legacy_baseline("oled_dynamics_off_baseline.json")
-    assert legacy._window_snapshot(name) == expected["m9_replay"][name]
+    assert_historical_snapshot(legacy._window_snapshot(name), expected["m9_replay"][name])
 
 
 @pytest.mark.parametrize("angular", [False, True], ids=["default", "M10-angular"])
@@ -323,7 +322,7 @@ def test_explicit_off_web_assets_match_pre_m13(tmp_path, monkeypatch):
     legacy = importlib.import_module("test_oled_dynamics_parity")
     _force_explicit_off(monkeypatch)
     expected = _legacy_baseline("oled_dynamics_off_baseline.json")
-    assert legacy._export_snapshot(tmp_path / "web") == expected["export"]
+    assert_historical_snapshot(legacy._export_snapshot(tmp_path / "web"), expected["export"])
 
 
 def test_explicit_off_validation_matches_pre_m7(tmp_path, monkeypatch):
@@ -338,7 +337,9 @@ def test_explicit_off_m13_enabled_experiments_match_pre_m14(tmp_path, name, monk
     legacy = importlib.import_module("test_m14_parity")
     _force_explicit_off(monkeypatch)
     expected = _legacy_baseline("m14_current_baseline.json")
-    assert legacy._oled_dynamics_snapshot(tmp_path, name) == expected["oled_dynamics"][name]
+    assert_historical_snapshot(
+        legacy._oled_dynamics_snapshot(tmp_path, name), expected["oled_dynamics"][name]
+    )
 
 
 @pytest.mark.parametrize("name", PROFILE_NAMES)
@@ -347,4 +348,6 @@ def test_explicit_off_m7_cli_matches_pre_m14(tmp_path, name, mode, monkeypatch):
     legacy = importlib.import_module("test_m14_parity")
     _force_explicit_off(monkeypatch)
     expected = _legacy_baseline("m14_current_baseline.json")
-    assert legacy._motion_cli_snapshot(tmp_path, name, mode) == expected["motion_cli"][name][mode]
+    assert_historical_snapshot(
+        legacy._motion_cli_snapshot(tmp_path, name, mode), expected["motion_cli"][name][mode]
+    )

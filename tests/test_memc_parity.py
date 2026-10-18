@@ -1,9 +1,9 @@
 """Static pre-MEMC goldens protect the default/off display path.
 
 Captured before the M7 implementation, rather than deriving expected outputs
-from a second execution of the implementation under test. Arrays are hashed as
-contiguous bytes with their shape/dtype so float32 parity is exact. PNG parity
-uses decoded pixels, independent of compression/metadata. The original M4
+from a second execution of the implementation under test. Original byte hashes
+authenticate saved references; historical arrays and decoded previews use the
+declared numerical tolerances with strict shape/dtype checks. The original M4
 harness is exercised at its full 384x216 defaults, including its historic load
 state convention. Gallery comparisons retain every pre-M7 sheet and setting;
 an additional baseline captured from committed pre-M9 HEAD protects M7's
@@ -11,7 +11,8 @@ gallery additions, full manifest, and motion trace.
 All checks run after an M9 fit has been saved, loaded, and replayed, so opting
 into a separate fitting experiment cannot change later default rendering.
 Numeric report/gallery metadata uses authenticated captures and a tight
-tolerance for cross-platform floating-point roundoff; rendered bytes stay exact.
+tolerance for cross-platform floating-point roundoff. Same-machine byte parity
+and rational traces remain exact.
 """
 
 from __future__ import annotations
@@ -24,6 +25,10 @@ from pathlib import Path
 import numpy as np
 import pytest
 from golden_support import (
+    array_digest as _array_digest,
+)
+from golden_support import (
+    assert_historical_snapshot,
     assert_numeric_metadata,
     assert_validation_metrics,
     gallery_manifest_baseline,
@@ -107,17 +112,6 @@ def after_window_fit(tmp_path_factory):
         } == original_files
 
 
-def _array_digest(array: np.ndarray | None) -> dict | None:
-    if array is None:
-        return None
-    array = np.ascontiguousarray(array)
-    return {
-        "shape": list(array.shape),
-        "dtype": str(array.dtype),
-        "sha256": sha256(array.tobytes()).hexdigest(),
-    }
-
-
 def _inputs() -> tuple[list[np.ndarray], list[np.ndarray]]:
     """Fixed encoded test pictures, independent of the motion implementation."""
     height, width = 48, 96
@@ -141,7 +135,7 @@ def _frame_digest(frame, profile) -> dict:
     return {
         "rgb": _array_digest(frame.rgb),
         "backlight": _array_digest(frame.backlight),
-        "preview": _array_digest(encode_frame(frame, profile.output)),
+        "preview": _array_digest(encode_frame(frame, profile.output), preview=True),
     }
 
 
@@ -178,13 +172,16 @@ def _pipeline_snapshot(profile) -> dict:
 
 def _png_digests(out: Path, names: list[str] | None = None) -> dict:
     paths = sorted(out.glob("*.png")) if names is None else [out / name for name in names]
-    return {path.name: _array_digest(np.asarray(Image.open(path).convert("RGB"))) for path in paths}
+    return {
+        path.name: _array_digest(np.asarray(Image.open(path).convert("RGB")), preview=True)
+        for path in paths
+    }
 
 
 def _assert_validation_snapshot(out: Path, expected: dict) -> None:
     run_validation(list(PROFILE_NAMES), out)
     assert_validation_metrics(out, expected)
-    assert _png_digests(out) == expected["decoded_previews"]
+    assert_historical_snapshot(_png_digests(out), expected["decoded_previews"])
 
 
 def _gallery_snapshot(out: Path) -> dict:
@@ -209,7 +206,9 @@ def window_replay_off_baseline():
 
 @pytest.mark.parametrize("name", PROFILE_NAMES)
 def test_default_pipeline_matches_pre_memc_golden(name, memc_off_baseline):
-    assert _pipeline_snapshot(load_profile(name)) == memc_off_baseline["pipeline"][name]
+    assert_historical_snapshot(
+        _pipeline_snapshot(load_profile(name)), memc_off_baseline["pipeline"][name]
+    )
 
 
 def test_original_validation_harness_matches_pre_memc_golden(tmp_path, memc_off_baseline):
@@ -231,14 +230,17 @@ def test_existing_gallery_matches_pre_memc_golden(
     assert_numeric_metadata(
         current_manifest, gallery_manifest_baseline(expected_m9["manifest_json_sha256"])
     )
-    assert current["memc_trace_json_sha256"] == expected_m9["memc_trace_json_sha256"]
+    assert_historical_snapshot(
+        current["memc_trace_json_sha256"], expected_m9["memc_trace_json_sha256"]
+    )
     assert_numeric_metadata(
         [sheet for sheet in current_manifest["sheets"] if sheet["id"] not in legacy_ids],
         expected_m9["additional_sheets"],
     )
-    assert {
-        name: current["decoded_previews"][name] for name in expected_m9["decoded_previews"]
-    } == expected_m9["decoded_previews"]
+    assert_historical_snapshot(
+        {name: current["decoded_previews"][name] for name in expected_m9["decoded_previews"]},
+        expected_m9["decoded_previews"],
+    )
     # Retain every older sheet, row, exposure, profile setting and pixel too.
     current_manifest["sheets"] = [
         sheet for sheet in current_manifest["sheets"] if sheet["id"] in legacy_ids
@@ -246,9 +248,10 @@ def test_existing_gallery_matches_pre_memc_golden(
     assert_numeric_metadata(
         {key: current_manifest[key] for key in expected["manifest"]}, expected["manifest"]
     )
-    assert {
-        name: current["decoded_previews"][name] for name in expected["decoded_previews"]
-    } == expected["decoded_previews"]
+    assert_historical_snapshot(
+        {name: current["decoded_previews"][name] for name in expected["decoded_previews"]},
+        expected["decoded_previews"],
+    )
 
 
 def _sequence_api_snapshot(profile, *, explicit_off: bool) -> dict:
@@ -277,7 +280,7 @@ def _sequence_api_snapshot(profile, *, explicit_off: bool) -> dict:
 @pytest.mark.parametrize("name", PROFILE_NAMES)
 @pytest.mark.parametrize("explicit_off", [False, True], ids=["default", "explicit-off"])
 def test_sequence_bypass_matches_pre_memc_golden(name, explicit_off, memc_off_baseline):
-    assert (
-        _sequence_api_snapshot(load_profile(name), explicit_off=explicit_off)
-        == memc_off_baseline["pipeline"][name]
+    assert_historical_snapshot(
+        _sequence_api_snapshot(load_profile(name), explicit_off=explicit_off),
+        memc_off_baseline["pipeline"][name],
     )

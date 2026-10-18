@@ -1,25 +1,279 @@
 """Compare historical artifacts without tying numeric metadata to one CPU.
 
-Rendered pixels, arrays, profile bytes and trace hashes remain exact. Only
-floating-point metadata accepts a 2e-6 relative / 1e-7 absolute tolerance.
+Historical rendered arrays accept 2e-6 relative / 1e-7 absolute roundoff;
+decoded eight-bit previews accept one code value. Profile bytes, discrete
+arrays, text, trace hashes and same-machine comparisons remain exact.
 The legacy label substitutions account solely for M16's package/docs moves.
 """
 
 from __future__ import annotations
 
 import csv
+import io
 import json
+from functools import lru_cache
 from hashlib import sha256
 from pathlib import Path
 from typing import Any
 
+import numpy as np
 import pytest
+from PIL import Image
 
 FIXTURES = Path(__file__).parent / "fixtures"
 
 
+class RenderedDigest(dict):
+    """An ordinary exact digest record retaining values for historical checks.
+
+    Equality remains normal dictionary equality. Only the explicit
+    ``assert_historical_snapshot`` comparison permits numerical roundoff.
+    """
+
+    def __init__(self, record: dict, values: np.ndarray, *, preview: bool = False):
+        super().__init__(record)
+        self.values = np.array(values, copy=True)
+        self.preview = preview
+        self.file_kind: str | None = None
+        self.payload: bytes | None = None
+        self.file_path: Path | None = None
+
+
+class NumericResult(float):
+    """A derived statistic with an explicit tolerance; ordinary equality stays exact."""
+
+    def __new__(cls, value: float, *, rel: float, absolute: float):
+        result = super().__new__(cls, value)
+        result.rel = rel
+        result.absolute = absolute
+        return result
+
+
+def array_digest(array: np.ndarray | None, *, preview: bool = False) -> RenderedDigest | None:
+    if array is None:
+        return None
+    array = np.ascontiguousarray(array)
+    return RenderedDigest(
+        {
+            "shape": list(array.shape),
+            "dtype": str(array.dtype),
+            "sha256": sha256(array.tobytes()).hexdigest(),
+        },
+        array,
+        preview=preview,
+    )
+
+
+def rendered_file_digest(
+    path: Path, record: dict, *, payload: bytes | None = None
+) -> RenderedDigest | dict:
+    """Decode rendered files; retain exact hashes for all other artifact kinds."""
+    if path.suffix == ".png":
+        with Image.open(path) as image:
+            result = RenderedDigest(record, np.asarray(image), preview=True)
+    elif path.suffix == ".npz":
+        result = RenderedDigest(record, np.frombuffer(path.read_bytes(), dtype=np.uint8))
+    elif path.suffix == ".npy":
+        result = RenderedDigest(record, np.load(path, allow_pickle=False))
+    elif path.suffix == ".f16":
+        result = RenderedDigest(record, np.fromfile(path, dtype="<f2"))
+    elif (
+        path.name == "motion-validation.json"
+        or path.name.endswith(".state.json")
+        or (
+            path.name == "manifest.json" and payload is not None and "trials" in json.loads(payload)
+        )
+    ):
+        assert payload is not None
+        result = RenderedDigest(record, np.frombuffer(payload, dtype=np.uint8))
+    else:
+        return record
+    result.file_kind = path.suffix
+    result.payload = path.read_bytes() if payload is None else payload
+    result.file_path = path
+    return result
+
+
+@lru_cache(maxsize=1)
+def _rendered_references() -> dict[str, np.ndarray]:
+    with np.load(FIXTURES / "rendered_reference_values.npz", allow_pickle=False) as archive:
+        return {key: archive[key] for key in archive.files}
+
+
+def assert_rendered_reference(actual: RenderedDigest, expected: dict, path: str) -> None:
+    """Compare with values authenticated against the original captured digest."""
+    reference = _rendered_references()[expected["sha256"]]
+    if actual.file_kind is not None:
+        payload = reference.tobytes()
+        assert sha256(payload).hexdigest() == expected["sha256"], path
+        if "bytes" in expected:
+            assert len(payload) == expected["bytes"], path
+        if actual.file_kind == ".png":
+            with Image.open(io.BytesIO(payload)) as image:
+                reference = np.asarray(image)
+        elif actual.file_kind == ".npy":
+            reference = np.load(io.BytesIO(payload), allow_pickle=False)
+        elif actual.file_kind == ".npz":
+            with (
+                np.load(io.BytesIO(actual.payload), allow_pickle=False) as current,
+                np.load(io.BytesIO(payload), allow_pickle=False) as saved,
+            ):
+                assert set(current.files) == set(saved.files), path
+                for name in saved.files:
+                    _assert_array_values(current[name], saved[name], False, f"{path}.{name}")
+            return
+        elif actual.file_kind == ".f16":
+            reference = np.frombuffer(payload, dtype="<f2")
+        else:
+            current, saved = json.loads(actual.payload), json.loads(payload)
+            if actual.file_path.name == "motion-validation.json":
+                current = link_rendered_hashes(current, actual.file_path.parent)
+            _assert_report_fields(current, saved, path)
+            return
+    if actual.file_kind is None:
+        assert sha256(reference.tobytes()).hexdigest() == expected["sha256"], path
+        # Identical bytes can represent, for example, both bool and uint8 masks.
+        # SHA keys deduplicate bytes; the historical record owns shape and dtype.
+        reference = np.frombuffer(
+            reference.tobytes(), dtype=np.dtype(expected.get("dtype", actual.values.dtype))
+        ).reshape(expected.get("shape", actual.values.shape))
+    if "shape" in expected:
+        assert actual["shape"] == expected["shape"], path
+        assert actual["dtype"] == expected["dtype"], path
+        assert sha256(reference.tobytes()).hexdigest() == expected["sha256"], path
+    _assert_array_values(actual.values, reference, actual.preview, path)
+
+
+def _assert_array_values(
+    actual: np.ndarray, reference: np.ndarray, preview: bool, path: str
+) -> None:
+    assert actual.shape == reference.shape, path
+    assert actual.dtype == reference.dtype, path
+    if preview:
+        # Quantising a float preview can move a boundary by one eight-bit step.
+        # Compare signed values so uint8 subtraction cannot wrap around.
+        np.testing.assert_allclose(
+            actual.astype(np.int16),
+            reference.astype(np.int16),
+            rtol=0,
+            atol=1,
+            err_msg=path,
+        )
+    elif np.issubdtype(reference.dtype, np.floating):
+        assert np.isfinite(actual).all() and np.isfinite(reference).all(), path
+        if reference.dtype.itemsize == 2:
+            # Half precision exports may quantise adjacent float32 results to
+            # neighbouring codes. Ordered float16 codes also handle binade
+            # boundaries, subnormals, negative values and the largest finite value.
+            def ordered(values):
+                bits = values.view(np.uint16).astype(np.int32)
+                return np.where(bits & 0x8000, 0x8000 - (bits & 0x7FFF), 0x8000 + bits)
+
+            assert np.all(np.abs(ordered(actual) - ordered(reference)) <= 1), path
+        else:
+            rel, absolute = (1e-12, 1e-12) if reference.dtype.itemsize == 8 else (2e-6, 1e-7)
+            np.testing.assert_allclose(actual, reference, rtol=rel, atol=absolute, err_msg=path)
+    else:
+        np.testing.assert_array_equal(actual, reference, err_msg=path)
+
+
+def assert_historical_snapshot(actual: Any, expected: Any, path: str = "root") -> None:
+    """Only decoded rendered values tolerate roundoff; metadata remains exact."""
+    if isinstance(actual, RenderedDigest):
+        if isinstance(expected, str):
+            expected = {"sha256": expected}
+        assert actual.keys() == expected.keys(), path
+        assert_rendered_reference(actual, expected, path)
+    elif isinstance(actual, NumericResult):
+        assert type(expected) is float, path
+        assert actual == pytest.approx(expected, rel=actual.rel, abs=actual.absolute), path
+    elif isinstance(expected, dict):
+        assert isinstance(actual, dict) and actual.keys() == expected.keys(), path
+        for key, value in expected.items():
+            assert_historical_snapshot(actual[key], value, f"{path}.{key}")
+    elif isinstance(expected, list):
+        assert isinstance(actual, list) and len(actual) == len(expected), path
+        for index, value in enumerate(expected):
+            assert_historical_snapshot(actual[index], value, f"{path}[{index}]")
+    else:
+        assert type(actual) is type(expected) and actual == expected, path
+
+
+def _assert_report_fields(actual: Any, expected: Any, path: str) -> None:
+    """Allow roundoff only in derived image/trajectory metrics, never metadata.
+
+    Python 3.12 changed float ``sum`` accuracy; the aggregated M14 MAEs can
+    differ by one float64 ULP from captures made on Python 3.13.
+    """
+    if isinstance(actual, RenderedDigest):
+        assert_historical_snapshot(actual, expected, path)
+    elif isinstance(expected, dict):
+        assert isinstance(actual, dict) and actual.keys() == expected.keys(), path
+        for key, value in expected.items():
+            _assert_report_fields(actual[key], value, f"{path}.{key}")
+    elif isinstance(expected, list):
+        assert isinstance(actual, list) and len(actual) == len(expected), path
+        for index, value in enumerate(expected):
+            _assert_report_fields(actual[index], value, f"{path}[{index}]")
+    elif (
+        isinstance(expected, float)
+        and (".summary." in path or ".metrics." in path)
+        and (
+            path.rsplit(".", 1)[-1]
+            in {
+                "absolute_luma_error_sum_nits",
+                "linear_luma_mae_nits",
+                "trajectory_error_px",
+                "mean_error_px",
+                "max_error_px",
+            }
+            or ".observed_marker_centroid_px[" in path
+            or ".truth_marker_centroid_px[" in path
+        )
+    ):
+        assert type(actual) is float, path
+        assert actual == pytest.approx(expected, rel=1e-12, abs=1e-12), path
+    elif path.endswith((".identity.numpy_version", ".pipeline_identity.numpy_version")):
+        # Historical environment identity must truthfully describe this host.
+        # The captured environment version is not a simulation invariant.
+        assert type(expected) is str and actual == np.__version__, path
+    else:
+        assert type(actual) is type(expected) and actual == expected, path
+
+
+def link_rendered_hashes(value: Any, root: Path) -> Any:
+    """Check current file identities, then link only rendered hashes to their values.
+
+    Text, protocol/profile hashes, timing and other metadata stay ordinary values.
+    Each linked SHA must exactly authenticate its current on-disk artifact before
+    the historical comparator may compare decoded values against the old SHA.
+    """
+    if isinstance(value, list):
+        return [link_rendered_hashes(item, root) for item in value]
+    if not isinstance(value, dict):
+        return value
+    result = {key: link_rendered_hashes(item, root) for key, item in value.items()}
+    for hash_key, file_key in (
+        ("sha256", "file"),
+        ("sha256", "linear_file"),
+        ("truth_sha256", "truth_file"),
+        ("linear_sha256", "linear_file"),
+        ("display_sha256", "display_file"),
+    ):
+        if hash_key not in value or file_key not in value:
+            continue
+        path = root / value[file_key]
+        if path.suffix not in {".png", ".npy", ".npz", ".f16"}:
+            continue
+        assert sha256(path.read_bytes()).hexdigest() == value[hash_key], path
+        result[hash_key] = rendered_file_digest(path, {"sha256": value[hash_key]})
+    return result
+
+
 def legacy_labels(value: Any) -> Any:
     """Restore renamed source labels before comparing unchanged old captures."""
+    if isinstance(value, RenderedDigest):
+        return value
     if isinstance(value, dict):
         return {key: legacy_labels(item) for key, item in value.items()}
     if isinstance(value, list):
