@@ -10,6 +10,12 @@ records. Runtime package version remains defined in `pyproject.toml`.
 
 ### Added
 
+- Default-off M17 LCD zone backlight dynamics with explicit asymmetric e-fold
+  times, per-tick slew limits, scene-cut policy, initialization and exact full
+  display-history continuation.
+- P-only zone protocol/provenance validation and a separate `zone-temporal`
+  synthetic clip experiment with rational PTS, zone traces, trail/settling/
+  pumping metrics and shared-exposure off/on galleries.
 - M16 formal project documentation, contribution/license files, decisions,
   chronological research index, development checks, CI, and review templates.
 - Installable `tv_sim` src package with `tv-sim` and `python -m tv_sim` entry points;

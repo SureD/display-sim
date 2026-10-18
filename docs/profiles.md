@@ -27,9 +27,9 @@ Python defaults. The authoritative field definitions are in
 | `output` | Preview transfer function and reference luminance in nits. |
 
 New runtime experiments (`MotionConfig`, `ViewingAngleConfig`,
-`ABLDynamicsConfig`, `ColorimetryConfig`) are explicit API/CLI controls rather than
-silent profile changes. Baseline evidence sidecars snapshot every effective
-profile value, including dataclass defaults. Angular sidecars are offline
+`ABLDynamicsConfig`, `ColorimetryConfig`, `ZoneTemporalConfig`) are explicit
+API/CLI controls rather than silent profile changes. Baseline evidence sidecars
+snapshot every effective profile value, including dataclass defaults. Angular sidecars are offline
 snapshots; colorimetry sidecars supply parameters only to the enabled M15 path.
 
 ## Historical paths and packaged data
@@ -49,7 +49,7 @@ locators as follows when following evidence:
 
 The historical Python module prefix `sim` is now `tv_sim`. These aliases explain
 immutable evidence; new documentation uses current paths. Bundled synthetic
-OLED/motion protocols are loaded relative to the installed package by default;
+OLED/motion/LCD-zone protocols load relative to the installed package by default;
 CLI `--protocol`/`--motion-config` options select explicitly supplied alternatives.
 See [usage](usage.md) for examples. Do not write generated fits into this package
 data tree.
@@ -82,6 +82,8 @@ on every invocation, including checks restricted by `--profiles`. This protocol
 is outside the profile tree and is never discovered by ordinary rendering.
 M14 checks the separate block motion config and synthetic validation protocol
 on every invocation, including `--profiles` selections.
+M17 checks the separate [LCD zone temporal protocol](../src/tv_sim/data/measurements/zone_temporal_synthetic_v1.json)
+on every invocation with the same strict loader used by its experiment runner.
 
 ## Evidence and unknowns
 
@@ -522,3 +524,105 @@ separately. The shared preview exposure and host/browser calibration remain
 independent of TV evidence. See the
 [M15 research and primary sources](research/m15-colorimetry.md) for the
 panel placeholders, geometric hue limitation and missing measurement ledger.
+
+## LCD zone temporal protocol schema version 1 (M17)
+
+The separate
+[`zone_temporal_synthetic_v1.json`](../src/tv_sim/data/measurements/zone_temporal_synthetic_v1.json)
+record is a synthetic experiment sidecar, outside the TV profile tree. Ordinary
+loading and disabled rendering do not read it. Both the experiment runner and
+`tv-sim provenance --check`, including restricted `--profiles` checks, validate
+the whole record. No runtime YAML or baseline/angular/colorimetry sidecar is
+changed by enabling this feature.
+
+| Field | Contract |
+|---|---|
+| `schema_version`, `protocol_id` | Integer `1` and `zone_temporal_synthetic_v1`. |
+| `evidence`, `parameter_status` | Exactly `P` and `placeholder`; no measured-profile claim is supported. |
+| `settings` | Raster, rational-string output rate/duration, requested highlight and dark-scene levels, shared preview reference, halo threshold and settling band. |
+| `demonstration` | Explicit synthetic `zone_attack_release_v1` configuration: attack/release seconds, cold initialization, cut reset and optional per-tick slew/cut detector. These values never become implicit runtime taus. |
+| `fixtures` | The ordered versioned `moving_object`, `apl_step`, `flashing_highlight`, `subtitle` clips. |
+| `unavailable` | Measured attack/release/slew, vendor cut policy, measured PSF, pixel/backlight synchronization and calibrated-profile fit remain `NR`. |
+| `notes` | P assumptions, metric interpretation, fixture-version ownership and mechanism-source locator. |
+
+The validator rejects unknown/missing keys, duplicate JSON keys, unsupported
+versions, numeric booleans, nonfinite values, invalid bounds, nonintegral tick
+durations and false evidence labels. Fixture geometry/event timing and metric
+definitions are versioned P choices saved by the runner. The bundled P
+demonstration uses attack `0.05 s`, release `0.15 s`, no slew cap and no detected
+cuts. The settings use a P `128×72` raster, `60 Hz`, `2 s` per clip, `800`-nit
+highlights, `2`-nit dark-scene level and one `1000`-nit preview reference. These
+are illustrative inputs, not inferred retail-TV parameters. PTS, traces and
+metrics are D calculations under the P experiment.
+
+The paired diagnostic also rejects highlight levels above the selected
+backlight peak. This isolates temporal differences from the distinct active
+and legacy clipping order. The IPS preset therefore needs an explicitly
+supplied P protocol with a lower highlight level; the runtime controller itself
+still accepts over-peak requested content and bounds its zone targets.
+
+The separate `ZoneTemporalConfig` defaults to `model="off"`. Active
+`zone_attack_release_v1` requires explicit finite, nonnegative `attack_s` and
+`release_s`; zero means immediate. Increasing light uses attack, decreasing
+light uses release. Each displayed tick applies
+`z += -expm1(-dt_s/tau) * (target-z)` in float64, then an optional positive
+`slew_nits_per_tick` cap. Without slew, a held-target error has the same physical
+e-fold time at different refresh rates. The slew bound deliberately depends on
+the number of display ticks and is never a nits/second setting.
+
+Targets are pooled from the processed panel-domain max-channel demand and
+bounded by the declared backlight floor/peak before optical spread. The actual
+filtered commands pass through the existing PSF/LSF once, then determine LCD
+compensation. Legacy rendering spreads demand before clipping; even zero-tau
+active output can differ on sparse over-peak inputs. The disabled path retains
+the existing operation order and byte-identical rendering. The existing pixel
+response follows emitted RGB; this P cascade does not resolve continuous LC
+transmittance multiplied by a synchronized backlight waveform.
+
+Initialization has one owner:
+
+- `cold` starts commands at the declared backlight floor.
+- `settled_first_tick` installs the first bounded target immediately.
+- `explicit` requires `initial_zones_nits` as an immutable rectangular
+  tuple-of-tuples of finite values within floor/peak, matching the effective
+  rasterized zone grid. It starts a new display history.
+- `resume` requires a full validated checkpoint and forbids a competing initial
+  grid. `Pipeline.checkpoint()` retains exact float64 zone/detector bytes,
+  complete pixel/load histories and initialization provenance.
+  `restore_checkpoint()` validates profile, evolution/config, geometry/dtype,
+  angle, colorimetry and clock identity before restoring. A standalone grid
+  cannot resume the prior display history. Unknown gaps, stale/mutated state
+  and conflicting initialization reject before a tick advances.
+
+`reset_on_scene_cut=True` resets commands to the current target on a declared
+cut; it bypasses smoothing/slew for that tick while preserving pixel/load
+histories. Optional `cut_detection_threshold` compares the mean absolute
+difference of current/previous bounded zone targets divided by backlight peak.
+It requires reset enabled and a runtime threshold in `[0,1]`; protocol files
+require `(0,1]`. Its P heuristic can mistake flashes/APL steps for cuts or miss
+similar-looking shots. Declared/detected/reset reasons remain separate trace
+fields. With reset disabled, declared cuts preserve zone history.
+
+Admission and composition are explicit:
+
+| Feature | Active M17 rule |
+|---|---|
+| Profiles | LCD `va_lcd`/`ips_lcd` with `fald`/`edge` zones only; OLED and `per_pixel` reject. |
+| M13 capacity | Simultaneous active controllers reject: M13 is OLED-only and M17 is LCD-only. |
+| Static HDR/ABL | Retains its existing single downstream capacity/shoulder owner. |
+| Legacy load state | Nonzero `abl_response_ms`, `abl_backlight_tracking` or `abl_power_budget_nits` reject; no hidden second smoother or power derating is inserted. |
+| M9 fitting/replay | Every active M17 plus schema-1 `.fit.json` composition rejects. Existing fits do not identify zone history or dynamic calibration. |
+| M10 angle | Applies LCD transmission/leakage after actual illumination; it adds no zone state or time constant. |
+| M15 colorimetry | Supplies the panel-domain target and retains gamut mapping/joint HDR capacity once; it does not smooth colors or add another limiter. |
+| MEMC | Off/repeat/analytic/MCI reconstruction precedes one zone update per display tick. Preparation, block estimation and exposure samples do not update zones. Declared source cuts propagate only when the new shot reaches the display, including skipped source indices. MCI's estimated cuts retain their reconstruction/confidence role; M17's own detector owns detected zone resets. |
+
+`last_zone_trace` records per-zone target/before/after grids in nits,
+attack/release/equal branches, slew flags, cut detector/domain/reasons and
+display clocks. Matched synthetic off/on runs save rational PTS, full traces,
+linear arrays, trail length/energy, settling, overshoot and pumping/stability
+metrics. A monotone held-target first-order controller cannot overshoot by
+itself; clip-length-limited settling is reported as not reached. Trail energy
+is a luminance-pixel-time proxy, not electrical or radiometric joules. Shared
+exposure preserves brightness differences but does not calibrate host output or
+measure perceived flicker. See the [research and source limits](research/m17-zone-temporal.md)
+and [CLI example](usage.md#lcd-zone-backlight-dynamics-opt-in).

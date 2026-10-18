@@ -32,7 +32,9 @@ flowchart LR
    translation/layer scene, or use the opt-in block-motion proxy. Rational source
    and display clocks remain separate. Source times and cuts obey recorded holds.
 4. **Backlight:** LCD zone requests are spread through the selected PSF/LSF and
-   boundary policy; emissive profiles use per-pixel drive.
+   boundary policy; emissive profiles use per-pixel drive. Optional M17 dynamics
+   first bound and filter persistent zone commands once per display tick, then
+   pass the actual illumination map to LCD compensation.
 5. **Panel:** LCD transmission includes finite black leakage; OLED emits RGB.
    The opt-in viewing-angle model changes transmission/emission here. Emissive
    optical spread and the legacy matrix/subpixel approximation remain explicit.
@@ -57,14 +59,35 @@ metadata. Disabled paths retain the BT.709 compatibility interpretation.
 Images use H×W×3 arrays. Linear channel values use nit-scaled RGB; luminance is
 the applicable RGB-to-XYZ Y projection, not any single colored channel. APL is
 linear luminance rather than encoded-code average. Optical widths state whether
-they use pixels or zone pitches; temporal configuration uses milliseconds and
-sequence traces preserve rational PTS.
+they use pixels or zone pitches. Pixel temporal configuration uses milliseconds;
+M17 zone attack/release constants use seconds and its optional slew cap uses
+nits per display tick. Sequence traces preserve rational PTS.
 
 A `Pipeline` holds its profile plus panel/load histories. Optional M13 capacity
 state has its own identity and initialization policy. Reusing a pipeline advances
 history; constructing a new one starts a separate experiment. Checkpoints retain
 the complete history and configuration identity for exact continuation. A fresh
 capacity scalar alone cannot resume a physical history.
+
+M17's separate `ZoneTemporalConfig` is default off and leaves the original
+backlight arithmetic intact when disabled. Its LCD-only state stores float64
+zone commands and the previous bounded targets used by its optional cut
+detector. Rising/falling commands use explicit e-fold times; the optional
+per-tick slew bound intentionally depends on refresh rate. Cold, settled-first
+and explicit-grid initialization start new zone histories. Full checkpoints
+preserve exact zone/detector bytes, pixel/load histories and profile/config,
+geometry, angle, colorimetry and clock identity for continuation.
+
+The active model bounds zone commands before optical spread; legacy rendering
+spreads pooled demand before clipping. These operations can differ for sparse
+over-peak inputs even with active zero taus. LCD compensation uses the filtered
+illumination, followed by the existing emitted-RGB pixel-response stage. That
+cascade does not resolve within-tick LC transmittance and LED timing. Scene cuts
+can reset only zone commands when the new shot is actually displayed. M10
+leakage/transmission, M15 panel-domain demand/joint capacity and all MEMC modes
+keep their own responsibilities. Active OLED M13 capacity, legacy APL smoothing,
+backlight tracking, power-proxy derating and M9 fits reject with active M17.
+See [the model and evidence limits](research/m17-zone-temporal.md).
 
 ## Module map
 
@@ -75,11 +98,13 @@ capacity scalar alone cannot resume a physical history.
 | `stages/`, `color.py`, `filters.py`, `load.py` | Transfer, processing, optical, panel, HDR, ambient, and temporal mechanisms. |
 | `sequence.py`, `motion.py`, `block_motion.py`, `block_sequence.py` | Rational scheduling, analytic motion and block-proxy reconstruction. |
 | `abl_dynamics.py`, `abl_history.py` | Optional global capacity evolution and full-history identity. |
+| `zone_temporal.py`, `zone_history.py` | Optional LCD zone command evolution, scene-cut policy and exact full-history continuation. |
 | `viewing_angle.py`, `colorimetry.py` | Optional angular and color-volume models. |
 | `provenance.py`, `*_provenance.py` | Strict evidence snapshots and protocol validation. |
 | `validate.py`, `metrics.py`, `anchors.py`, `patterns.py` | Synthetic M4 protocols, reference comparisons, and numerical metrics. |
 | `gallery.py`, `macro.py`, `colorimetry_gallery.py` | Shared-exposure comparisons and illustrative aperture rendering. |
 | `window_replay.py`, `oled_dynamics_experiment.py`, `motion_validate.py` | Isolated opt-in experiment runners and artifacts. |
+| `zone_temporal_experiment.py` | Synthetic LCD moving/APL/flash/subtitle clips, zone traces, metrics and shared-exposure comparisons. |
 | `export_web.py`, `colorimetry_export.py`, `cli.py`, `*_cli.py` | Export contracts and CLI dispatch. |
 | `data/measurements/` | Shipped P-only protocol/config records. |
 
