@@ -29,6 +29,10 @@ records. Runtime package version remains defined in `pyproject.toml`.
 
 ### Changed
 
+- M19b decodes all historical JSON traces/manifests, tolerating only tight
+  finite-float roundoff while preserving exact structure, discrete/rational
+  values and same-machine byte parity; nested PTS traces authenticate linked
+  rendered arrays from the experiment root.
 - M19 pins the development NumPy/stub and image toolchain across Python 3.11/3.12,
   fixes portable NumPy scalar/array annotations including M18 metrics, and
   compares historical floating renders against authenticated decoded references

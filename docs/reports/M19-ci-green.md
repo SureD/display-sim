@@ -203,3 +203,122 @@ under `/tmp/m19-mypy-before-*`, `/tmp/m19-motion-version-comparison.log` and
 
 PM review/commit and the four Ubuntu/macOS Actions jobs remain the integration
 step. No main-branch CI success is claimed before those jobs run on the changes.
+
+## M19b — historical JSON traces after Actions #7
+
+Follow-up verified 2026-10-19, Asia/Shanghai. PM committed M19 as `79f9c61`,
+`68b4899`, `f884944`, merged it as `1e6c62a`, and fast-forwarded this worktree
+through status commit `570e8bf`. The earlier integration note above describes
+the original M19 handoff; this section records the subsequent CI gap and fix.
+M19b changes remain uncommitted and were not pushed.
+
+### Remaining failure and reproduction
+
+[Actions run #7](https://github.com/SureD/display-sim/actions/runs/39159243116)
+passed the quality job, but all four Ubuntu/macOS × Python 3.11/3.12 test jobs
+failed. PM supplied the summary `6 failed, 1694 passed`, all six in
+`test_m14_validation_and_gallery_assets_match_pre_m15`, with the first mismatch
+at `root.cut/pts-trace.json.bytes`: `49008` versus `49009`, or `49116` versus
+`49117`. The public jobs API confirms those job conclusions; the log download
+endpoint again returned HTTP 403, “Must have admin rights to Repository.”
+
+The remaining comparator used a filename whitelist for decoded JSON:
+`motion-validation.json`, checkpoint states, and M13 experiment manifests.
+Other JSON, including `pts-trace.json`, M13 `trace.json`, and motion CLI
+manifests, still became opaque byte-length/SHA records. A trace embeds computed
+image metrics and capacity floats, so a tiny numerical change can alter its
+decimal representation and consequently both its length and SHA. The first
+length assertion hid the decoded numerical difference.
+
+Controlled one-ULP changes to authenticated archived traces reproduce the exact
+reported lengths and failure path with the **original committed helper**:
+
+| Capture | Controlled field/value change | Canonical bytes |
+| --- | --- | --- |
+| M13 WOLED cut trace | `apl_nits`: `26.769044335683187` → `26.76904433568319` | 49009 → 49008 |
+| M13 QD-OLED cut trace | `dt_ms`: `16.666666666666668` → `16.66666666666667` | 49117 → 49116 |
+
+Both original comparisons fail at `root.cut/pts-trace.json.bytes`. Both fixed
+historical comparisons pass, while ordinary digest equality still rejects the
+different bytes. These probes verify the serialization mechanism and reproduce
+the comparison failure; inaccessible CI logs prevent identifying the particular
+scalar that changed on each runner. No specific CPU/libm cause is asserted.
+
+### Fix and whole-suite audit
+
+All JSON records encountered by the historical artifact comparator now decode
+their authenticated saved payloads. Dictionaries retain exact keys; lists
+retain exact lengths/order; integer, Boolean, string and null types/values
+remain exact. Only finite floats accept `rtol=1e-12`, `atol=1e-12`; float/int
+substitution, nonfinite numbers and material numerical changes fail. This
+supersedes M19's narrow image/trajectory field whitelist, covering floating
+trace and diagnostic fields regardless of their filename or nesting.
+
+The saved payload's SHA and recorded byte length are still authenticated
+exactly. Current JSON serialization length/SHA may differ; its decoded values
+are the historical comparison target. No equality operator was changed, and
+same-machine default-path, repeated-run and checkpoint comparisons stay exact.
+The existing NumPy environment-identity exception remains explicitly checked.
+
+PTS traces now link their rendered-array hashes through the complete experiment
+root, passed by both historical artifact collectors. Trace paths such as
+`cut/analytic_0000.npy` are relative to that root, rather than to the nested
+`cut/pts-trace.json` directory. Current array SHA values must first match their
+actual files before decoded array/reference comparison.
+
+| Audited comparison | Result |
+| --- | --- |
+| M14 PTS traces across seven fixtures and three display variants | Decode JSON; tight finite-float comparison and linked array authentication |
+| M13 trial traces and motion CLI manifests | Decode JSON instead of opaque historical hashes |
+| Existing report/checkpoint JSON | Shared finite-float rule; strict strings/hex state and actual checkpoint checksum validation retained |
+| Historical validation metrics JSON/CSV | Already decoded/typed; existing tolerances retained, with a new one-byte CSV regression check |
+| Gallery `memc_trace.json` historical hashes | Retained exactly: floating fields are deterministic 0/1 fallback fractions and fixed rational-to-float durations; timing/positions use rational strings |
+| Profile/protocol/source identity hashes and saved-reference hashes | Retained exactly; stable input/evidence identities or reference authentication |
+| M17/M18 and other same-machine artifact/checkpoint byte comparisons | Retained exactly; these compare outputs produced on the same host |
+
+The complete raw JSON/CSV hash/size audit found no additional historical CSV
+gap. The 1,074-entry rendered-reference archive already contains every needed
+JSON payload; no baseline or reference fixture was regenerated or changed.
+Its SHA remains
+`eeba7a32cede96e8d250359831432139c75dd1b27842c3c598cbfad21b5a8fc5`.
+
+Seventeen regression cases were added, bringing the helper module to 45 tests.
+They cover one-byte JSON float serialization changes under three filenames,
+strict structure/rational/integer/Boolean/string/type checks, rejected
+nonfinite floats, exact saved-reference lengths, nested trace array paths and
+checksum validation, and typed CSV float tolerance with exact integer cells.
+Reference coverage now includes every historical JSON artifact record, so a
+future filename cannot silently fall back to an unaudited opaque comparison.
+
+### Exact verification
+
+Reused the worktree's `/tmp/m19-py311` and `/tmp/m19-py312` editable environments
+with CPython 3.11.17/3.12.15, NumPy 2.4.6, pytest 8.4.2, Ruff 0.14.1 and
+mypy 1.18.2. Imports resolve to this checkout. No runtime source or dependency
+versions changed during M19b.
+
+| Check | CPython 3.11.17 | CPython 3.12.15 |
+| --- | --- | --- |
+| Full `pytest -q`, including slow tests | **1717 passed in 386.71s** | **1717 passed in 381.62s** |
+| `ruff check .` | All checks passed | All checks passed |
+| `ruff format --check .` | 111 files already formatted | 111 files already formatted |
+| `mypy` | No issues in 59 source files | No issues in 59 source files |
+| `scripts/check_docs.py` | All local targets/anchors passed | All local targets/anchors passed |
+
+Full runs used separate `/tmp/m19b-full-py311` and `/tmp/m19b-full-py312`
+temporary roots. Quality checks used the unchanged Makefile's
+`lint typecheck docs-check` targets with the corresponding interpreter. The
+system `python3 scripts/check_docs.py` and `git diff --check` also pass.
+Supplemental Python 3.11 execution with AVX512F/AVX2/FMA3 disabled passes all
+six affected validation tests in 12.94s. The one-ULP probes also pass against
+the new comparator while reproducing the original helper's exact failure.
+
+Logs: `/tmp/m19b-py311-pytest.log`, `/tmp/m19b-py312-pytest.log`,
+`/tmp/m19b-py311-quality.log`, `/tmp/m19b-py312-quality.log`,
+`/tmp/m19b-original-helper-reproduction.log`, `/tmp/m19b-one-byte-reproduction.log`,
+`/tmp/m19b-helper.log`, and `/tmp/m19b-no-simd.log`.
+
+Suggested commit: `M19b: compare historical JSON traces by decoded values`.
+Actual Ubuntu/macOS Actions verification follows PM integration; local Linux
+results and controlled roundoff tests do not claim that those jobs have run
+on this unpushed follow-up.

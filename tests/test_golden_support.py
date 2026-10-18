@@ -1,6 +1,7 @@
 """Portable metadata checks retain useful sensitivity to real regressions."""
 
 import json
+import math
 from hashlib import sha256
 from pathlib import Path
 
@@ -193,9 +194,10 @@ def test_all_saved_rendered_references_authenticate_and_cover_historical_files()
     def check(value):
         if isinstance(value, dict):
             for key, item in value.items():
-                if (
-                    key.endswith((".png", ".npy", ".npz", ".f16", ".state.json"))
-                    or key == "motion-validation.json"
+                if key.endswith((".png", ".npy", ".npz", ".f16", ".state.json")) or (
+                    key.endswith(".json")
+                    and isinstance(item, dict)
+                    and {"bytes", "sha256"} <= item.keys()
                 ):
                     digest = item["sha256"] if isinstance(item, dict) else item
                     assert digest in refs, key
@@ -241,3 +243,134 @@ def test_historical_numpy_identity_must_describe_running_environment():
     for changed in ({**actual, "ticks": 15}, {**actual, "identity": {"numpy_version": "invented"}}):
         with pytest.raises(AssertionError):
             golden_support._assert_report_fields(changed, expected, "checkpoint")
+
+
+@pytest.mark.parametrize("filename", ["pts-trace.json", "trace.json", "manifest.json"])
+def test_historical_json_allows_one_byte_float_serialisation_difference(
+    monkeypatch, tmp_path, filename
+):
+    expected_values = [
+        {"pts": "1001/60000", "count": 1, "held": False, "apl_nits": 26.769044335683187}
+    ]
+    payload = json.dumps(expected_values, sort_keys=True, allow_nan=False).encode()
+    expected = {
+        "bytes": len(payload),
+        "sha256": _reference(monkeypatch, np.frombuffer(payload, dtype=np.uint8)),
+    }
+    actual_values = [
+        {**expected_values[0], "apl_nits": math.nextafter(expected_values[0]["apl_nits"], math.inf)}
+    ]
+    current = json.dumps(actual_values, sort_keys=True, allow_nan=False).encode()
+    assert len(current) == len(payload) - 1
+    path = tmp_path / filename
+    path.write_bytes(current)
+    actual = rendered_file_digest(
+        path, {"bytes": len(current), "sha256": sha256(current).hexdigest()}
+    )
+    # Historical tolerance is explicit. Same-machine/off-on digest equality
+    # continues to reject these different byte sequences.
+    assert actual != expected
+    assert_historical_snapshot(actual, expected)
+    actual_values[0]["apl_nits"] += 0.001
+    current = json.dumps(actual_values, sort_keys=True, allow_nan=False).encode()
+    path.write_bytes(current)
+    with pytest.raises(AssertionError):
+        assert_historical_snapshot(
+            rendered_file_digest(
+                path, {"bytes": len(current), "sha256": sha256(current).hexdigest()}
+            ),
+            expected,
+        )
+
+
+@pytest.mark.parametrize(
+    "actual,expected",
+    [
+        ({"pts": "1/60"}, {"pts": "1001/60000"}),
+        ({"count": 2}, {"count": 1}),
+        ({"count": True}, {"count": 1}),
+        ({"enabled": 0}, {"enabled": False}),
+        ({"nits": 1}, {"nits": 1.0}),
+        ({"nits": 1.0}, {"nits": 1}),
+        ({"renamed": 1.0}, {"original": 1.0}),
+        ([1.0], [1.0, 2.0]),
+    ],
+)
+def test_historical_json_keeps_structure_and_nonfloat_fields_exact(actual, expected):
+    with pytest.raises(AssertionError):
+        golden_support._assert_report_fields(actual, expected, "trace")
+
+
+@pytest.mark.parametrize("value", [math.nan, math.inf, -math.inf])
+def test_historical_json_rejects_nonfinite_floats(value):
+    with pytest.raises(AssertionError):
+        golden_support._assert_report_fields(value, 1.0, "trace.nits")
+    with pytest.raises(AssertionError):
+        golden_support._assert_report_fields(value, value, "trace.nits")
+
+
+def test_historical_json_still_authenticates_reference_byte_length(monkeypatch, tmp_path):
+    path = tmp_path / "trace.json"
+    payload = b'{"nits": 1.0}'
+    path.write_bytes(payload)
+    digest = _reference(monkeypatch, np.frombuffer(payload, dtype=np.uint8))
+    actual = rendered_file_digest(path, {"bytes": len(payload), "sha256": digest})
+    with pytest.raises(AssertionError):
+        assert_historical_snapshot(actual, {"bytes": len(payload) + 1, "sha256": digest})
+
+
+def test_nested_pts_trace_resolves_rendered_hashes_from_experiment_root(monkeypatch, tmp_path):
+    folder = tmp_path / "cut"
+    folder.mkdir()
+    image = folder / "linear.npy"
+    reference = np.array([100], dtype=np.float32)
+    np.save(image, reference)
+    original_image = image.read_bytes()
+    original_hash = sha256(original_image).hexdigest()
+    saved = [{"linear_file": "cut/linear.npy", "linear_sha256": original_hash, "pts": "1/60"}]
+    original_json = json.dumps(saved, sort_keys=True, allow_nan=False).encode()
+    json_hash = sha256(original_json).hexdigest()
+    monkeypatch.setattr(
+        golden_support,
+        "_rendered_references",
+        lambda: {
+            original_hash: np.frombuffer(original_image, dtype=np.uint8),
+            json_hash: np.frombuffer(original_json, dtype=np.uint8),
+        },
+    )
+    np.save(image, reference + np.float32(0.00001))
+    current = [{**saved[0], "linear_sha256": sha256(image.read_bytes()).hexdigest()}]
+    path = folder / "pts-trace.json"
+    payload = json.dumps(current, sort_keys=True, allow_nan=False).encode()
+    path.write_bytes(payload)
+    expected = {"bytes": len(original_json), "sha256": json_hash}
+    actual = rendered_file_digest(
+        path, {"bytes": len(payload), "sha256": sha256(payload).hexdigest()}, artifact_root=tmp_path
+    )
+    assert_historical_snapshot(actual, expected)
+    image.write_bytes(b"invalid-current-payload")
+    with pytest.raises(AssertionError):
+        assert_historical_snapshot(actual, expected)
+
+
+def test_historical_csv_compares_typed_floats_and_retains_exact_integer_cells(
+    monkeypatch, tmp_path
+):
+    fixtures, out = tmp_path / "fixtures", tmp_path / "actual"
+    fixtures.mkdir()
+    out.mkdir()
+    monkeypatch.setattr(golden_support, "FIXTURES", fixtures)
+    original_csv = "metric,python_type,value\nnits,float,26.769044335683187\ncount,int,1\n"
+    original_json = '{"nits": 26.769044335683187, "count": 1}'
+    expected = {}
+    for extension, payload in (("csv", original_csv), ("json", original_json)):
+        fixture = fixtures / f"validation_metrics_baseline.{extension}"
+        fixture.write_text(payload)
+        expected[f"metrics_{extension}_sha256"] = sha256(fixture.read_bytes()).hexdigest()
+        (out / f"metrics.{extension}").write_text(
+            payload.replace("26.769044335683187", "26.76904433568319")
+        )
+    golden_support.assert_validation_metrics(out, expected)
+    (out / "metrics.csv").write_text(original_csv.replace("count,int,1", "count,int,2"))
+    with pytest.raises(AssertionError):
+        golden_support.assert_validation_metrics(out, expected)

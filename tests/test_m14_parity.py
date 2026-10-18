@@ -65,7 +65,10 @@ def _artifact_snapshot(out):
         else:
             payload = path.read_bytes()
         files[path.relative_to(out).as_posix()] = rendered_file_digest(
-            path, {"bytes": len(payload), "sha256": sha256(payload).hexdigest()}, payload=payload
+            path,
+            {"bytes": len(payload), "sha256": sha256(payload).hexdigest()},
+            payload=payload,
+            artifact_root=out,
         )
     return files
 
