@@ -1,4 +1,4 @@
-# Status — 2026-10-18 18:30 CST
+# Status — 2026-10-18 21:30 CST
 
 > Live PM status (moved here by M16). See [current documentation](../index.md)
 > and [M16 engineering report](M16-repo-engineering.md) for the repository migration.
@@ -35,6 +35,7 @@
 - Codex run19: **finished M17 but hung** after its final pytest (no output 10:42–12:20, waiting on the model). PM killed it at 12:20, re-ran checks (1366 pytest, ruff/format/mypy/docs/provenance clean), filled in the report's verification section, committed the suggested 4-commit split and merged.
 - Codex run20: **finished M18 at ~15:38** (uncommitted, idle until the 18:20 check because the 15:26 check ran just before it finished). PM reviewed, committed the suggested 4-commit split, re-ran pytest (`1680 passed in 216.51s`) and merged at 18:30.
 - Codex run21: **started 18:30** → M19 CI green in worktree `/workspace/tv-sim-codex`, branch `codex/m19-ci-green`, prompt `/workspace/codex_run21_prompt.txt`, log `/workspace/codex_run21.log`.
+- Codex run21 (21:25 check): **stalled** waiting on the model from 20:59 (no child process, no log output for 25 min) with M19 fixes uncommitted in the working tree (portable mypy annotations, pinned dev toolchain, tolerance-based decoded-value checks for cross-platform rendered goldens; 535 M17/M18 tests pass on Py 3.11/3.12). PM killed it and resumed the same session as run21b (`codex exec resume`, prompt `/workspace/codex_run21b_prompt.txt`, log `/workspace/codex_run21b.log`) to finish full CI-equivalent verification on Py 3.11/3.12 and write `docs/reports/M19-ci-green.md`. GitHub Actions run #4 on `d633a90` (main) still red, as expected until M19 merges.
 - Cursor run10: **failed at start** (`RetriableError: Connection stalled repeatedly`), no work done; stale empty `cursor/m7-memc` branch deleted.
 - Codex run10: **finished** M8 (uncommitted → PM committed + merged).
 - Codex run11: **finished** M7 MEMC phase 1 (uncommitted → PM committed + merged).
