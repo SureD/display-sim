@@ -76,6 +76,7 @@ from tv_sim.viewing_angle import (
     angular_parameters,
     validate_angular_path,
 )
+from tv_sim.zone_temporal import ZoneBacklightState, ZoneTemporalConfig
 
 if TYPE_CHECKING:
     from tv_sim.sequence import MotionConfig, SequenceOutput
@@ -92,6 +93,8 @@ class Pipeline:
     runtime controls; neither changes the profile or loads a fitted dataset.
     ``abl_dynamics`` is also separate and defaults off; its taus are explicit
     P inputs. Complete checkpoint restoration requires ``initial='resume'``.
+    ``zone_temporal`` instead owns float64 LCD zone commands before optics;
+    its controller is separate from the persistent emitted-RGB pixel response.
     """
 
     last_colorimetry_diagnostics: dict[str, Any] | None
@@ -99,6 +102,9 @@ class Pipeline:
     last_pre_temporal: Frame | None
     _capacity_geometry: dict[str, Any] | None
     _capacity_source_hash: str | None
+    last_zone_trace: dict[str, Any] | None
+    _zone_geometry: dict[str, Any] | None
+    _zone_source_hash: str | None
 
     def __init__(
         self,
@@ -112,6 +118,8 @@ class Pipeline:
         capacity_state: ABLCapacityState | None = None,
         colorimetry: ColorimetryConfig | None = None,
         panel_colorimetry: PanelColorimetry | None = None,
+        zone_temporal: ZoneTemporalConfig | None = None,
+        zone_state: ZoneBacklightState | None = None,
     ) -> None:
         self.profile = profile
         self.colorimetry = colorimetry if colorimetry is not None else ColorimetryConfig()
@@ -159,6 +167,12 @@ class Pipeline:
         self.abl_dynamics = abl_dynamics
         self._initial_abl_dynamics = abl_dynamics
         self._dynamics_active = abl_dynamics is not None and abl_dynamics.active
+        self.zone_temporal = zone_temporal
+        self._initial_zone_temporal = zone_temporal
+        self._zone_active = zone_temporal is not None and zone_temporal.active
+        self.zone_state: ZoneBacklightState | None = None
+        if self._zone_active and self._dynamics_active:
+            raise ValueError("zone temporal dynamics conflicts with active M13 capacity dynamics")
         self.capacity_state = None
         if self._dynamics_active:
             from tv_sim.abl_history import boundary
@@ -201,6 +215,56 @@ class Pipeline:
             self._capacity_identity = self.identity()
         elif capacity_state is not None:
             raise ValueError("capacity_state requires active ABL dynamics")
+        if self._zone_active:
+            from tv_sim.zone_history import boundary as zone_boundary
+            from tv_sim.zone_temporal import validate_path
+            from tv_sim.zone_temporal import validate_state as validate_zone_state
+
+            zone_temporal = cast(ZoneTemporalConfig, zone_temporal)
+            validate_path(profile, zone_temporal)
+            candidate_zone = zone_state if zone_state is not None else ZoneBacklightState()
+            validate_zone_state(candidate_zone, profile.backlight)
+            if (
+                candidate_zone.ticks
+                or candidate_zone.elapsed_ms
+                or candidate_zone.previous_targets is not None
+            ):
+                raise ValueError("stale zone_state: restore a complete checkpoint for continuation")
+            if candidate_zone.zones_nits is not None and (
+                zone_temporal.initial != "explicit"
+                or zone_temporal.initial_zones_nits is None
+                or not np.array_equal(candidate_zone.zones_nits, zone_temporal.initial_zones_nits)
+            ):
+                raise ValueError("zone-only state requires matching explicit initialization")
+            if zone_temporal.initial == "resume" and (
+                self.state.previous is not None or self.load_state.apl_nits is not None
+            ):
+                raise ValueError("zone resume requires a complete checkpoint as sole history owner")
+            self.zone_state = candidate_zone
+            self._zone_geometry = None
+            self._zone_resumed = False
+            self._zone_initialization: dict[str, Any] = {
+                "policy": zone_temporal.initial,
+                "zones_nits": None
+                if zone_temporal.initial_zones_nits is None
+                else [list(row) for row in zone_temporal.initial_zones_nits],
+                "evidence": "P",
+            }
+            self._zone_boundary = zone_boundary(self)
+            if self.state.previous is not None or self.load_state.apl_nits is not None:
+                self._zone_initialization["supplied_partial_history_sha256"] = self._zone_boundary
+            self._zone_history_hash = digest(
+                {
+                    "initialization": self._zone_initialization,
+                    "initial_boundary": self._zone_boundary,
+                }
+            )
+            self._zone_source_hash = None
+            self.last_zone_trace = None
+            self.last_pre_temporal = None
+            self._zone_identity = self.identity()
+        elif zone_state is not None:
+            raise ValueError("zone_state requires active zone temporal dynamics")
 
     def run_linear(self, encoded: np.ndarray) -> Frame:
         """Run all stages except encode; active M15 RGB uses the declared panel basis."""
@@ -218,7 +282,12 @@ class Pipeline:
         return process_image(frame, self.profile.processing)
 
     def display_content(
-        self, frame: Frame, *, frame_time_ms: float | None = None, timestamp_ms: float | None = None
+        self,
+        frame: Frame,
+        *,
+        frame_time_ms: float | None = None,
+        timestamp_ms: float | None = None,
+        scene_cut: bool = False,
     ) -> Frame:
         """Display prepared linear-nit content once; never decode/sharpen it again.
 
@@ -228,6 +297,8 @@ class Pipeline:
 
         if self.abl_dynamics is not self._initial_abl_dynamics:
             raise ValueError("changing ABL dynamics mode/config requires a fresh Pipeline history")
+        if self.zone_temporal is not self._initial_zone_temporal:
+            raise ValueError("changing zone dynamics mode/config requires a fresh Pipeline history")
         if (
             self.colorimetry != self._initial_colorimetry
             or self.panel_colorimetry != self._initial_panel_colorimetry
@@ -236,6 +307,10 @@ class Pipeline:
         if self._dynamics_active:
             return self._display_capacity(
                 frame, frame_time_ms=frame_time_ms, timestamp_ms=timestamp_ms
+            )
+        if self._zone_active:
+            return self._display_zones(
+                frame, frame_time_ms=frame_time_ms, timestamp_ms=timestamp_ms, scene_cut=scene_cut
             )
         profile = self.profile
         temporal = profile.temporal
@@ -287,6 +362,159 @@ class Pipeline:
             frame = tone_map(frame, profile.hdr, demand_apl_nits=apl)
         frame = add_ambient(frame, profile.ambient)
         return apply_temporal(frame, temporal, self.state)
+
+    def _display_zones(
+        self,
+        frame: Frame,
+        *,
+        frame_time_ms: float | None,
+        timestamp_ms: float | None,
+        scene_cut: bool,
+    ) -> Frame:
+        """One zone owner; commit zone/load/pixel history after a valid tick."""
+        from hashlib import sha256
+
+        from tv_sim.zone_history import boundary as zone_boundary
+        from tv_sim.zone_history import geometry as zone_geometry
+        from tv_sim.zone_temporal import render_backlight, update_zones, validate_path, zone_targets
+        from tv_sim.zone_temporal import validate_state as validate_zone_state
+
+        profile, config = self.profile, cast(ZoneTemporalConfig, self.zone_temporal)
+        validate_path(profile, config)
+        if type(scene_cut) is not bool:
+            raise ValueError("scene_cut must be bool")
+        if self.identity() != self._zone_identity:
+            raise ValueError(
+                "profile/config/angle/colorimetry identity changed; restart zone history"
+            )
+        state = cast(ZoneBacklightState, self.zone_state)
+        validate_zone_state(state, profile.backlight)
+        if zone_boundary(self) != self._zone_boundary:
+            raise ValueError(
+                "display history changed outside a tick; restore a complete checkpoint"
+            )
+        if config.initial == "resume" and not self._zone_resumed:
+            raise ValueError("resume requires a complete validated zone checkpoint")
+        dt = finite_number(
+            profile.temporal.frame_time_ms if frame_time_ms is None else frame_time_ms,
+            "frame_time_ms",
+        )
+        if dt <= 0:
+            raise ValueError("frame_time_ms must be positive")
+        if timestamp_ms is not None and not math.isclose(
+            finite_number(timestamp_ms, "timestamp_ms"),
+            state.elapsed_ms,
+            rel_tol=1e-12,
+            abs_tol=1e-9,
+        ):
+            raise ValueError(
+                "timestamp gap or out-of-order tick: supply explicit held/black intervals"
+            )
+        if (
+            frame.rgb.dtype != np.float32
+            or not np.isfinite(frame.rgb).all()
+            or np.any(frame.rgb < 0)
+            or min(frame.rgb.shape[:2]) < 1
+        ):
+            raise ValueError(
+                "zone input must have finite nonnegative float32 RGB nits and nonempty geometry"
+            )
+        geometry = zone_geometry(frame.rgb.shape, self)
+        if self._zone_geometry is not None and geometry != self._zone_geometry:
+            raise ValueError("geometry/dtype changed; restart zone history")
+        previous = self.state.previous
+        if previous is not None and (
+            previous.shape != frame.rgb.shape
+            or previous.dtype != np.float32
+            or not np.isfinite(previous).all()
+            or np.any(previous < 0)
+        ):
+            raise ValueError("panel history geometry/dtype/values do not match zone history")
+        if (
+            self.load_state.apl_nits is not None
+            and finite_number(self.load_state.apl_nits, "load APL") < 0
+        ):
+            raise ValueError("load history must be finite nonnegative APL")
+        load = LoadState(self.load_state.apl_nits)
+        requested_apl = smooth_apl(
+            load,
+            self._source_apl(frame.rgb) if self._colorimetry_active else demand_apl(frame.rgb),
+            profile.hdr,
+            dt,
+        )
+        old_diagnostics = getattr(self, "last_colorimetry_diagnostics", None)
+        panel = self._convert_colorimetry(frame) if self._colorimetry_active else frame
+        diagnostics = getattr(self, "last_colorimetry_diagnostics", None)
+        if self._colorimetry_active:
+            self.last_colorimetry_diagnostics = old_diagnostics
+        candidate = ZoneBacklightState(
+            None if state.zones_nits is None else state.zones_nits.copy(),
+            None if state.previous_targets is None else state.previous_targets.copy(),
+            state.elapsed_ms,
+            state.ticks,
+        )
+        trace = update_zones(
+            candidate,
+            zone_targets(panel, profile.backlight),
+            profile.backlight,
+            dt,
+            config,
+            scene_cut=scene_cut,
+        )
+        panel = render_backlight(panel, profile.backlight, cast(np.ndarray, candidate.zones_nits))
+        panel = simulate_panel(
+            panel,
+            profile.panel,
+            self_emissive=False,
+            peak_nits=profile.backlight.peak_nits,
+            viewing_angle=self.viewing_angle,
+            angular_params=self.angular_params,
+        )
+        if self._colorimetry_active:
+            from tv_sim.load import abl_capacity
+
+            source = str(profile.hdr.abl_source).lower()
+            if source not in ("demand", "emitted"):
+                raise ValueError("unknown abl_source; use demand or emitted")
+            mapped, volume_diagnostics = joint_tone_map(
+                panel,
+                profile.hdr,
+                cast(PanelColorimetry, self.panel_colorimetry),
+                capacity_nits=abl_capacity(
+                    requested_apl if source == "demand" else self._panel_apl(panel.rgb), profile.hdr
+                ),
+            )
+            cast(dict, diagnostics).update(volume_diagnostics)
+        else:
+            mapped = tone_map(panel, profile.hdr, demand_apl_nits=requested_apl)
+        pre_temporal = add_ambient(mapped, profile.ambient)
+        temporal_state = TemporalState(previous)
+        result = apply_temporal(
+            pre_temporal, replace(profile.temporal, frame_time_ms=dt), temporal_state
+        )
+        if not np.isfinite(result.rgb).all() or np.any(result.rgb < 0):
+            raise ValueError("zone display produced invalid output")
+        source_hash = sha256(np.ascontiguousarray(frame.rgb).tobytes()).hexdigest()
+        history_hash = digest(
+            {
+                "previous": self._zone_history_hash,
+                "source": source_hash,
+                "dt_ms_hex": dt.hex(),
+                "scene_cut": scene_cut,
+                "geometry": geometry,
+            }
+        )
+        state.zones_nits, state.previous_targets = candidate.zones_nits, candidate.previous_targets
+        state.elapsed_ms, state.ticks = candidate.elapsed_ms, candidate.ticks
+        self.state.previous = temporal_state.previous
+        self.load_state.apl_nits = load.apl_nits
+        self._zone_geometry = geometry
+        self._zone_source_hash, self._zone_history_hash = source_hash, history_hash
+        self._zone_boundary = zone_boundary(self)
+        self.last_zone_trace, self.last_pre_temporal = trace, pre_temporal
+        if self._colorimetry_active:
+            self.last_colorimetry_diagnostics = diagnostics
+        return result
 
     def _display_capacity(
         self, frame: Frame, *, frame_time_ms: float | None, timestamp_ms: float | None
@@ -423,12 +651,20 @@ class Pipeline:
 
     def identity(self) -> dict:
         """Effective profile/controller/target/angle fingerprints, active only."""
+        if self._zone_active:
+            from tv_sim.zone_history import identity as zone_identity
+
+            return zone_identity(self)
         from tv_sim.abl_history import identity
 
         return identity(self)
 
     def checkpoint(self) -> dict:
         """Exact full display history at a successful active tick boundary."""
+        if self._zone_active:
+            from tv_sim.zone_history import checkpoint as zone_checkpoint
+
+            return zone_checkpoint(self)
         from tv_sim.abl_history import checkpoint
 
         return checkpoint(self)
@@ -442,6 +678,11 @@ class Pipeline:
         elapsed_ms: float | None = None,
     ) -> None:
         """Validate a full checkpoint, then restore atomically with resume policy."""
+        if self._zone_active:
+            from tv_sim.zone_history import restore_checkpoint as restore_zone_checkpoint
+
+            restore_zone_checkpoint(self, data, shape=shape, dtype=dtype, elapsed_ms=elapsed_ms)
+            return
         from tv_sim.abl_history import restore_checkpoint
 
         restore_checkpoint(self, data, shape=shape, dtype=dtype, elapsed_ms=elapsed_ms)

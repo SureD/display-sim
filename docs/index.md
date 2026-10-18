@@ -7,11 +7,11 @@ mechanisms. All shipped TV presets remain synthetic placeholders. Start with
 | Guide | Contents |
 |---|---|
 | [Architecture](architecture.md) | Stage order, units, state, and module map. |
-| [Usage](usage.md) | CLI examples and opt-in experiments. |
+| [Usage](usage.md) | CLI examples, sequences, OLED capacity and LCD zone dynamics, and opt-in colorimetry. |
 | [Profiles and provenance](profiles.md) | Runtime schema, packaged loading, evidence grades, and experiment contracts. |
 | [Development](development.md) | Setup, tests, code checks, regeneration, and release. |
 | [Decisions](decisions/README.md) | Short records of the design and workflow choices. |
-| [Research history](research/README.md) | M1–M15 questions, findings, sources, and implementation handoffs. |
+| [Research history](research/README.md) | M1–M17 questions, findings, sources, and implementation handoffs. |
 | [Reports](reports/README.md) | Historical plan/status, validation interpretation, and engineering reports. |
 
 The [offline gallery](../reports/gallery/index.html),

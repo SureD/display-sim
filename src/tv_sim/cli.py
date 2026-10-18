@@ -91,7 +91,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.epilog = (
         (parser.epilog or "")
-        + " Commands: python -m tv_sim {validate,gallery,colorimetry,export-web,motion,provenance,fit-windows,oled-dynamics} --help"
+        + " Commands: python -m tv_sim {validate,gallery,colorimetry,export-web,motion,provenance,fit-windows,oled-dynamics,zone-temporal} --help"
     )
     return parser
 
@@ -105,6 +105,11 @@ def main(argv: list[str] | None = None) -> None:
         from tv_sim.colorimetry_gallery import main as colorimetry_main
 
         colorimetry_main(argv[1:])
+        return
+    if argv and argv[0] == "zone-temporal":
+        from tv_sim.zone_temporal_experiment import main as zone_temporal_main
+
+        zone_temporal_main(argv[1:])
         return
     if argv and argv[0] == "oled-dynamics":
         from tv_sim.oled_dynamics_experiment import main as oled_dynamics_main

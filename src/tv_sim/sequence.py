@@ -99,7 +99,9 @@ def render_sequence(
     source intervals, then reconstruct *before* backlight, panel, ABL and
     ambient processing. ``cuts`` marks source indices starting a new shot;
     it suppresses reconstruction across that boundary, without resetting
-    physical response history. Explicit PTS require a declared final duration.
+    physical pixel-response history. Active M17 resets zones on the first
+    displayed tick after a declared cut, including a crossed source interval
+    with no output tick. Explicit PTS require a declared final duration.
     Independent clips should use independent Pipeline instances.
     """
 
@@ -116,6 +118,11 @@ def render_sequence(
             raise ValueError("source_pts must match the number of source frames")
     if settings.mode == "off":
         # No buffering, rate conversion, temporal overrides or extra state calls.
+        zone_cuts = set(cuts) if pipeline._zone_active else set()
+        if any(type(i) is not int or i <= 0 for i in zone_cuts) or (
+            isinstance(encoded_frames, Sized) and any(i >= len(encoded_frames) for i in zone_cuts)
+        ):
+            raise ValueError("cuts must identify source indices after the first frame")
         frame_ms = pipeline.profile.temporal.frame_time_ms
         output_step = Fraction(str(frame_ms)) / 1000
         origin = parsed_pts[0] if parsed_pts else Fraction(0)
@@ -125,27 +132,36 @@ def render_sequence(
                 raise ValueError("source_pts must match the number of source frames")
             source_time = parsed_pts[index] if parsed_pts is not None else index / source_rate
             count += 1
-            yield SequenceOutput(
-                pipeline.run_linear(encoded_frame),
-                {
-                    "output_index": index,
-                    "source_index": index,
-                    "source_pts": _pts_string(source_time),
-                    "output_pts": _pts_string(origin + index * output_step),
-                    "phase": "0/1",
-                    "kind": "original",
-                    "mode": "off",
-                    "scene_cut": False,
-                    "fallback_reasons": [],
-                    "fallback_fraction": 0.0,
-                    "timing_evidence": "D",
-                    "lookahead_seconds": "0/1",
-                    "frame_time_ms": frame_ms,
-                    "timing_policy": "legacy_profile",
-                },
+            displayed = (
+                pipeline.display_content(
+                    pipeline.prepare_content(encoded_frame), scene_cut=index in zone_cuts
+                )
+                if pipeline._zone_active
+                else pipeline.run_linear(encoded_frame)
             )
+            diagnostics = {
+                "output_index": index,
+                "source_index": index,
+                "source_pts": _pts_string(source_time),
+                "output_pts": _pts_string(origin + index * output_step),
+                "phase": "0/1",
+                "kind": "original",
+                "mode": "off",
+                "scene_cut": False,
+                "fallback_reasons": [],
+                "fallback_fraction": 0.0,
+                "timing_evidence": "D",
+                "lookahead_seconds": "0/1",
+                "frame_time_ms": frame_ms,
+                "timing_policy": "legacy_profile",
+            }
+            if pipeline._zone_active:
+                diagnostics["zone_backlight"] = cast(dict, pipeline.last_zone_trace).copy()
+            yield SequenceOutput(displayed, diagnostics)
         if parsed_pts is not None and count != len(parsed_pts):
             raise ValueError("source_pts must match the number of source frames")
+        if any(i >= count for i in zone_cuts):
+            raise ValueError("cuts must identify existing source frames")
         return
 
     if settings.mode == "mci":
@@ -192,6 +208,7 @@ def render_sequence(
     if any(not np.isfinite(frame.rgb).all() for frame in prepared):
         raise ValueError("prepared source content must be finite")
     dt_ms = float(1000 / Fraction(output_fps))
+    previous_displayed_source = -1
     for tick in ticks:
         index = tick.source_index
         left = prepared[index]
@@ -235,4 +252,15 @@ def render_sequence(
                 "frame_time_ms": dt_ms,
             }
         )
-        yield SequenceOutput(pipeline.display_content(target, frame_time_ms=dt_ms), diagnostics)
+        if pipeline._zone_active:
+            boundary_cut = any(
+                previous_displayed_source < cut_index <= index for cut_index in cut_indices
+            )
+            displayed = pipeline.display_content(
+                target, frame_time_ms=dt_ms, scene_cut=boundary_cut
+            )
+            diagnostics["zone_backlight"] = cast(dict, pipeline.last_zone_trace).copy()
+            previous_displayed_source = index
+        else:
+            displayed = pipeline.display_content(target, frame_time_ms=dt_ms)
+        yield SequenceOutput(displayed, diagnostics)

@@ -107,6 +107,7 @@ def render_block_sequence(
     origin, index, output_index = pts(0), 0, 0
     previous = None
     dt_ms = float(1000 / output_rate)
+    previous_displayed_source = -1
     while left is not None:
         start = pts(index)
         end = pts(index + 1) if right is not None else start + duration
@@ -156,7 +157,19 @@ def render_block_sequence(
                 maps.update(estimate.debug_arrays())
             # No hidden calls before/after this tick. In particular, estimation
             # and cut handling never touch panel or ABL history.
-            displayed = pipeline.display_content(result.frame, frame_time_ms=dt_ms)
+            if pipeline._zone_active:
+                # M14's estimated cuts own reconstruction only. Explicit cuts
+                # reset zones here; M17 owns its separate target-delta detector.
+                boundary_cut = any(
+                    previous_displayed_source < cut_index <= index for cut_index in cut_indices
+                )
+                displayed = pipeline.display_content(
+                    result.frame, frame_time_ms=dt_ms, scene_cut=boundary_cut
+                )
+                diagnostics["zone_backlight"] = cast(dict, pipeline.last_zone_trace).copy()
+                previous_displayed_source = index
+            else:
+                displayed = pipeline.display_content(result.frame, frame_time_ms=dt_ms)
             if pipeline._dynamics_active:
                 diagnostics["abl_capacity"] = cast(dict, pipeline.last_capacity_trace).copy()
             yield SequenceOutput(displayed, diagnostics, motion_maps=maps)

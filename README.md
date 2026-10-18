@@ -29,7 +29,8 @@ tv-sim gallery
 is a deprecated compatibility shim; new commands and imports use `tv_sim`.
 Open [the offline gallery](reports/gallery/index.html) after generation. The
 [CLI guide](docs/usage.md) covers validation, sequences, window fitting, OLED
-dynamics, and opt-in colorimetry.
+capacity, [LCD zone dynamics](docs/usage.md#lcd-zone-backlight-dynamics-opt-in),
+and opt-in colorimetry.
 
 ## Example output
 
