@@ -3,7 +3,7 @@
 import numpy as np
 import pytest
 
-from sim.macro import render_macro
+from tv_sim.macro import render_macro
 
 
 def _cell_means(image, height, width, scale):
@@ -49,8 +49,13 @@ def test_qd_green_is_above_red_blue_and_repeat_is_staggered():
     for row in range(2):
         cell = macro[row * 40 : (row + 1) * 40]
         centers.append(
-            [(float((xx * cell[..., c]).sum() / cell[..., c].sum()),
-              float((yy * cell[..., c]).sum() / cell[..., c].sum())) for c in range(3)]
+            [
+                (
+                    float((xx * cell[..., c]).sum() / cell[..., c].sum()),
+                    float((yy * cell[..., c]).sum() / cell[..., c].sum()),
+                )
+                for c in range(3)
+            ]
         )
     for red, green, blue in centers:
         assert green[1] < red[1] and green[1] < blue[1]
@@ -74,20 +79,34 @@ def test_macro_black_stays_black(layout):
     assert not np.any(render_macro(np.zeros((2, 3, 3)), layout))
 
 
-@pytest.mark.parametrize("kwargs", [
-    {"scale": 3}, {"scale": 8.5}, {"scale": True},
-    {"fill_factor": 0}, {"fill_factor": 1.1}, {"fill_factor": np.nan},
-    {"white_fraction": -0.1}, {"white_fraction": np.inf},
-])
+@pytest.mark.parametrize(
+    "kwargs",
+    [
+        {"scale": 3},
+        {"scale": 8.5},
+        {"scale": True},
+        {"fill_factor": 0},
+        {"fill_factor": 1.1},
+        {"fill_factor": np.nan},
+        {"white_fraction": -0.1},
+        {"white_fraction": np.inf},
+    ],
+)
 def test_macro_rejects_invalid_render_parameters(kwargs):
     with pytest.raises(ValueError):
         render_macro(np.ones((1, 1, 3)), "wrgb", **kwargs)
 
 
-@pytest.mark.parametrize("source", [
-    np.zeros((2, 2)), np.zeros((1, 1, 4)), np.zeros((0, 1, 3)),
-    np.full((1, 1, 3), -1), np.full((1, 1, 3), np.nan),
-])
+@pytest.mark.parametrize(
+    "source",
+    [
+        np.zeros((2, 2)),
+        np.zeros((1, 1, 4)),
+        np.zeros((0, 1, 3)),
+        np.full((1, 1, 3), -1),
+        np.full((1, 1, 3), np.nan),
+    ],
+)
 def test_macro_rejects_invalid_linear_images(source):
     with pytest.raises(ValueError):
         render_macro(source, "rgb_stripe")

@@ -1,27 +1,26 @@
 """Provenance is complete, honest about unknowns, and outside the runtime path."""
 
+import subprocess
+import sys
 from copy import deepcopy
 from dataclasses import replace
 from pathlib import Path
-import subprocess
-import sys
 
 import numpy as np
 import pytest
 import yaml
 
-import sim.profile as profiles
-from sim.pipeline import Pipeline
-from sim.profile import PsfProfile, load_profile
-from sim.provenance import (
+import tv_sim.profile as profiles
+from tv_sim.pipeline import Pipeline
+from tv_sim.profile import PsfProfile, load_profile
+from tv_sim.provenance import (
     ProvenanceError,
     load_provenance,
     lookup_measurement,
     profile_values,
     validate_provenance,
 )
-from sim.stages.encode import encode_frame
-
+from tv_sim.stages.encode import encode_frame
 
 PROFILES = (
     "generic_ips_edge",
@@ -48,9 +47,7 @@ def _set_path(data, path, value):
 def _copy_profiles(destination):
     destination.mkdir()
     for name in PROFILES:
-        (destination / f"{name}.yaml").write_bytes(
-            (PROFILE_DIR / f"{name}.yaml").read_bytes()
-        )
+        (destination / f"{name}.yaml").write_bytes((PROFILE_DIR / f"{name}.yaml").read_bytes())
         for suffix in (".angular.yaml", ".colorimetry.yaml"):
             (destination / f"{name}{suffix}").write_bytes(
                 (PROFILE_DIR / f"{name}{suffix}").read_bytes()
@@ -138,7 +135,9 @@ def test_validator_reports_missing_and_unsupported_profile_keys(woled_data):
     assert any("hdr.window_curve" in error for error in errors)
 
 
-@pytest.mark.parametrize("missing", ["value", "evidence", "source", "conditions", "interpolation", "support"])
+@pytest.mark.parametrize(
+    "missing", ["value", "evidence", "source", "conditions", "interpolation", "support"]
+)
 def test_each_profile_entry_requires_all_provenance_fields(woled_data, missing):
     del woled_data["entries"]["hdr.panel_peak_nits"][missing]
     assert validate_provenance("generic_woled", woled_data)
@@ -193,7 +192,9 @@ def test_sidecars_are_excluded_from_runtime_profile_discovery(tmp_path, monkeypa
         assert load_profile(name).name == name
 
 
-@pytest.mark.parametrize("contents", ["[unclosed", "- not\n- a mapping\n", "schema_version: 1\nschema_version: 2\n"])
+@pytest.mark.parametrize(
+    "contents", ["[unclosed", "- not\n- a mapping\n", "schema_version: 1\nschema_version: 2\n"]
+)
 def test_load_rejects_malformed_yaml_and_duplicate_explicit_keys(tmp_path, monkeypatch, contents):
     (tmp_path / "generic_woled.yaml").write_bytes((PROFILE_DIR / "generic_woled.yaml").read_bytes())
     monkeypatch.setattr(profiles, "PROFILES_DIR", tmp_path)
@@ -256,7 +257,14 @@ def test_named_sample_records_preserve_documented_measurements_and_unknowns():
         assert set(data["datasets"]) == {dataset_id}
         dataset = data["datasets"][dataset_id]
         assert [node["fraction"] for node in dataset["nodes"]] == [
-            0.01, 0.02, 0.05, 0.1, 0.25, 0.5, 0.75, 1.0
+            0.01,
+            0.02,
+            0.05,
+            0.1,
+            0.25,
+            0.5,
+            0.75,
+            1.0,
         ]
         assert [node["luminance_nits"] for node in dataset["nodes"]] == luminances
         assert [node["evidence"] for node in dataset["nodes"]] == [
@@ -300,7 +308,9 @@ def test_interpolation_is_proposed_and_does_not_replace_nr_samples(fraction, exp
     assert result.evidence == "P"
     assert result.interpolated is True
     assert data == before
-    node = next(node for node in data["datasets"][dataset_id]["nodes"] if node["fraction"] == fraction)
+    node = next(
+        node for node in data["datasets"][dataset_id]["nodes"] if node["fraction"] == fraction
+    )
     assert node["luminance_nits"] == node["evidence"] == "NR"
 
 
@@ -314,8 +324,14 @@ def test_x955_interpolation_preserves_small_window_suppression():
 @pytest.mark.parametrize(
     "fraction",
     [
-        0.0, 0.01, -0.01, 1.001,
-        float("nan"), float("inf"), -float("inf"), True,
+        0.0,
+        0.01,
+        -0.01,
+        1.001,
+        float("nan"),
+        float("inf"),
+        -float("inf"),
+        True,
         pytest.param(10**400, id="oversized-integer"),
     ],
 )
@@ -449,13 +465,11 @@ def test_python_module_provenance_command_checks_all_profiles():
 
 
 def test_provenance_cli_rejects_missing_entries(tmp_path, monkeypatch, woled_data, capsys):
-    from sim.cli import main
+    from tv_sim.cli import main
 
     _copy_profiles(tmp_path / "profiles")
     del woled_data["entries"]["temporal.integration_samples"]
-    (tmp_path / "profiles" / "generic_woled.provenance.yaml").write_text(
-        yaml.safe_dump(woled_data)
-    )
+    (tmp_path / "profiles" / "generic_woled.provenance.yaml").write_text(yaml.safe_dump(woled_data))
     monkeypatch.setattr(profiles, "PROFILES_DIR", tmp_path / "profiles")
     with pytest.raises(SystemExit) as raised:
         main(["provenance", "--check", "--profiles", "generic_woled"])
@@ -467,7 +481,7 @@ def test_provenance_cli_rejects_missing_entries(tmp_path, monkeypatch, woled_dat
 def test_provenance_cli_default_check_rejects_orphan_sidecars_but_allows_targeted_check(
     tmp_path, monkeypatch, capsys
 ):
-    from sim.cli import main
+    from tv_sim.cli import main
 
     _copy_profiles(tmp_path / "profiles")
     for name in PROFILES:
@@ -527,12 +541,16 @@ def test_pipeline_outputs_and_history_are_bit_identical_with_or_without_sidecars
         second = sidecar_pipeline.run_linear(source)
         _assert_array_identical(first.rgb, second.rgb)
         _assert_array_identical(first.backlight, second.backlight)
-        _assert_array_identical(encode_frame(first, plain.output), encode_frame(second, with_sidecar.output))
+        _assert_array_identical(
+            encode_frame(first, plain.output), encode_frame(second, with_sidecar.output)
+        )
         _assert_array_identical(
             plain_encoded_pipeline.run(source), sidecar_encoded_pipeline.run(source)
         )
         _assert_array_identical(plain_pipeline.state.previous, sidecar_pipeline.state.previous)
-        assert plain_pipeline.load_state.apl_nits.hex() == sidecar_pipeline.load_state.apl_nits.hex()
+        assert (
+            plain_pipeline.load_state.apl_nits.hex() == sidecar_pipeline.load_state.apl_nits.hex()
+        )
         if previous is not None:
             assert first.rgb.tobytes() != previous
         previous = first.rgb.tobytes()

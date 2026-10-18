@@ -2,9 +2,9 @@
 
 import numpy as np
 
-from sim.frame import Frame
-from sim.profile import AmbientParams
-from sim.stages.ambient import add_ambient, reflected_nits
+from tv_sim.frame import Frame
+from tv_sim.profile import AmbientParams
+from tv_sim.stages.ambient import add_ambient, reflected_nits
 
 
 def test_zero_lux_is_unchanged_and_light_adds_a_neutral_offset():

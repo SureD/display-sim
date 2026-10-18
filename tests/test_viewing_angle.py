@@ -9,18 +9,17 @@ from dataclasses import replace
 import numpy as np
 import pytest
 
-from sim.pipeline import Pipeline
-from sim.profile import available_profiles, load_profile
-from sim.stages.encode import encode_frame
-from sim.stages.panel import lcd_transmit
-from sim.stages.viewing_angle import emissive_angular_gain, lcd_angular_transmit
-from sim.viewing_angle import (
+from tv_sim.pipeline import Pipeline
+from tv_sim.profile import available_profiles, load_profile
+from tv_sim.stages.encode import encode_frame
+from tv_sim.stages.panel import lcd_transmit
+from tv_sim.stages.viewing_angle import emissive_angular_gain, lcd_angular_transmit
+from tv_sim.viewing_angle import (
     EmissiveAngularParams,
     LcdAngularParams,
     ViewingAngleConfig,
     angular_parameters,
 )
-
 
 PROFILES = tuple(available_profiles())
 
@@ -35,9 +34,7 @@ def assert_identical(first, second):
 
 
 def angle(horizontal=45.0, vertical=0.0, *, enabled=True):
-    return ViewingAngleConfig(
-        enabled=enabled, horizontal_deg=horizontal, vertical_deg=vertical
-    )
+    return ViewingAngleConfig(enabled=enabled, horizontal_deg=horizontal, vertical_deg=vertical)
 
 
 def lcd_params(**overrides):
@@ -62,13 +59,18 @@ def test_disabled_or_zero_angle_preserves_outputs_and_both_histories(name, confi
     rng = np.random.default_rng(20261017)
     pattern = rng.integers(0, 256, (16, 24, 3), dtype=np.uint8)
     for source in (
-        np.zeros_like(pattern), pattern, np.full_like(pattern, 255),
-        np.roll(pattern, 3, axis=1), np.zeros_like(pattern),
+        np.zeros_like(pattern),
+        pattern,
+        np.full_like(pattern, 255),
+        np.roll(pattern, 3, axis=1),
+        np.zeros_like(pattern),
     ):
         expected, actual = baseline.run_linear(source), configured.run_linear(source)
         assert_identical(expected.rgb, actual.rgb)
         assert_identical(expected.backlight, actual.backlight)
-        assert_identical(encode_frame(expected, profile.output), encode_frame(actual, profile.output))
+        assert_identical(
+            encode_frame(expected, profile.output), encode_frame(actual, profile.output)
+        )
         assert_identical(baseline.state.previous, configured.state.previous)
         assert baseline.load_state.apl_nits.hex() == configured.load_state.apl_nits.hex()
 
@@ -96,7 +98,8 @@ def test_stage_bypass_retains_legacy_numerics_at_zero_backlight(config):
     assert_identical(
         target,
         emissive_angular_gain(
-            target, config,
+            target,
+            config,
             EmissiveAngularParams(max_angle_deg=45.0, emission_gain_45=(0.8, 0.9, 0.7)),
         ),
     )
@@ -131,8 +134,10 @@ def test_lcd_white_black_and_gray_terms_are_independently_identified():
     baseline = lcd_params(white_gain_45=(0.8,) * 3, black_gain_45=(4.0,) * 3)
     leakage = replace(baseline, black_gain_45=(12.0,) * 3)
     gray = replace(baseline, gray_exponent_45=(0.65,) * 3)
-    values = [lcd_angular_transmit(target, backlight, contrast, angle(), p)[0, :, 0]
-              for p in (baseline, leakage, gray)]
+    values = [
+        lcd_angular_transmit(target, backlight, contrast, angle(), p)[0, :, 0]
+        for p in (baseline, leakage, gray)
+    ]
     original, leaked, washed = values
     assert original[0] == pytest.approx(light / contrast * 4.0)
     assert leaked[0] == pytest.approx(light / contrast * 12.0)
@@ -178,13 +183,12 @@ def test_emissive_pipeline_ignores_lcd_contrast_and_legacy_chroma_terms(name):
     profile = load_profile(name)
     modified = replace(
         profile,
-        panel=replace(profile.panel, native_contrast=2.0, viewing_angle_deg=75.0,
-                      angle_loss_per_deg=9.0),
+        panel=replace(
+            profile.panel, native_contrast=2.0, viewing_angle_deg=75.0, angle_loss_per_deg=9.0
+        ),
     )
     source = np.array([[[255, 5, 40], [25, 200, 80], [0, 0, 0]]], np.uint8)
-    params = EmissiveAngularParams(
-        max_angle_deg=45.0, emission_gain_45=(0.7, 0.85, 0.95)
-    )
+    params = EmissiveAngularParams(max_angle_deg=45.0, emission_gain_45=(0.7, 0.85, 0.95))
     first = Pipeline(profile, viewing_angle=angle(), angular_params=params).run_linear(source)
     second = Pipeline(modified, viewing_angle=angle(), angular_params=params).run_linear(source)
     assert_identical(first.rgb, second.rgb)
@@ -193,9 +197,7 @@ def test_emissive_pipeline_ignores_lcd_contrast_and_legacy_chroma_terms(name):
 
 def test_emissive_gain_scales_channels_without_creating_black_emission():
     target = np.array([[[0.0, 0.0, 0.0], [50.0, 80.0, 100.0]]], np.float32)
-    params = EmissiveAngularParams(
-        max_angle_deg=45.0, emission_gain_45=(0.7, 0.85, 0.95)
-    )
+    params = EmissiveAngularParams(max_angle_deg=45.0, emission_gain_45=(0.7, 0.85, 0.95))
     actual = emissive_angular_gain(target, angle(), params)
     assert_identical(actual[:, :1], target[:, :1])
     np.testing.assert_allclose(actual[0, 1], [35.0, 68.0, 95.0], rtol=2e-6)
@@ -212,19 +214,33 @@ def test_signed_angles_and_axis_exchange_share_the_explicit_symmetric_preset(nam
 
 
 @pytest.mark.parametrize("name", PROFILES)
-@pytest.mark.parametrize("horizontal, vertical", [
-    (45.0001, 0.0), (0.0, -45.0001), (40.0, 40.0), (89.9, 0.0),
-])
+@pytest.mark.parametrize(
+    "horizontal, vertical",
+    [
+        (45.0001, 0.0),
+        (0.0, -45.0001),
+        (40.0, 40.0),
+        (89.9, 0.0),
+    ],
+)
 def test_out_of_support_angles_are_rejected_without_extrapolation(name, horizontal, vertical):
     with pytest.raises(ValueError):
         pipeline = Pipeline(load_profile(name), viewing_angle=angle(horizontal, vertical))
         pipeline.run_linear(np.zeros((2, 2, 3), np.uint8))
 
 
-@pytest.mark.parametrize("bad", [
-    float("nan"), float("inf"), -float("inf"), True,
-    pytest.param(10**400, id="oversized-integer"), 90.0, -90.0,
-])
+@pytest.mark.parametrize(
+    "bad",
+    [
+        float("nan"),
+        float("inf"),
+        -float("inf"),
+        True,
+        pytest.param(10**400, id="oversized-integer"),
+        90.0,
+        -90.0,
+    ],
+)
 @pytest.mark.parametrize("field", ["horizontal_deg", "vertical_deg"])
 def test_nonfinite_or_nonphysical_coordinates_are_rejected(field, bad):
     with pytest.raises(ValueError):
@@ -234,8 +250,10 @@ def test_nonfinite_or_nonphysical_coordinates_are_rejected(field, bad):
 @pytest.mark.parametrize("name", PROFILES)
 def test_active_pipeline_requires_the_matching_optical_parameter_family(name):
     profile = load_profile(name)
-    wrong = lcd_params() if profile.self_emissive else EmissiveAngularParams(
-        max_angle_deg=45.0, emission_gain_45=(1.0, 1.0, 1.0)
+    wrong = (
+        lcd_params()
+        if profile.self_emissive
+        else EmissiveAngularParams(max_angle_deg=45.0, emission_gain_45=(1.0, 1.0, 1.0))
     )
     with pytest.raises(ValueError):
         pipeline = Pipeline(profile, viewing_angle=angle(), angular_params=wrong)
@@ -255,7 +273,8 @@ def test_identity_angular_terms_preserve_compensated_lcd_response():
     backlight = np.full((1, 2), 100.0, np.float32)
     np.testing.assert_allclose(
         lcd_angular_transmit(target, backlight, 2000.0, angle(), lcd_params()),
-        lcd_transmit(target, backlight, 2000.0), rtol=2e-7,
+        lcd_transmit(target, backlight, 2000.0),
+        rtol=2e-7,
     )
 
 
@@ -269,5 +288,4 @@ def test_lcd_model_rejects_invalid_rgb_terms(field, value):
 def test_lcd_extinction_cannot_exceed_white_within_model_support():
     params = lcd_params(white_gain_45=(0.5,) * 3, black_gain_45=(1000.0,) * 3)
     with pytest.raises(ValueError, match="epsilon"):
-        Pipeline(load_profile("generic_ips_edge"), viewing_angle=angle(10),
-                 angular_params=params)
+        Pipeline(load_profile("generic_ips_edge"), viewing_angle=angle(10), angular_params=params)

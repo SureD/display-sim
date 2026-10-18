@@ -3,7 +3,7 @@
 import numpy as np
 import pytest
 
-from sim.metrics import (
+from tv_sim.metrics import (
     abl_ratios,
     ansi_contrast,
     blur_width_ms,
@@ -39,9 +39,7 @@ def test_window_bloom_ring_and_full_frame():
     distance = rectangle_chebyshev_distance(21, 21, 6, 15, 6, 15)
     luminance[distance == 1] = 4.0
     black = np.full_like(luminance, 0.5)
-    metrics = window_bloom(
-        luminance, 6, 15, 6, 15, near_px=1, far_px=4, black_luminance=black
-    )
+    metrics = window_bloom(luminance, 6, 15, 6, 15, near_px=1, far_px=4, black_luminance=black)
     assert metrics["peak_nits"] == pytest.approx(100.0)
     assert metrics["halo_nits"] == pytest.approx(4.0)
     assert metrics["bloom_excess_nits"] == pytest.approx(3.5)

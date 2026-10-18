@@ -3,9 +3,9 @@
 import re
 from pathlib import Path
 
-from sim.anchors import ANCHORS, POINT_RELATIVE_TOLERANCE, Anchor, score_reference
+from tv_sim.anchors import ANCHORS, POINT_RELATIVE_TOLERANCE, Anchor, score_reference
 
-RESEARCH = Path("research/m4-reference-ranges.md")
+RESEARCH = Path("docs/research/m4-reference-ranges.md")
 
 
 def test_scored_numbers_are_transcribed_from_the_research_note():

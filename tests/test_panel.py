@@ -3,9 +3,9 @@
 import numpy as np
 import pytest
 
-from sim.frame import Frame
-from sim.profile import BacklightParams, PanelParams
-from sim.stages.panel import (
+from tv_sim.frame import Frame
+from tv_sim.profile import BacklightParams, PanelParams
+from tv_sim.stages.panel import (
     EmissionPsf,
     apply_viewing_angle,
     composite_subpixels,
@@ -76,7 +76,7 @@ def test_oled_panel_clips_to_peak_without_lcd_floor():
 
 
 def test_emission_psf_sigmas_are_pixels_not_zone_pitches():
-    from sim.filters import gaussian_kernel1d
+    from tv_sim.filters import gaussian_kernel1d
 
     psf = _gaussian_psf(0.45, tail_sigma=2.0, weight=0.1)
     # 0.45 is read as 0.45 px, so the kernel is the one-pixel-sigma Gaussian.
@@ -87,7 +87,7 @@ def test_emission_psf_sigmas_are_pixels_not_zone_pitches():
 
 def test_emission_psf_moves_light_onto_dark_neighbors_without_creating_any():
     # Wide enough that the tail stays inside the frame: reflect padding would
-    # otherwise mirror light back and inflate the sum (research/m3 boundary note).
+    # otherwise mirror light back and inflate the sum (docs/research/m3 boundary note).
     emitted = np.zeros((25, 25, 3), dtype=np.float32)
     emitted[12, 12] = (300.0, 0.0, 0.0)
     spread = spread_emission(emitted, _gaussian_psf(0.8, 2.0, 0.05))

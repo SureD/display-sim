@@ -1,27 +1,33 @@
 """Opt-in window fits preserve experiment support and the forward pipeline."""
 
-from copy import deepcopy
-from dataclasses import replace
 import json
-from pathlib import Path
 import subprocess
 import sys
+from copy import deepcopy
+from dataclasses import replace
+from pathlib import Path
 
 import numpy as np
 import pytest
 
-from sim.color import luminance, pq_oetf
-from sim.frame import Frame
-from sim.pipeline import Pipeline
-from sim import pipeline as pipeline_module, profile as profiles
-from sim.profile import load_profile
-from sim.provenance import ProvenanceError, load_provenance
-from sim import window_replay as windows
-from sim.window_replay import (
-    ReplayConditions, drive_profile, fit_windows, load_fit,
-    measurement_conditions, replay_fit, replay_window, save_fit,
+from tv_sim import pipeline as pipeline_module
+from tv_sim import profile as profiles
+from tv_sim import window_replay as windows
+from tv_sim.color import luminance, pq_oetf
+from tv_sim.frame import Frame
+from tv_sim.pipeline import Pipeline
+from tv_sim.profile import load_profile
+from tv_sim.provenance import ProvenanceError, load_provenance
+from tv_sim.window_replay import (
+    ReplayConditions,
+    drive_profile,
+    fit_windows,
+    load_fit,
+    measurement_conditions,
+    replay_fit,
+    replay_window,
+    save_fit,
 )
-
 
 WIDTH, HEIGHT = 32, 24
 SOURCE = "synthetic_placeholder_windows"
@@ -30,8 +36,9 @@ FITTED = "synthetic_placeholder_drive_fit"
 
 @pytest.fixture
 def conditions():
-    return ReplayConditions(3000.0, settle_ms=30.0, hold_ms=20.0,
-                            frame_time_ms=10.0, pre_roll_ms=20.0)
+    return ReplayConditions(
+        3000.0, settle_ms=30.0, hold_ms=20.0, frame_time_ms=10.0, pre_roll_ms=20.0
+    )
 
 
 @pytest.fixture
@@ -41,13 +48,24 @@ def profile():
         original,
         processing=replace(original.processing, sharpen_amount=0.0),
         backlight=replace(original.backlight, zones_x=4, zones_y=3),
-        hdr=replace(original.hdr, abl_source="demand", abl_reference_nits=1800.0,
-                    abl_full_field_nits=550.0, abl_power_budget_nits=180.0,
-                    abl_response_ms=25.0, abl_backlight_tracking=0.8),
-        temporal=replace(original.temporal, response_time_ms=14.0,
-                         overdrive_gain=0.4, overdrive_ms=2.0,
-                         overdrive_ceiling_nits=2200.0, bfi_duty=0.75,
-                         integration_samples=4),
+        hdr=replace(
+            original.hdr,
+            abl_source="demand",
+            abl_reference_nits=1800.0,
+            abl_full_field_nits=550.0,
+            abl_power_budget_nits=180.0,
+            abl_response_ms=25.0,
+            abl_backlight_tracking=0.8,
+        ),
+        temporal=replace(
+            original.temporal,
+            response_time_ms=14.0,
+            overdrive_gain=0.4,
+            overdrive_ms=2.0,
+            overdrive_ceiling_nits=2200.0,
+            bfi_duty=0.75,
+            integration_samples=4,
+        ),
     )
 
 
@@ -56,17 +74,26 @@ def synthetic_source(profile, conditions, scales=(0.6, 1.7)):
     data = load_provenance("generic_va_fald_miniled")
     dataset = deepcopy(data["datasets"]["x955_98_theatre_hdr_peak"])
     dataset["specimen"] = {
-        "manufacturer": "synthetic", "model": "placeholder forward model",
-        "diagonal_in": "NR", "region_panel_variant": "NR", "firmware": "NR",
+        "manufacturer": "synthetic",
+        "model": "placeholder forward model",
+        "diagonal_in": "NR",
+        "region_panel_variant": "NR",
+        "firmware": "NR",
     }
-    dataset["source"].update(url="test://synthetic", locator="Synthetic test targets",
-                             extraction="placeholder_forward_simulation")
+    dataset["source"].update(
+        url="test://synthetic",
+        locator="Synthetic test targets",
+        extraction="placeholder_forward_simulation",
+    )
     dataset["conditions"].update(measurement_conditions(profile, conditions, WIDTH, HEIGHT))
     dataset["nodes"] = [
-        {"fraction": fraction,
-         "luminance_nits": replay_window(profile, fraction, conditions, scale,
-                                         width=WIDTH, height=HEIGHT).luminance_nits,
-         "evidence": "P"}
+        {
+            "fraction": fraction,
+            "luminance_nits": replay_window(
+                profile, fraction, conditions, scale, width=WIDTH, height=HEIGHT
+            ).luminance_nits,
+            "evidence": "P",
+        }
         for fraction, scale in zip((0.25, 1.0), scales)
     ]
     dataset["support"]["range"] = [0.25, 1.0]
@@ -76,8 +103,9 @@ def synthetic_source(profile, conditions, scales=(0.6, 1.7)):
 
 
 def fit(profile, data, conditions, **kwargs):
-    return fit_windows(profile, data, SOURCE, FITTED, conditions=conditions,
-                       width=WIDTH, height=HEIGHT, **kwargs)
+    return fit_windows(
+        profile, data, SOURCE, FITTED, conditions=conditions, width=WIDTH, height=HEIGHT, **kwargs
+    )
 
 
 def assert_identical(first, second):
@@ -129,8 +157,15 @@ def test_replay_limits_once_per_tick_and_matches_manual_history(
             trace.append(float(np.mean(luminance(expected.rgb[11:13, 15:17]), dtype=np.float64)))
 
     counts = {}
-    for name in ("simulate_backlight", "simulate_panel", "tone_map", "add_ambient",
-                 "apply_temporal", "smooth_apl", "backlight_derate"):
+    for name in (
+        "simulate_backlight",
+        "simulate_panel",
+        "tone_map",
+        "add_ambient",
+        "apply_temporal",
+        "smooth_apl",
+        "backlight_derate",
+    ):
         original = getattr(pipeline_module, name)
 
         def counted(*args, _name=name, _original=original, **kwargs):
@@ -170,29 +205,39 @@ def test_shipped_nr_conditions_require_explicit_exploratory_mode(conditions):
     kwargs = dict(conditions=conditions, fractions=[0.25], width=WIDTH, height=HEIGHT)
     with pytest.raises(ProvenanceError, match="NR.*exploratory"):
         fit_windows(profile, source, "c2_42_hdr_standard_peak", "c2_experiment", **kwargs)
-    result = fit_windows(profile, source, "c2_42_hdr_standard_peak", "c2_experiment",
-                         exploratory=True, **kwargs)
+    result = fit_windows(
+        profile, source, "c2_42_hdr_standard_peak", "c2_experiment", exploratory=True, **kwargs
+    )
     assert result["condition_policy"] == "exploratory"
     assert result["assumptions"]["requested_window_nits"] == {
-        "recorded": "NR", "value": 3000.0, "evidence": "P"}
+        "recorded": "NR",
+        "value": 3000.0,
+        "evidence": "P",
+    }
     assert result["assumptions"]["settling_s"]["recorded"] == "NR"
-    assert result["source_provenance"]["datasets"]["c2_42_hdr_standard_peak"]["conditions"]["dwell_s"] == "NR"
+    assert (
+        result["source_provenance"]["datasets"]["c2_42_hdr_standard_peak"]["conditions"]["dwell_s"]
+        == "NR"
+    )
     assert result["nodes"][0]["target"]["evidence"] == "M"
 
 
 @pytest.mark.parametrize("exploratory", [False, True])
-@pytest.mark.parametrize("change", [
-    {"requested_window_nits": 1000.0},
-    {"source_encoding": "srgb"},
-    {"source_rgb_primaries": "bt2020"},
-    {"stimulus": "rgb_window_on_black"},
-    {"stimulus_rgb_code": [1.0, 0.0, 0.0]},
-    {"settling_s": 0.2},
-    {"hold_s": 0.2},
-    {"hold_statistic": "mean_over_hold"},
-    {"refresh_hz": 60.0},
-    {"prior_pattern_and_duration": {"stimulus": "white", "duration_s": 0.02}},
-])
+@pytest.mark.parametrize(
+    "change",
+    [
+        {"requested_window_nits": 1000.0},
+        {"source_encoding": "srgb"},
+        {"source_rgb_primaries": "bt2020"},
+        {"stimulus": "rgb_window_on_black"},
+        {"stimulus_rgb_code": [1.0, 0.0, 0.0]},
+        {"settling_s": 0.2},
+        {"hold_s": 0.2},
+        {"hold_statistic": "mean_over_hold"},
+        {"refresh_hz": 60.0},
+        {"prior_pattern_and_duration": {"stimulus": "white", "duration_s": 0.02}},
+    ],
+)
 def test_known_amplitude_color_and_time_mismatches_always_fail(
     profile, conditions, change, exploratory
 ):
@@ -221,32 +266,59 @@ def test_strict_lookup_rejects_x955_below_two_percent_before_forward_run(monkeyp
 
     monkeypatch.setattr(windows, "replay_window", unexpected)
     with pytest.raises(ProvenanceError, match="outside support"):
-        fit_windows(profile, source, "x955_98_theatre_hdr_peak", "invalid_small_window",
-                    conditions=conditions, fractions=[0.01], exploratory=True,
-                    width=WIDTH, height=HEIGHT)
+        fit_windows(
+            profile,
+            source,
+            "x955_98_theatre_hdr_peak",
+            "invalid_small_window",
+            conditions=conditions,
+            fractions=[0.01],
+            exploratory=True,
+            width=WIDTH,
+            height=HEIGHT,
+        )
 
 
 @pytest.mark.parametrize("fractions", [None, [0.1]])
 def test_unlocated_ips_peak_cannot_be_fitted(conditions, fractions):
     profile = load_profile("generic_ips_edge")
     with pytest.raises(ProvenanceError, match="unlocated|support range is NR"):
-        fit_windows(profile, load_provenance(profile.name), "uh770v_55_hdr_peak_unlocated",
-                    "unlocated_fit", conditions=conditions, fractions=fractions,
-                    exploratory=True, width=WIDTH, height=HEIGHT)
+        fit_windows(
+            profile,
+            load_provenance(profile.name),
+            "uh770v_55_hdr_peak_unlocated",
+            "unlocated_fit",
+            conditions=conditions,
+            fractions=fractions,
+            exploratory=True,
+            width=WIDTH,
+            height=HEIGHT,
+        )
 
 
 def test_raw_nr_nodes_survive_and_interpolated_targets_stay_p(conditions):
     profile = load_profile("generic_va_fald_miniled")
     source = load_provenance(profile.name)
-    result = fit_windows(profile, source, "x955_98_theatre_hdr_peak", "x955_gap_experiment",
-                         conditions=conditions, fractions=[0.02, 0.035], exploratory=True,
-                         width=WIDTH, height=HEIGHT)
+    result = fit_windows(
+        profile,
+        source,
+        "x955_98_theatre_hdr_peak",
+        "x955_gap_experiment",
+        conditions=conditions,
+        fractions=[0.02, 0.035],
+        exploratory=True,
+        width=WIDTH,
+        height=HEIGHT,
+    )
     embedded = result["source_provenance"]["datasets"]["x955_98_theatre_hdr_peak"]
     assert embedded == source["datasets"]["x955_98_theatre_hdr_peak"]
     assert embedded["nodes"][0] == {"fraction": 0.01, "luminance_nits": "NR", "evidence": "NR"}
     assert result["nodes"][0]["target"]["evidence"] == "M"
     assert result["nodes"][1]["target"] == {
-        "luminance_nits": 2337.5, "evidence": "P", "interpolated": True}
+        "luminance_nits": 2337.5,
+        "evidence": "P",
+        "interpolated": True,
+    }
     assert result["support"]["interpolation"] == "none"
 
 
@@ -257,16 +329,28 @@ def test_raster_rounding_requires_exploratory_assumption(profile, conditions):
     result = fit(profile, source, conditions, fractions=[0.5], exploratory=True)
     node = result["nodes"][0]
     assert node["raster_assumption"] == {
-        "nominal_fraction": 0.5, "actual_fraction": 23 * 17 / (WIDTH * HEIGHT), "evidence": "P"}
-    assert node["simulation"]["area_fraction_actual"] == node["raster_assumption"]["actual_fraction"]
+        "nominal_fraction": 0.5,
+        "actual_fraction": 23 * 17 / (WIDTH * HEIGHT),
+        "evidence": "P",
+    }
+    assert (
+        node["simulation"]["area_fraction_actual"] == node["raster_assumption"]["actual_fraction"]
+    )
     assert node["target"]["evidence"] == "P"
 
 
 @pytest.mark.parametrize("dataset_id", [SOURCE, "generic_va_fald_miniled", "", "../fit"])
 def test_fitted_dataset_id_must_be_new_and_separate(profile, conditions, dataset_id):
     with pytest.raises(ProvenanceError, match="dataset ID"):
-        fit_windows(profile, synthetic_source(profile, conditions), SOURCE, dataset_id,
-                    conditions=conditions, width=WIDTH, height=HEIGHT)
+        fit_windows(
+            profile,
+            synthetic_source(profile, conditions),
+            SOURCE,
+            dataset_id,
+            conditions=conditions,
+            width=WIDTH,
+            height=HEIGHT,
+        )
 
 
 def test_fit_file_is_separate_new_artifact_and_preserves_p_targets(
@@ -283,13 +367,16 @@ def test_fit_file_is_separate_new_artifact_and_preserves_p_targets(
     assert loaded["source_dataset_id"] == SOURCE
     assert all(node["target"]["evidence"] == "P" for node in loaded["nodes"])
     assert baseline.read_bytes() == baseline_bytes
-    assert replay_fit(profile, loaded)[0].luminance_nits == result["nodes"][0]["simulation"]["luminance_nits"]
+    assert (
+        replay_fit(profile, loaded)[0].luminance_nits
+        == result["nodes"][0]["simulation"]["luminance_nits"]
+    )
     with pytest.raises(FileExistsError):
         save_fit(destination, result)
     with pytest.raises(ProvenanceError, match=".fit.json"):
         save_fit(tmp_path / "baseline.yaml", result)
     monkeypatch.setattr(profiles, "PROFILES_DIR", tmp_path / "profiles")
-    with pytest.raises(ProvenanceError, match="outside sim/profiles"):
+    with pytest.raises(ProvenanceError, match="outside src/tv_sim/profiles"):
         save_fit(profiles.PROFILES_DIR / "separate.fit.json", result)
 
 
@@ -306,10 +393,12 @@ def test_stale_baseline_and_modified_matching_record_are_rejected(profile, condi
 
 def test_load_rejects_changed_target_evidence_and_drive_evidence(tmp_path, profile, conditions):
     result = fit(profile, synthetic_source(profile, conditions), conditions)
-    for category, field, value in (("target", "evidence", "M"),
-                                   ("drive_scale", "evidence", "M"),
-                                   ("simulation", "evidence", "M"),
-                                   ("drive_scale", "value", 0.0)):
+    for category, field, value in (
+        ("target", "evidence", "M"),
+        ("drive_scale", "evidence", "M"),
+        ("simulation", "evidence", "M"),
+        ("drive_scale", "value", 0.0),
+    ):
         changed = deepcopy(result)
         changed["nodes"][0][category][field] = value
         path = tmp_path / f"{category}_{field}.fit.json"
@@ -325,15 +414,18 @@ def test_replay_rejects_a_changed_drive_that_misses_target(profile, conditions):
         replay_fit(profile, result)
 
 
-@pytest.mark.parametrize(("path", "value"), [
-    (("raster", "height"), 0),
-    (("matching_fields",), None),
-    (("assumptions",), None),
-    (("condition_policy",), None),
-    (("solver", "atol_nits"), float("nan")),
-    (("dataset_id",), "../source"),
-    (("nodes", 0, "raster_assumption"), {"evidence": "P", "actual_fraction": 0.5}),
-])
+@pytest.mark.parametrize(
+    ("path", "value"),
+    [
+        (("raster", "height"), 0),
+        (("matching_fields",), None),
+        (("assumptions",), None),
+        (("condition_policy",), None),
+        (("solver", "atol_nits"), float("nan")),
+        (("dataset_id",), "../source"),
+        (("nodes", 0, "raster_assumption"), {"evidence": "P", "actual_fraction": 0.5}),
+    ],
+)
 def test_malformed_persisted_records_raise_provenance_errors(
     tmp_path, profile, conditions, path, value
 ):
@@ -351,26 +443,44 @@ def test_malformed_persisted_records_raise_provenance_errors(
         load_fit(destination)
 
 
-@pytest.mark.parametrize("kwargs", [
-    {"level_nits": 0.0}, {"level_nits": float("nan")}, {"level_nits": 10001.0},
-    {"level_nits": True}, {"color_rgb": (0.5, 0.5, 0.5)},
-    {"color_rgb": (1.0, -0.1, 0.0)}, {"frame_time_ms": 0.0},
-    {"settle_ms": -10.0}, {"settle_ms": 1.5}, {"hold_ms": 0.0},
-    {"pre_roll_ms": 0.0}, {"pre_roll_ms": 15.0},
-])
+@pytest.mark.parametrize(
+    "kwargs",
+    [
+        {"level_nits": 0.0},
+        {"level_nits": float("nan")},
+        {"level_nits": 10001.0},
+        {"level_nits": True},
+        {"color_rgb": (0.5, 0.5, 0.5)},
+        {"color_rgb": (1.0, -0.1, 0.0)},
+        {"frame_time_ms": 0.0},
+        {"settle_ms": -10.0},
+        {"settle_ms": 1.5},
+        {"hold_ms": 0.0},
+        {"pre_roll_ms": 0.0},
+        {"pre_roll_ms": 15.0},
+    ],
+)
 def test_invalid_replay_conditions_are_rejected(kwargs):
-    parameters = dict(level_nits=1000.0, frame_time_ms=10.0, settle_ms=20.0,
-                      hold_ms=20.0, pre_roll_ms=10.0)
+    parameters = dict(
+        level_nits=1000.0, frame_time_ms=10.0, settle_ms=20.0, hold_ms=20.0, pre_roll_ms=10.0
+    )
     parameters.update(kwargs)
     with pytest.raises(ProvenanceError):
         ReplayConditions(**parameters)
 
 
-@pytest.mark.parametrize("kwargs", [
-    {"atol_nits": 0.0}, {"rtol": -1.0}, {"max_iterations": 0},
-    {"max_iterations": True}, {"fractions": []}, {"fractions": [1.0, 0.25]},
-    {"fractions": [0.25, 0.25]},
-])
+@pytest.mark.parametrize(
+    "kwargs",
+    [
+        {"atol_nits": 0.0},
+        {"rtol": -1.0},
+        {"max_iterations": 0},
+        {"max_iterations": True},
+        {"fractions": []},
+        {"fractions": [1.0, 0.25]},
+        {"fractions": [0.25, 0.25]},
+    ],
+)
 def test_invalid_fit_options_are_rejected(profile, conditions, kwargs):
     with pytest.raises(ProvenanceError):
         fit(profile, synthetic_source(profile, conditions), conditions, **kwargs)
@@ -409,18 +519,28 @@ def test_zero_response_time_and_zero_targets_use_finite_absolute_tolerance(profi
 
 def test_black_preroll_exposes_onset_and_longer_settling_raises_hold_luminance():
     profile = load_profile("generic_woled")
-    profile = replace(profile, temporal=replace(profile.temporal, response_time_ms=100.0),
-                      processing=replace(profile.processing, sharpen_amount=0.0),
-                      hdr=replace(profile.hdr, abl_enabled=False))
-    onset = ReplayConditions(100.0, settle_ms=0.0, hold_ms=10.0,
-                             frame_time_ms=10.0, pre_roll_ms=10.0)
+    profile = replace(
+        profile,
+        temporal=replace(profile.temporal, response_time_ms=100.0),
+        processing=replace(profile.processing, sharpen_amount=0.0),
+        hdr=replace(profile.hdr, abl_enabled=False),
+    )
+    onset = ReplayConditions(
+        100.0, settle_ms=0.0, hold_ms=10.0, frame_time_ms=10.0, pre_roll_ms=10.0
+    )
     settled = replace(onset, settle_ms=200.0)
     immediate = replay_window(profile, 0.25, onset, width=WIDTH, height=HEIGHT)
     delayed = replay_window(profile, 0.25, settled, width=WIDTH, height=HEIGHT)
-    instantaneous_profile = replace(profile, temporal=replace(profile.temporal, response_time_ms=0.0))
+    instantaneous_profile = replace(
+        profile, temporal=replace(profile.temporal, response_time_ms=0.0)
+    )
     steady = replay_window(instantaneous_profile, 0.25, onset, width=WIDTH, height=HEIGHT)
-    assert immediate.luminance_nits == pytest.approx(steady.luminance_nits * (1 - np.exp(-0.1)), rel=1e-6)
-    assert delayed.luminance_nits == pytest.approx(steady.luminance_nits * (1 - np.exp(-2.1)), rel=1e-6)
+    assert immediate.luminance_nits == pytest.approx(
+        steady.luminance_nits * (1 - np.exp(-0.1)), rel=1e-6
+    )
+    assert delayed.luminance_nits == pytest.approx(
+        steady.luminance_nits * (1 - np.exp(-2.1)), rel=1e-6
+    )
     assert 0 < immediate.luminance_nits < delayed.luminance_nits < steady.luminance_nits
 
 
@@ -435,15 +555,45 @@ def test_non_scalable_ambient_offset_rejects_unreachable_black_target(profile, c
 @pytest.mark.parametrize("exploratory", [False, True])
 def test_cli_fit_windows_requires_opt_in_for_shipped_unknowns(tmp_path, exploratory):
     output = tmp_path / "cli.fit.json"
-    command = [sys.executable, "-m", "sim", "fit-windows", "--profile", "generic_woled",
-               "--source-dataset", "c2_42_hdr_standard_peak", "--dataset-id", "cli_experiment",
-               "--out", str(output), "--fractions", "0.25", "--level-nits", "3000",
-               "--settle-ms", "20", "--hold-ms", "20", "--frame-time-ms", "10",
-               "--pre-roll-ms", "10", "--width", str(WIDTH), "--height", str(HEIGHT)]
+    command = [
+        sys.executable,
+        "-m",
+        "sim",
+        "fit-windows",
+        "--profile",
+        "generic_woled",
+        "--source-dataset",
+        "c2_42_hdr_standard_peak",
+        "--dataset-id",
+        "cli_experiment",
+        "--out",
+        str(output),
+        "--fractions",
+        "0.25",
+        "--level-nits",
+        "3000",
+        "--settle-ms",
+        "20",
+        "--hold-ms",
+        "20",
+        "--frame-time-ms",
+        "10",
+        "--pre-roll-ms",
+        "10",
+        "--width",
+        str(WIDTH),
+        "--height",
+        str(HEIGHT),
+    ]
     if exploratory:
         command.append("--exploratory")
-    result = subprocess.run(command, cwd=Path(__file__).resolve().parents[1],
-                            capture_output=True, text=True, check=False)
+    result = subprocess.run(
+        command,
+        cwd=Path(__file__).resolve().parents[1],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
     if exploratory:
         assert result.returncode == 0, result.stdout + result.stderr
         assert "cli_experiment" in result.stdout

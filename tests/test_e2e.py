@@ -1,12 +1,14 @@
 """End-to-end stills through every bundled profile, plus the CLI."""
 
 import numpy as np
+import pytest
 
-from sim.patterns import white_window, window_bounds
-from sim.pipeline import Pipeline
-from sim.profile import available_profiles, load_profile
-from sim.stages.encode import encode_frame
+from tv_sim.patterns import white_window, window_bounds
+from tv_sim.pipeline import Pipeline
+from tv_sim.profile import available_profiles, load_profile
+from tv_sim.stages.encode import encode_frame
 
+pytestmark = [pytest.mark.e2e]
 
 PROFILES = (
     "generic_va_fald_miniled",
@@ -63,7 +65,7 @@ def test_pipeline_on_white_window(tmp_path):
     # window; WOLED with sigma 0 leaves them dark.
     assert float(linear["generic_qdoled"].rgb[near].max()) > 1e-3
     assert float(linear["generic_woled"].rgb[near].max()) == 0.0
-    from sim.cli import main
+    from tv_sim.cli import main
 
     src = tmp_path / "in.png"
     dst = tmp_path / "out.png"

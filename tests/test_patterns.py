@@ -2,7 +2,7 @@
 
 import numpy as np
 
-from sim.patterns import ansi_contrast, checkerboard, ramp, white_window, window_bounds
+from tv_sim.patterns import ansi_contrast, checkerboard, ramp, white_window, window_bounds
 
 
 def test_pattern_shapes_and_window():

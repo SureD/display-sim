@@ -5,9 +5,9 @@ from dataclasses import replace
 import numpy as np
 import pytest
 
-from sim.frame import Frame
-from sim.profile import TemporalParams
-from sim.stages.temporal import TemporalState, apply_temporal
+from tv_sim.frame import Frame
+from tv_sim.profile import TemporalParams
+from tv_sim.stages.temporal import TemporalState, apply_temporal
 
 
 def test_response_time_lags_a_step():
@@ -188,7 +188,7 @@ def test_subframe_bfi_samples_centered_pulse_and_preserves_panel_history():
 
 
 def test_subframe_hold_converges_and_bfi_narrows_ideal_pursuit_edge():
-    from sim.metrics import moving_edge_blur_px
+    from tv_sim.metrics import moving_edge_blur_px
 
     edge = np.zeros((2, 128, 3), np.float32)
     edge[:, 64:] = 100
@@ -225,15 +225,21 @@ def test_long_pan_distinguishes_response_overdrive_and_hold():
     for index in range(37):
         bar = np.zeros((2, 192, 3), np.float32)
         left = 16 + 4 * max(0, index - 12)  # 12 settled pre-roll frames.
-        bar[:, left:left + 12] = 100
+        bar[:, left : left + 12] = 100
         for key, mode in modes.items():
             output[key] = apply_temporal(Frame(bar), mode, states[key]).rgb
     left = 16 + 4 * 24
     # Slow response carries light into older pan positions. OD increases
     # the newly arrived bar's exposure; instantaneous response still blurs
     # in tracking-eye coordinates when the source is held for a frame.
-    assert output["lcd"][:, left - 5:left - 2].mean() > output["oled"][:, left - 5:left - 2].mean() + 1
-    assert output["od"][:, left + 9:left + 12].mean() > output["lcd"][:, left + 9:left + 12].mean() + 2
+    assert (
+        output["lcd"][:, left - 5 : left - 2].mean()
+        > output["oled"][:, left - 5 : left - 2].mean() + 1
+    )
+    assert (
+        output["od"][:, left + 9 : left + 12].mean()
+        > output["lcd"][:, left + 9 : left + 12].mean() + 2
+    )
     assert output["oled"][:, left + 12].mean() > 1
     assert np.allclose(output["no_hold"][:, left + 12], 0)
 

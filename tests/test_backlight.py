@@ -3,9 +3,9 @@
 import numpy as np
 import pytest
 
-from sim.frame import Frame
-from sim.profile import BacklightParams, PsfProfile
-from sim.stages.backlight import simulate_backlight, table_kernel1d
+from tv_sim.frame import Frame
+from tv_sim.profile import BacklightParams, PsfProfile
+from tv_sim.stages.backlight import simulate_backlight, table_kernel1d
 
 
 def _window(size: int = 96, fraction: float = 0.1, nits: float = 100.0) -> Frame:
@@ -66,8 +66,8 @@ def test_edge_lit_column_is_vertically_uniform():
 
 
 def test_profile_small_windows_emit_lcd_halo_with_inverse_contrast_scaling():
-    from sim.profile import load_profile
-    from sim.stages.panel import lcd_transmit
+    from tv_sim.profile import load_profile
+    from tv_sim.stages.panel import lcd_transmit
 
     profile = load_profile("generic_va_fald_miniled")
     for fraction in (0.01, 0.02, 0.10):
@@ -79,10 +79,12 @@ def test_profile_small_windows_emit_lcd_halo_with_inverse_contrast_scaling():
         halo = emitted[..., 0][dark]
         assert halo.max() > 0.001
         assert halo.max() > emitted[0, 0, 0] + 0.001
-        assert np.allclose(halo, driven.backlight[dark] / profile.panel.native_contrast,
-                           rtol=1e-4, atol=1e-6)
-        higher_contrast = lcd_transmit(frame.rgb, driven.backlight,
-                                      2 * profile.panel.native_contrast)
+        assert np.allclose(
+            halo, driven.backlight[dark] / profile.panel.native_contrast, rtol=1e-4, atol=1e-6
+        )
+        higher_contrast = lcd_transmit(
+            frame.rgb, driven.backlight, 2 * profile.panel.native_contrast
+        )
         assert np.allclose(higher_contrast[..., 0][dark], halo / 2, atol=1e-6)
         assert np.isfinite(emitted).all()
         assert emitted.min() >= 0
@@ -105,7 +107,9 @@ def test_two_component_psf_keeps_dc_and_widens_the_halo():
     frame = _window(size=72, fraction=0.04, nits=100.0)
     core = simulate_backlight(
         frame,
-        BacklightParams(mode="fald", zones_x=9, zones_y=9, psf_sigma_zones=0.35, psf_tail_weight=0.0),
+        BacklightParams(
+            mode="fald", zones_x=9, zones_y=9, psf_sigma_zones=0.35, psf_tail_weight=0.0
+        ),
     )
     tailed = simulate_backlight(
         frame,
@@ -128,11 +132,15 @@ def test_zone_percentile_can_ignore_a_tiny_highlight():
     image[0, 1] = 100.0
     peaked = simulate_backlight(
         Frame(image),
-        BacklightParams(mode="fald", zones_x=1, zones_y=1, psf_sigma_zones=0.0, zone_percentile=100.0),
+        BacklightParams(
+            mode="fald", zones_x=1, zones_y=1, psf_sigma_zones=0.0, zone_percentile=100.0
+        ),
     )
     robust = simulate_backlight(
         Frame(image),
-        BacklightParams(mode="fald", zones_x=1, zones_y=1, psf_sigma_zones=0.0, zone_percentile=50.0),
+        BacklightParams(
+            mode="fald", zones_x=1, zones_y=1, psf_sigma_zones=0.0, zone_percentile=50.0
+        ),
     )
     assert peaked.backlight[8, 8] == 100.0
     assert robust.backlight[8, 8] < 1.0
@@ -150,9 +158,7 @@ def test_exponential_tail_reaches_further_than_a_gaussian_tail():
         peak_nits=600.0,
     )
     gaussian = simulate_backlight(frame, BacklightParams(**shared, psf_shape="gaussian"))
-    skirt = simulate_backlight(
-        frame, BacklightParams(**shared, psf_shape="exponential_tail")
-    )
+    skirt = simulate_backlight(frame, BacklightParams(**shared, psf_shape="exponential_tail"))
     far = (4, 48)
     assert skirt.backlight[far] > gaussian.backlight[far]
     # Both still preserve DC on a flat field.
@@ -187,9 +193,7 @@ def test_zero_boundary_darkens_a_corner_and_calibration_restores_it():
     shared = dict(mode="fald", zones_x=6, zones_y=6, psf_sigma_zones=0.8, peak_nits=400.0)
     reflected = simulate_backlight(flat, BacklightParams(**shared, psf_boundary="reflect"))
     zeroed = simulate_backlight(flat, BacklightParams(**shared, psf_boundary="zero"))
-    calibrated = simulate_backlight(
-        flat, BacklightParams(**shared, psf_boundary="calibrated_zero")
-    )
+    calibrated = simulate_backlight(flat, BacklightParams(**shared, psf_boundary="calibrated_zero"))
     assert np.allclose(reflected.backlight, 100.0, atol=0.1)
     # Zero extension loses the footprint that falls off the panel.
     assert zeroed.backlight[0, 0] < 80.0

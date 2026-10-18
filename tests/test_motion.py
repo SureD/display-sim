@@ -6,8 +6,8 @@ from itertools import groupby
 import numpy as np
 import pytest
 
-from sim.frame import Frame
-from sim.motion import (
+from tv_sim.frame import Frame
+from tv_sim.motion import (
     AnalyticLayer,
     LayerScene,
     fixed_rate_pts,
@@ -18,10 +18,13 @@ from sim.motion import (
 
 @pytest.mark.parametrize(
     "source_fps,output_fps,runs",
-    [(24, 60, [3, 2, 3, 2]), (24, 120, [5, 5, 5, 5]),
-     ("24000/1001", "60000/1001", [3, 2, 3, 2]),
-     ("24000/1001", "120000/1001", [5, 5, 5, 5]),
-     (25, 50, [2, 2, 2, 2])],
+    [
+        (24, 60, [3, 2, 3, 2]),
+        (24, 120, [5, 5, 5, 5]),
+        ("24000/1001", "60000/1001", [3, 2, 3, 2]),
+        ("24000/1001", "120000/1001", [5, 5, 5, 5]),
+        (25, 50, [2, 2, 2, 2]),
+    ],
 )
 def test_repeat_cadence_has_exact_source_runs(source_fps, output_fps, runs):
     ticks = schedule(fixed_rate_pts(4, source_fps), 1 / Fraction(source_fps), output_fps)
@@ -33,12 +36,21 @@ def test_repeat_cadence_has_exact_source_runs(source_fps, output_fps, runs):
 
 def test_phase_and_pts_diagnostics_are_rational_and_half_open():
     ticks = schedule(fixed_rate_pts(3, 24), Fraction(1, 24), 60)
-    assert [t.phase for t in ticks[:5]] == [0, Fraction(2, 5), Fraction(4, 5),
-                                          Fraction(1, 5), Fraction(3, 5)]
+    assert [t.phase for t in ticks[:5]] == [
+        0,
+        Fraction(2, 5),
+        Fraction(4, 5),
+        Fraction(1, 5),
+        Fraction(3, 5),
+    ]
     assert ticks[3].to_dict() == {
-        "output_index": 3, "output_pts": "1/20", "source_index": 1,
-        "source_pts": "1/24", "next_source_index": 2,
-        "next_source_pts": "1/12", "phase": "1/5",
+        "output_index": 3,
+        "output_pts": "1/20",
+        "source_index": 1,
+        "source_pts": "1/24",
+        "next_source_index": 2,
+        "next_source_pts": "1/12",
+        "phase": "1/5",
     }
     # Three source durations total 1/8s: no added tick at the clip endpoint.
     assert len(ticks) == 8
@@ -66,8 +78,17 @@ def test_irregular_pts_and_single_frame_hold():
     assert all(t.source_index == 0 and t.next_source_pts is None for t in one)
 
 
-@pytest.mark.parametrize("pts,duration,fps", [([], 1, 60), ([0, 0], 1, 60),
-    ([1, 0], 1, 60), ([0, float("nan")], 1, 60), ([0], 0, 60), ([0], 1, 0)])
+@pytest.mark.parametrize(
+    "pts,duration,fps",
+    [
+        ([], 1, 60),
+        ([0, 0], 1, 60),
+        ([1, 0], 1, 60),
+        ([0, float("nan")], 1, 60),
+        ([0], 0, 60),
+        ([0], 1, 0),
+    ],
+)
 def test_scheduler_rejects_invalid_timing(pts, duration, fps):
     with pytest.raises(ValueError):
         schedule(pts, duration, fps)
@@ -87,8 +108,9 @@ def test_signed_subpixel_2d_translation_matches_known_interior(translation, alph
     result = reconstruct(left, right, alpha, translation=translation)
     truth = _plane(alpha * dx, alpha * dy)
     assert result.kind == "interpolated"
-    assert np.allclose(result.frame.rgb[~result.fallback_mask],
-                       truth.rgb[~result.fallback_mask], atol=1e-5, rtol=0)
+    assert np.allclose(
+        result.frame.rgb[~result.fallback_mask], truth.rgb[~result.fallback_mask], atol=1e-5, rtol=0
+    )
     assert result.frame.rgb.dtype == np.float32
     assert np.isfinite(result.frame.rgb).all()
     assert result.evidence == "P"
@@ -134,11 +156,16 @@ def test_cut_holds_old_shot_until_the_declared_cut_pts():
     assert reconstruct(old, new, 1, cut=True).frame is new
 
 
-@pytest.mark.parametrize("kwargs,reason", [({}, "missing_motion_model"),
-    ({"translation": (float("nan"), 0)}, "nonfinite_motion"),
-    ({"translation": (257, 0)}, "motion_out_of_range"),
-    ({"translation": (30, 0)}, "out_of_bounds"),
-    ({"translation": (0, 0)}, "model_endpoint_mismatch")])
+@pytest.mark.parametrize(
+    "kwargs,reason",
+    [
+        ({}, "missing_motion_model"),
+        ({"translation": (float("nan"), 0)}, "nonfinite_motion"),
+        ({"translation": (257, 0)}, "motion_out_of_range"),
+        ({"translation": (30, 0)}, "out_of_bounds"),
+        ({"translation": (0, 0)}, "model_endpoint_mismatch"),
+    ],
+)
 def test_unsafe_or_missing_translation_reports_whole_frame_hold(kwargs, reason):
     left, right = _plane(), _plane(2, 0)
     result = reconstruct(left, right, 0.5, **kwargs)
@@ -197,8 +224,9 @@ def test_layer_at_raster_border_retains_partial_bilinear_coverage(dx, edge):
     background = np.full((4, 6, 3), 20, np.float32)
     mask = np.zeros(background.shape[:2], bool)
     mask[:, edge] = True
-    scene = LayerScene(background, (AnalyticLayer(np.full_like(background, 100), mask,
-                                                velocity=(dx, 0)),))
+    scene = LayerScene(
+        background, (AnalyticLayer(np.full_like(background, 100), mask, velocity=(dx, 0)),)
+    )
     left, right = scene.render(0), scene.render(1)
     result = reconstruct(left, right, Fraction(1, 2), scene=scene)
     # Half of the edge texel remains visible; outside the layer is transparent.

@@ -1,26 +1,29 @@
 """M14 integration: bounded buffering and one physical update per output tick."""
 
+import json
 from dataclasses import replace
 from fractions import Fraction
-import json
 
 import numpy as np
-from PIL import Image
 import pytest
+from PIL import Image
 
-from sim.abl_dynamics import ABLDynamicsConfig
-from sim.cli import main
-from sim.color import srgb_oetf
-from sim.frame import Frame
-from sim.pipeline import Pipeline
-from sim.profile import load_profile
-from sim.sequence import MotionConfig
+from tv_sim.abl_dynamics import ABLDynamicsConfig
+from tv_sim.cli import main
+from tv_sim.color import srgb_oetf
+from tv_sim.frame import Frame
+from tv_sim.pipeline import Pipeline
+from tv_sim.profile import load_profile
+from tv_sim.sequence import MotionConfig
 
 
 def profile():
     p = load_profile("generic_woled")
-    return replace(p, processing=replace(p.processing, sharpen_amount=0),
-                   temporal=replace(p.temporal, sample_and_hold=False, motion_px_per_frame=0))
+    return replace(
+        p,
+        processing=replace(p.processing, sharpen_amount=0),
+        temporal=replace(p.temporal, sample_and_hold=False, motion_px_per_frame=0),
+    )
 
 
 class Recorder(Pipeline):
@@ -46,7 +49,7 @@ def sources(count=3):
     for index in range(count):
         rgb = np.zeros_like(texture)
         offset = index * 2
-        rgb[:, offset:] = texture[:, :80-offset]
+        rgb[:, offset:] = texture[:, : 80 - offset]
         frames.append(srgb_oetf(rgb / 100))
     return frames
 
@@ -80,15 +83,21 @@ def test_mci_composes_with_m13_one_capacity_and_panel_update_per_output_tick(abl
     p = replace(p, hdr=replace(p.hdr, abl_source=abl_source))
     dynamics = ABLDynamicsConfig(model="capacity_attack_release_v1", attack_ms=100, release_ms=1000)
     pipeline = Recorder(p, abl_dynamics=dynamics)
-    output = list(pipeline.run_sequence(sources(), MotionConfig(mode="mci", output_fps=60), cuts=[1]))
+    output = list(
+        pipeline.run_sequence(sources(), MotionConfig(mode="mci", output_fps=60), cuts=[1])
+    )
     reference = Pipeline(p, abl_dynamics=dynamics)
     for tick, target in zip(output, pipeline.targets):
-        expected = reference.display_content(Frame(target), frame_time_ms=1000/60)
+        expected = reference.display_content(Frame(target), frame_time_ms=1000 / 60)
         assert np.array_equal(expected.rgb, tick.frame.rgb)
         assert np.array_equal(expected.backlight, tick.frame.backlight)
         assert tick.diagnostics["abl_capacity"] == reference.last_capacity_trace
     assert pipeline.capacity_state.ticks == reference.capacity_state.ticks == len(output) == 8
-    assert pipeline.capacity_state.elapsed_ms == reference.capacity_state.elapsed_ms == sum([1000/60]*8)
+    assert (
+        pipeline.capacity_state.elapsed_ms
+        == reference.capacity_state.elapsed_ms
+        == sum([1000 / 60] * 8)
+    )
     assert pipeline.capacity_state.capacity_nits == reference.capacity_state.capacity_nits
     assert np.array_equal(pipeline.state.previous, reference.state.previous)
     # The reconstruction stage holds the old picture throughout the cut pair.
@@ -99,7 +108,7 @@ def test_mci_composes_with_m13_one_capacity_and_panel_update_per_output_tick(abl
 
 
 def test_declared_cut_flushes_confidence_history_and_never_estimates_across_it(monkeypatch):
-    import sim.block_motion as motion
+    import tv_sim.block_motion as motion
 
     real = motion.estimate_pair
     calls = []
@@ -111,7 +120,9 @@ def test_declared_cut_flushes_confidence_history_and_never_estimates_across_it(m
 
     monkeypatch.setattr(motion, "estimate_pair", estimate)
     pipeline = Recorder(profile())
-    output = list(pipeline.run_sequence(sources(4), MotionConfig(mode="mci", output_fps=48), cuts=[2]))
+    output = list(
+        pipeline.run_sequence(sources(4), MotionConfig(mode="mci", output_fps=48), cuts=[2])
+    )
     assert len(calls) == 3
     assert calls[1][0] and calls[1][2].scene_cut
     assert calls[2][1] is None
@@ -140,11 +151,16 @@ def test_mci_rational_pts_single_tail_and_clip_state_are_deterministic():
     assert one[1].diagnostics["fallback_reasons"] == ["last_frame_hold"]
 
 
-@pytest.mark.parametrize("kwargs", [
-    {"source_pts": [0, 0], "last_duration": 1},
-    {"source_pts": [0, 1]}, {"cuts": [0]}, {"cuts": [2]},
-    {"last_duration": 0},
-])
+@pytest.mark.parametrize(
+    "kwargs",
+    [
+        {"source_pts": [0, 0], "last_duration": 1},
+        {"source_pts": [0, 1]},
+        {"cuts": [0]},
+        {"cuts": [2]},
+        {"last_duration": 0},
+    ],
+)
 def test_mci_rejects_bad_available_metadata_before_display(kwargs):
     pipeline = Recorder(profile())
     with pytest.raises(ValueError):
@@ -155,19 +171,46 @@ def test_mci_rejects_bad_available_metadata_before_display(kwargs):
 def test_mci_stream_geometry_rejection_happens_when_pair_is_read():
     pipeline = Recorder(profile())
     with pytest.raises(ValueError, match="geometry"):
-        list(pipeline.run_sequence([np.zeros((8, 8, 3)), np.zeros((8, 9, 3))],
-                                  MotionConfig(mode="mci", output_fps=60)))
+        list(
+            pipeline.run_sequence(
+                [np.zeros((8, 8, 3)), np.zeros((8, 9, 3))], MotionConfig(mode="mci", output_fps=60)
+            )
+        )
     assert not pipeline.targets
 
 
 def test_motion_cli_mci_saves_config_maps_fixed_exposure_and_m13_trace(tmp_path):
     for index, image in enumerate(sources(2)):
-        Image.fromarray(np.round(image*255).astype(np.uint8)).save(tmp_path / f"source_{index}.png")
+        Image.fromarray(np.round(image * 255).astype(np.uint8)).save(
+            tmp_path / f"source_{index}.png"
+        )
     out = tmp_path / "mci"
-    main(["motion", "--profile", "generic_woled", "--input-frames", str(tmp_path / "source_*.png"),
-          "--memc", "mci", "--output-fps", "60", "--motion-debug", "--block-size", "16",
-          "--preview-reference-nits", "1000", "--abl-dynamics", "capacity_attack_release_v1",
-          "--abl-attack-ms", "100", "--abl-release-ms", "1000", "--out", str(out)])
+    main(
+        [
+            "motion",
+            "--profile",
+            "generic_woled",
+            "--input-frames",
+            str(tmp_path / "source_*.png"),
+            "--memc",
+            "mci",
+            "--output-fps",
+            "60",
+            "--motion-debug",
+            "--block-size",
+            "16",
+            "--preview-reference-nits",
+            "1000",
+            "--abl-dynamics",
+            "capacity_attack_release_v1",
+            "--abl-attack-ms",
+            "100",
+            "--abl-release-ms",
+            "1000",
+            "--out",
+            str(out),
+        ]
+    )
     manifest = json.loads((out / "manifest.json").read_text())
     assert manifest["schema_version"] == 2
     assert manifest["motion_config"]["parameters"]["block_size"]["value"] == 16
@@ -181,7 +224,7 @@ def test_motion_cli_mci_saves_config_maps_fixed_exposure_and_m13_trace(tmp_path)
 
 
 def test_legacy_modes_do_not_discover_estimator_config(monkeypatch):
-    import sim.motion_provenance as evidence
+    import tv_sim.motion_provenance as evidence
 
     def forbidden(*args, **kwargs):
         raise AssertionError("off path must not load estimator config")

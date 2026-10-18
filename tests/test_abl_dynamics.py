@@ -4,24 +4,23 @@ All numeric choices here are P test stimuli; computed expectations are D under
 the M11 capacity-domain model. They do not calibrate an OLED or identify watts.
 """
 
+import json
+import math
 from copy import deepcopy
 from dataclasses import asdict, replace
 from fractions import Fraction
-import json
-import math
 
 import numpy as np
 import pytest
 
-from sim.abl_dynamics import ABLDynamicsConfig, ABLCapacityState, digest, update_capacity
-from sim.frame import Frame
-from sim.load import LoadState
-from sim.pipeline import Pipeline
-from sim.profile import load_profile
-from sim.sequence import MotionConfig
-from sim.stages.temporal import TemporalState
-from sim.viewing_angle import ViewingAngleConfig
-
+from tv_sim.abl_dynamics import ABLCapacityState, ABLDynamicsConfig, digest, update_capacity
+from tv_sim.frame import Frame
+from tv_sim.load import LoadState
+from tv_sim.pipeline import Pipeline
+from tv_sim.profile import load_profile
+from tv_sim.sequence import MotionConfig
+from tv_sim.stages.temporal import TemporalState
+from tv_sim.viewing_angle import ViewingAngleConfig
 
 MODEL = "capacity_attack_release_v1"
 
@@ -37,17 +36,22 @@ def profile(name="generic_woled", source="emitted"):
 
 def picture(level, shape=(12, 20, 3), fraction=1.0):
     rgb = np.zeros(shape, dtype=np.float32)
-    h, w = max(1, round(shape[0] * math.sqrt(fraction))), max(1, round(shape[1] * math.sqrt(fraction)))
+    h, w = (
+        max(1, round(shape[0] * math.sqrt(fraction))),
+        max(1, round(shape[1] * math.sqrt(fraction))),
+    )
     y, x = (shape[0] - h) // 2, (shape[1] - w) // 2
-    rgb[y:y+h, x:x+w] = level
+    rgb[y : y + h, x : x + w] = level
     return Frame(rgb)
 
 
 def snapshot(pipeline):
     """Save complete mutable history without allowing ndarray equality coercion."""
-    return (None if pipeline.state.previous is None else pipeline.state.previous.tobytes(),
-            pipeline.load_state.apl_nits,
-            None if pipeline.capacity_state is None else asdict(pipeline.capacity_state))
+    return (
+        None if pipeline.state.previous is None else pipeline.state.previous.tobytes(),
+        pipeline.load_state.apl_nits,
+        None if pipeline.capacity_state is None else asdict(pipeline.capacity_state),
+    )
 
 
 @pytest.mark.parametrize("start,target,tau", [(850.0, 170.0, 100.0), (170.0, 850.0, 1000.0)])
@@ -73,10 +77,16 @@ def test_equal_target_has_no_capacity_drift_but_advances_clock():
     assert state == ABLCapacityState(capacity_nits=425.125, elapsed_ms=17.0, ticks=1)
 
 
-@pytest.mark.parametrize("start,target,attack,release", [
-    (850.0, 170.0, 0.0, 1e8), (170.0, 850.0, 1e8, 0.0),
-])
-def test_zero_tau_assigns_target_exactly_only_for_selected_direction(start, target, attack, release):
+@pytest.mark.parametrize(
+    "start,target,attack,release",
+    [
+        (850.0, 170.0, 0.0, 1e8),
+        (170.0, 850.0, 1e8, 0.0),
+    ],
+)
+def test_zero_tau_assigns_target_exactly_only_for_selected_direction(
+    start, target, attack, release
+):
     settings = ABLDynamicsConfig(model=MODEL, attack_ms=attack, release_ms=release)
     state = ABLCapacityState(capacity_nits=start)
     assert update_capacity(state, target, 850.0, 170.0, 1e-15, settings) == target
@@ -100,54 +110,97 @@ def test_split_duration_preserves_final_capacity(target, start):
     assert divided.capacity_nits == pytest.approx(whole.capacity_nits, rel=1e-12, abs=1e-9)
 
 
-@pytest.mark.parametrize("changes", [
-    {"model": "wrong"}, {"model": MODEL},
-    {"model": MODEL, "attack_ms": 100},
-    {"model": MODEL, "release_ms": 100},
-    {"model": MODEL, "attack_ms": -1, "release_ms": 100},
-    {"model": MODEL, "attack_ms": math.nan, "release_ms": 100},
-    {"model": MODEL, "attack_ms": 100, "release_ms": math.inf},
-    {"model": MODEL, "attack_ms": True, "release_ms": 100},
-    {"model": MODEL, "attack_ms": 100, "release_ms": 100, "initial": "wrong"},
-    {"model": MODEL, "attack_ms": 100, "release_ms": 100, "initial": "explicit"},
-    {"model": MODEL, "attack_ms": 100, "release_ms": 100, "initial_capacity_nits": 500},
-    {"model": MODEL, "attack_ms": 100, "release_ms": 100, "initial": "resume", "initial_capacity_nits": 500},
-    {"model": MODEL, "attack_ms": 100, "release_ms": 100, "parameter_status": "measured"},
-])
+@pytest.mark.parametrize(
+    "changes",
+    [
+        {"model": "wrong"},
+        {"model": MODEL},
+        {"model": MODEL, "attack_ms": 100},
+        {"model": MODEL, "release_ms": 100},
+        {"model": MODEL, "attack_ms": -1, "release_ms": 100},
+        {"model": MODEL, "attack_ms": math.nan, "release_ms": 100},
+        {"model": MODEL, "attack_ms": 100, "release_ms": math.inf},
+        {"model": MODEL, "attack_ms": True, "release_ms": 100},
+        {"model": MODEL, "attack_ms": 100, "release_ms": 100, "initial": "wrong"},
+        {"model": MODEL, "attack_ms": 100, "release_ms": 100, "initial": "explicit"},
+        {"model": MODEL, "attack_ms": 100, "release_ms": 100, "initial_capacity_nits": 500},
+        {
+            "model": MODEL,
+            "attack_ms": 100,
+            "release_ms": 100,
+            "initial": "resume",
+            "initial_capacity_nits": 500,
+        },
+        {"model": MODEL, "attack_ms": 100, "release_ms": 100, "parameter_status": "measured"},
+    ],
+)
 def test_invalid_config_rejected(changes):
     with pytest.raises(ValueError):
         ABLDynamicsConfig(**changes)
 
 
-@pytest.mark.parametrize("field,value", [
-    ("target", math.nan), ("target", math.inf), ("target", 0),
-    ("target", 169), ("target", 851),
-    ("peak", 0), ("peak", math.inf), ("floor", 0), ("floor", 851),
-    ("dt", 0), ("dt", -1), ("dt", math.nan), ("dt", math.inf),
-    ("capacity", 169), ("capacity", 851), ("capacity", math.nan),
-    ("elapsed", -1), ("elapsed", math.inf), ("ticks", -1), ("ticks", 0.5),
-])
+@pytest.mark.parametrize(
+    "field,value",
+    [
+        ("target", math.nan),
+        ("target", math.inf),
+        ("target", 0),
+        ("target", 169),
+        ("target", 851),
+        ("peak", 0),
+        ("peak", math.inf),
+        ("floor", 0),
+        ("floor", 851),
+        ("dt", 0),
+        ("dt", -1),
+        ("dt", math.nan),
+        ("dt", math.inf),
+        ("capacity", 169),
+        ("capacity", 851),
+        ("capacity", math.nan),
+        ("elapsed", -1),
+        ("elapsed", math.inf),
+        ("ticks", -1),
+        ("ticks", 0.5),
+    ],
+)
 def test_update_rejects_invalid_inputs_before_state_mutation(field, value):
     values = {"target": 500.0, "peak": 850.0, "floor": 170.0, "dt": 10.0}
     state = ABLCapacityState(capacity_nits=700.0)
     if field in values:
         values[field] = value
     else:
-        setattr(state, {"capacity": "capacity_nits", "elapsed": "elapsed_ms", "ticks": "ticks"}[field], value)
+        setattr(
+            state,
+            {"capacity": "capacity_nits", "elapsed": "elapsed_ms", "ticks": "ticks"}[field],
+            value,
+        )
     before = deepcopy(state)
     with pytest.raises(ValueError):
-        update_capacity(state, values["target"], values["peak"], values["floor"], values["dt"], config())
+        update_capacity(
+            state, values["target"], values["peak"], values["floor"], values["dt"], config()
+        )
     for key, original in asdict(before).items():
         actual = getattr(state, key)
-        assert actual == original or (isinstance(actual, float) and math.isnan(actual) and math.isnan(original))
+        assert actual == original or (
+            isinstance(actual, float) and math.isnan(actual) and math.isnan(original)
+        )
 
 
 def test_cold_settled_first_and_explicit_onsets_are_distinct():
     cold = Pipeline(profile(), abl_dynamics=config())
     settled = Pipeline(profile(), abl_dynamics=config(initial="settled_first_tick"))
-    explicit = Pipeline(profile(), abl_dynamics=config(initial="explicit", initial_capacity_nits=500))
-    outputs = [p.display_content(picture(1000), frame_time_ms=10).rgb for p in (cold, settled, explicit)]
-    assert cold.capacity_state.capacity_nits > explicit.capacity_state.capacity_nits > settled.capacity_state.capacity_nits
+    explicit = Pipeline(
+        profile(), abl_dynamics=config(initial="explicit", initial_capacity_nits=500)
+    )
+    outputs = [
+        p.display_content(picture(1000), frame_time_ms=10).rgb for p in (cold, settled, explicit)
+    ]
+    assert (
+        cold.capacity_state.capacity_nits
+        > explicit.capacity_state.capacity_nits
+        > settled.capacity_state.capacity_nits
+    )
     assert outputs[0].mean() > outputs[2].mean() > outputs[1].mean()
 
 
@@ -162,7 +215,9 @@ def test_black_pre_roll_recovers_capacity_analytically_and_sets_pixel_history():
     for _ in range(10):
         rendered = pipe.display_content(picture(0), frame_time_ms=100)
         assert np.count_nonzero(rendered.rgb) == 0
-    assert pipe.capacity_state.capacity_nits == pytest.approx(850 + (200 - 850) * math.exp(-1), rel=1e-12, abs=1e-9)
+    assert pipe.capacity_state.capacity_nits == pytest.approx(
+        850 + (200 - 850) * math.exp(-1), rel=1e-12, abs=1e-9
+    )
     assert np.count_nonzero(pipe.state.previous) == 0
     assert pipe.capacity_state.ticks == 10
 
@@ -171,8 +226,17 @@ def test_black_pre_roll_recovers_capacity_analytically_and_sets_pixel_history():
 @pytest.mark.parametrize("source", ["demand", "emitted"])
 def test_zero_tau_images_and_pixel_history_match_legacy_exactly(name, source):
     baseline = Pipeline(profile(name, source))
-    active = Pipeline(profile(name, source), abl_dynamics=ABLDynamicsConfig(model=MODEL, attack_ms=0, release_ms=0))
-    for level, fraction, dt in [(0, 1, 13), (1000, .1, 17), (1000, 1, 11), (1000, .01, 21), (0, 1, 30)]:
+    active = Pipeline(
+        profile(name, source),
+        abl_dynamics=ABLDynamicsConfig(model=MODEL, attack_ms=0, release_ms=0),
+    )
+    for level, fraction, dt in [
+        (0, 1, 13),
+        (1000, 0.1, 17),
+        (1000, 1, 11),
+        (1000, 0.01, 21),
+        (0, 1, 30),
+    ]:
         target = picture(level, fraction=fraction)
         expected = baseline.display_content(target, frame_time_ms=dt)
         actual = active.display_content(target, frame_time_ms=dt)
@@ -185,25 +249,36 @@ def test_zero_tau_images_and_pixel_history_match_legacy_exactly(name, source):
 def test_active_mode_does_not_read_or_mutate_legacy_apl_state():
     one = Pipeline(profile(), load_state=LoadState(1.0), abl_dynamics=config())
     two = Pipeline(profile(), load_state=LoadState(123456.0), abl_dynamics=config())
-    assert one.display_content(picture(1000)).rgb.tobytes() == two.display_content(picture(1000)).rgb.tobytes()
+    assert (
+        one.display_content(picture(1000)).rgb.tobytes()
+        == two.display_content(picture(1000)).rgb.tobytes()
+    )
     assert one.load_state.apl_nits == 1.0 and two.load_state.apl_nits == 123456.0
 
 
 def test_one_target_update_and_shoulder_per_tick_preserves_attack(monkeypatch):
-    import sim.pipeline as runtime
-    import sim.stages.tonemap as tonemap
+    import tv_sim.pipeline as runtime
+    import tv_sim.stages.tonemap as tonemap
 
     calls = {"target": 0, "update": 0, "shoulder": 0}
-    original_update, original_shoulder, original_target = runtime.update_capacity, tonemap.soft_shoulder, runtime.target_trace
+    original_update, original_shoulder, original_target = (
+        runtime.update_capacity,
+        tonemap.soft_shoulder,
+        runtime.target_trace,
+    )
+
     def target(*args, **kwargs):
         calls["target"] += 1
         return original_target(*args, **kwargs)
+
     def update(*args, **kwargs):
         calls["update"] += 1
         return original_update(*args, **kwargs)
+
     def shoulder(*args, **kwargs):
         calls["shoulder"] += 1
         return original_shoulder(*args, **kwargs)
+
     monkeypatch.setattr(runtime, "update_capacity", update)
     monkeypatch.setattr(runtime, "target_trace", target)
     monkeypatch.setattr(tonemap, "soft_shoulder", shoulder)
@@ -215,14 +290,24 @@ def test_one_target_update_and_shoulder_per_tick_preserves_attack(monkeypatch):
     assert calls["target"] == calls["update"] == calls["shoulder"] == 1
 
 
-@pytest.mark.parametrize("field,value", [
-    ("abl_response_ms", 1), ("abl_response_ms", -1),
-    ("abl_backlight_tracking", 0.1), ("abl_power_budget_nits", 500),
-    ("abl_enabled", False), ("tone_map", "clip"), ("abl_source", "final"),
-    ("abl_reference_nits", -1), ("abl_reference_nits", math.nan),
-    ("panel_peak_nits", math.inf), ("abl_full_field_nits", 0),
-    ("abl_gamma", 0), ("abl_gamma", math.inf),
-])
+@pytest.mark.parametrize(
+    "field,value",
+    [
+        ("abl_response_ms", 1),
+        ("abl_response_ms", -1),
+        ("abl_backlight_tracking", 0.1),
+        ("abl_power_budget_nits", 500),
+        ("abl_enabled", False),
+        ("tone_map", "clip"),
+        ("abl_source", "final"),
+        ("abl_reference_nits", -1),
+        ("abl_reference_nits", math.nan),
+        ("panel_peak_nits", math.inf),
+        ("abl_full_field_nits", 0),
+        ("abl_gamma", 0),
+        ("abl_gamma", math.inf),
+    ],
+)
 def test_profile_conflicts_rejected_without_mutating_supplied_histories(field, value):
     original = profile()
     conflicting = replace(original, hdr=replace(original.hdr, **{field: value}))
@@ -259,8 +344,12 @@ def test_preparation_and_inspection_do_not_advance_history():
 def test_output_ticks_own_capacity_clock_even_for_repeated_pictures_and_cuts(mode):
     pipe = Pipeline(profile(), abl_dynamics=config())
     sources = [np.ones((12, 20, 3), dtype=np.float32)] * 3
-    motion = MotionConfig(mode=mode, source_fps=24, output_fps=120,
-                          translation_px=(0, 0) if mode == "analytic" else None)
+    motion = MotionConfig(
+        mode=mode,
+        source_fps=24,
+        output_fps=120,
+        translation_px=(0, 0) if mode == "analytic" else None,
+    )
     outputs = list(pipe.run_sequence(sources, motion, cuts=[1]))
     assert len(outputs) == pipe.capacity_state.ticks == 15
     assert pipe.capacity_state.elapsed_ms == pytest.approx(125)
@@ -273,7 +362,9 @@ def test_output_ticks_own_capacity_clock_even_for_repeated_pictures_and_cuts(mod
 def test_memc_off_uses_profile_clock_despite_irregular_source_pts():
     pipe = Pipeline(profile(), abl_dynamics=config())
     images = [np.zeros((12, 20, 3), dtype=np.uint8)] * 3
-    outputs = list(pipe.run_sequence(images, MotionConfig(), source_pts=["0", "1/10", "3"], last_duration="2"))
+    outputs = list(
+        pipe.run_sequence(images, MotionConfig(), source_pts=["0", "1/10", "3"], last_duration="2")
+    )
     assert len(outputs) == pipe.capacity_state.ticks == 3
     assert pipe.capacity_state.elapsed_ms == 3 * pipe.profile.temporal.frame_time_ms
 
@@ -281,8 +372,12 @@ def test_memc_off_uses_profile_clock_despite_irregular_source_pts():
 def test_temporal_integration_samples_and_bfi_do_not_add_capacity_updates():
     plain = Pipeline(profile(), abl_dynamics=config())
     original = profile()
-    sampled = Pipeline(replace(original, temporal=replace(original.temporal, integration_samples=31, bfi_duty=.25)),
-                       abl_dynamics=config())
+    sampled = Pipeline(
+        replace(
+            original, temporal=replace(original.temporal, integration_samples=31, bfi_duty=0.25)
+        ),
+        abl_dynamics=config(),
+    )
     for level in (0, 1000, 1000, 0, 1000):
         for pipe in (plain, sampled):
             pipe.display_content(picture(level), frame_time_ms=10)
@@ -294,7 +389,7 @@ def test_different_prehistories_change_same_probe_and_recovery_brightens():
     for _ in range(60):
         fresh.display_content(picture(0), frame_time_ms=100)
         loaded.display_content(picture(1000), frame_time_ms=100)
-    probe = picture(1000, fraction=.1)
+    probe = picture(1000, fraction=0.1)
     first_fresh = fresh.display_content(probe, frame_time_ms=10)
     first_loaded = loaded.display_content(probe, frame_time_ms=10)
     assert first_fresh.rgb.max() > first_loaded.rgb.max()
@@ -308,19 +403,30 @@ def test_different_prehistories_change_same_probe_and_recovery_brightens():
     assert capacities[-1] == pytest.approx(loaded.last_capacity_trace["target_nits"], abs=1e-5)
 
 
-@pytest.mark.parametrize("changes", [
-    {"attack_ms": 0}, {"release_ms": 0}, {"initial": "settled_first_tick"},
-    {"initial": "explicit", "initial_capacity_nits": 500}, {"initial": "resume"},
-])
+@pytest.mark.parametrize(
+    "changes",
+    [
+        {"attack_ms": 0},
+        {"release_ms": 0},
+        {"initial": "settled_first_tick"},
+        {"initial": "explicit", "initial_capacity_nits": 500},
+        {"initial": "resume"},
+    ],
+)
 def test_off_config_rejects_explicit_dynamic_options(changes):
     with pytest.raises(ValueError, match="off|active"):
         ABLDynamicsConfig(**changes)
 
 
-@pytest.mark.parametrize("state", [
-    ABLCapacityState(500, 100, 1), ABLCapacityState(500, 0, 1),
-    ABLCapacityState(None, 100, 1), ABLCapacityState(500),
-])
+@pytest.mark.parametrize(
+    "state",
+    [
+        ABLCapacityState(500, 100, 1),
+        ABLCapacityState(500, 0, 1),
+        ABLCapacityState(None, 100, 1),
+        ABLCapacityState(500),
+    ],
+)
 def test_stale_or_unowned_capacity_state_rejected(state):
     before = deepcopy(state)
     with pytest.raises(ValueError):
@@ -328,7 +434,9 @@ def test_stale_or_unowned_capacity_state_rejected(state):
     assert state == before
 
 
-@pytest.mark.parametrize("mutation", ["profile", "config", "angle", "geometry", "dtype", "gap", "past"])
+@pytest.mark.parametrize(
+    "mutation", ["profile", "config", "angle", "geometry", "dtype", "gap", "past"]
+)
 def test_mid_history_identity_or_unknown_time_change_rejected_atomically(mutation):
     pipe = Pipeline(profile(), abl_dynamics=config())
     pipe.display_content(picture(1000), frame_time_ms=10)
@@ -368,7 +476,7 @@ def test_demand_and_emitted_sources_stay_explicit_with_angular_gain():
     demand = Pipeline(profile(source="demand"), abl_dynamics=config(), viewing_angle=angle)
     emitted = Pipeline(profile(source="emitted"), abl_dynamics=config(), viewing_angle=angle)
     for pipe in (demand, emitted):
-        pipe.display_content(picture(1000, fraction=.25), frame_time_ms=10)
+        pipe.display_content(picture(1000, fraction=0.25), frame_time_ms=10)
     assert demand.last_capacity_trace["source"] == "demand"
     assert emitted.last_capacity_trace["source"] == "emitted"
     assert demand.last_capacity_trace["apl_nits"] > emitted.last_capacity_trace["apl_nits"]
@@ -387,12 +495,14 @@ def test_run_and_run_linear_each_advance_one_tick():
 
 def _history_profile():
     original = profile()
-    return replace(original, temporal=replace(original.temporal, response_time_ms=75, integration_samples=7))
+    return replace(
+        original, temporal=replace(original.temporal, response_time_ms=75, integration_samples=7)
+    )
 
 
 def _checkpoint_source():
     source = Pipeline(_history_profile(), abl_dynamics=config(), load_state=LoadState(25.123))
-    for level, fraction, dt in [(0, 1, 5), (1000, 1, 20), (1000, .1, 17), (0, 1, 13)]:
+    for level, fraction, dt in [(0, 1, 5), (1000, 1, 20), (1000, 0.1, 17), (0, 1, 13)]:
         source.display_content(picture(level, fraction=fraction), frame_time_ms=dt)
     return source
 
@@ -402,12 +512,16 @@ def test_full_checkpoint_json_roundtrip_resumes_images_and_histories_byte_for_by
     original = uninterrupted.checkpoint()
     saved = json.loads(json.dumps(original, allow_nan=False))
     resumed = Pipeline(_history_profile(), abl_dynamics=config(initial="resume"))
-    resumed.restore_checkpoint(saved, shape=(12, 20, 3), dtype=np.float32,
-                               elapsed_ms=uninterrupted.capacity_state.elapsed_ms)
+    resumed.restore_checkpoint(
+        saved,
+        shape=(12, 20, 3),
+        dtype=np.float32,
+        elapsed_ms=uninterrupted.capacity_state.elapsed_ms,
+    )
     assert resumed.identity() == uninterrupted.identity()
     assert resumed.checkpoint() == original
     assert snapshot(resumed) == snapshot(uninterrupted)
-    for level, fraction, dt in [(1000, .1, 7), (1000, 1, 21), (0, 1, 100), (1000, .25, 15)]:
+    for level, fraction, dt in [(1000, 0.1, 7), (1000, 1, 21), (0, 1, 100), (1000, 0.25, 15)]:
         target = picture(level, fraction=fraction)
         expected = uninterrupted.display_content(target, frame_time_ms=dt)
         actual = resumed.display_content(target, frame_time_ms=dt)
@@ -421,16 +535,22 @@ def test_full_checkpoint_json_roundtrip_resumes_images_and_histories_byte_for_by
 
 def test_capacity_only_explicit_initialization_does_not_restore_pixel_history():
     source = _checkpoint_source()
-    partial = Pipeline(_history_profile(), abl_dynamics=config(initial="explicit",
-                       initial_capacity_nits=source.capacity_state.capacity_nits))
-    target = picture(1000, fraction=.1)
+    partial = Pipeline(
+        _history_profile(),
+        abl_dynamics=config(
+            initial="explicit", initial_capacity_nits=source.capacity_state.capacity_nits
+        ),
+    )
+    target = picture(1000, fraction=0.1)
     complete = source.display_content(target, frame_time_ms=10)
     incomplete = partial.display_content(target, frame_time_ms=10)
     assert partial.capacity_state.capacity_nits == source.capacity_state.capacity_nits
     assert complete.rgb.tobytes() != incomplete.rgb.tobytes()
 
 
-@pytest.mark.parametrize("difference", ["profile", "config", "angle", "domain", "geometry", "dtype", "gap"])
+@pytest.mark.parametrize(
+    "difference", ["profile", "config", "angle", "domain", "geometry", "dtype", "gap"]
+)
 def test_checkpoint_identity_shape_and_unknown_gap_rejected_before_mutation(difference):
     saved = _checkpoint_source().checkpoint()
     original = _history_profile()
@@ -456,21 +576,30 @@ def test_checkpoint_identity_shape_and_unknown_gap_rejected_before_mutation(diff
     assert snapshot(resumed) == before
 
 
-@pytest.mark.parametrize("path,value", [
-    ("schema_version", 2), ("identity/model", "wrong"),
-    ("capacity_state/capacity_nits_hex", float(169).hex()),
-    ("capacity_state/capacity_nits_hex", "nan"),
-    ("capacity_state/elapsed_ms_hex", float(-1).hex()),
-    ("capacity_state/ticks", 0), ("capacity_state/ticks", True),
-    ("load_state/apl_nits_hex", "inf"),
-    ("geometry/shape", [12, 21, 3]), ("geometry/dtype", "<f8"),
-    ("temporal_state/previous_base64", "broken!"),
-    ("temporal_state/previous_sha256", "0" * 64),
-    ("history_sha256", "invalid"), ("last_source_sha256", "invalid"),
-    ("initialization/policy", "resume"), ("initialization/capacity_nits", 500),
-    ("evidence/model_and_initialization", "M"), ("evidence/states_and_clock", "M"),
-    ("evidence/measured_prior_thermal_condition", "M"),
-])
+@pytest.mark.parametrize(
+    "path,value",
+    [
+        ("schema_version", 2),
+        ("identity/model", "wrong"),
+        ("capacity_state/capacity_nits_hex", float(169).hex()),
+        ("capacity_state/capacity_nits_hex", "nan"),
+        ("capacity_state/elapsed_ms_hex", float(-1).hex()),
+        ("capacity_state/ticks", 0),
+        ("capacity_state/ticks", True),
+        ("load_state/apl_nits_hex", "inf"),
+        ("geometry/shape", [12, 21, 3]),
+        ("geometry/dtype", "<f8"),
+        ("temporal_state/previous_base64", "broken!"),
+        ("temporal_state/previous_sha256", "0" * 64),
+        ("history_sha256", "invalid"),
+        ("last_source_sha256", "invalid"),
+        ("initialization/policy", "resume"),
+        ("initialization/capacity_nits", 500),
+        ("evidence/model_and_initialization", "M"),
+        ("evidence/states_and_clock", "M"),
+        ("evidence/measured_prior_thermal_condition", "M"),
+    ],
+)
 def test_checkpoint_semantic_validation_rejects_corruption_atomically(path, value):
     saved = _checkpoint_source().checkpoint()
     parts = path.split("/")
@@ -480,7 +609,9 @@ def test_checkpoint_semantic_validation_rejects_corruption_atomically(path, valu
     destination[parts[-1]] = value
     # Re-sign the envelope to exercise semantic validation independently of
     # accidental-corruption detection. This is not a security signature.
-    saved["checkpoint_sha256"] = digest({k: v for k, v in saved.items() if k != "checkpoint_sha256"})
+    saved["checkpoint_sha256"] = digest(
+        {k: v for k, v in saved.items() if k != "checkpoint_sha256"}
+    )
     resumed = Pipeline(_history_profile(), abl_dynamics=config(initial="resume"))
     before = snapshot(resumed)
     with pytest.raises(ValueError):
@@ -521,14 +652,23 @@ def test_resume_requires_checkpoint_and_checkpoint_requires_successful_tick():
 
 @pytest.fixture(scope="module")
 def existing_m9_fit(tmp_path_factory):
-    from sim.provenance import load_provenance
-    from sim.window_replay import ReplayConditions, fit_windows, load_fit, save_fit
+    from tv_sim.provenance import load_provenance
+    from tv_sim.window_replay import ReplayConditions, fit_windows, load_fit, save_fit
 
-    conditions = ReplayConditions(level_nits=1000, settle_ms=0,
-                                  hold_ms=1000/60, pre_roll_ms=1000/60)
-    fit = fit_windows(profile(), load_provenance("generic_woled"), "c2_42_hdr_standard_peak",
-                      "m13_rejection_fit", conditions=conditions, fractions=[1.0],
-                      exploratory=True, width=20, height=12)
+    conditions = ReplayConditions(
+        level_nits=1000, settle_ms=0, hold_ms=1000 / 60, pre_roll_ms=1000 / 60
+    )
+    fit = fit_windows(
+        profile(),
+        load_provenance("generic_woled"),
+        "c2_42_hdr_standard_peak",
+        "m13_rejection_fit",
+        conditions=conditions,
+        fractions=[1.0],
+        exploratory=True,
+        width=20,
+        height=12,
+    )
     path = tmp_path_factory.mktemp("m13-fit") / "synthetic.fit.json"
     save_fit(path, fit)
     return load_fit(path), conditions
@@ -536,8 +676,8 @@ def existing_m9_fit(tmp_path_factory):
 
 @pytest.mark.parametrize("tau", [0, 100])
 def test_existing_m9_fit_rejects_every_active_composition(existing_m9_fit, tau):
-    from sim.provenance import load_provenance
-    from sim.window_replay import fit_windows, replay_fit, replay_window
+    from tv_sim.provenance import load_provenance
+    from tv_sim.window_replay import fit_windows, replay_fit, replay_window
 
     saved, conditions = existing_m9_fit
     before = deepcopy(saved)
@@ -547,19 +687,30 @@ def test_existing_m9_fit_rejects_every_active_composition(existing_m9_fit, tau):
     with pytest.raises(ValueError, match="M9|schema-1|fit.json"):
         replay_window(profile(), 1.0, conditions, abl_dynamics=active)
     with pytest.raises(ValueError, match="M9|schema-1|fit.json"):
-        fit_windows(profile(), load_provenance("generic_woled"), "c2_42_hdr_standard_peak",
-                    "m13_must_reject", conditions=conditions, exploratory=True, abl_dynamics=active)
+        fit_windows(
+            profile(),
+            load_provenance("generic_woled"),
+            "c2_42_hdr_standard_peak",
+            "m13_must_reject",
+            conditions=conditions,
+            exploratory=True,
+            abl_dynamics=active,
+        )
     assert saved == before
 
 
 def test_existing_m9_fit_explicit_off_replay_is_exact(existing_m9_fit):
-    from sim.window_replay import replay_fit
+    from tv_sim.window_replay import replay_fit
 
     saved, _ = existing_m9_fit
     omitted = replay_fit(profile(), saved)
     explicit = replay_fit(profile(), saved, abl_dynamics=ABLDynamicsConfig())
-    assert [item.frame.rgb.tobytes() for item in omitted] == [item.frame.rgb.tobytes() for item in explicit]
-    assert [item.center_trace_nits for item in omitted] == [item.center_trace_nits for item in explicit]
+    assert [item.frame.rgb.tobytes() for item in omitted] == [
+        item.frame.rgb.tobytes() for item in explicit
+    ]
+    assert [item.center_trace_nits for item in omitted] == [
+        item.center_trace_nits for item in explicit
+    ]
 
 
 def test_long_contiguous_rational_timestamps_do_not_become_false_gaps():
@@ -597,7 +748,9 @@ def test_two_pipelines_cannot_silently_share_a_mutated_capacity_history():
     assert snapshot(second) == before
 
 
-@pytest.mark.parametrize("mutation", ["capacity_replacement", "panel_pixels", "panel_replacement", "load"])
+@pytest.mark.parametrize(
+    "mutation", ["capacity_replacement", "panel_pixels", "panel_replacement", "load"]
+)
 def test_external_full_history_edits_reject_render_and_checkpoint(mutation):
     pipe = _checkpoint_source()
     if mutation == "capacity_replacement":
@@ -620,9 +773,13 @@ def test_external_full_history_edits_reject_render_and_checkpoint(mutation):
 
 def test_supplied_initial_panel_history_is_distinct_recorded_partial_history():
     fresh = Pipeline(_history_profile(), abl_dynamics=config())
-    prior = Pipeline(_history_profile(), state=TemporalState(picture(500).rgb), abl_dynamics=config())
+    prior = Pipeline(
+        _history_profile(), state=TemporalState(picture(500).rgb), abl_dynamics=config()
+    )
     target = picture(0)
-    assert fresh.display_content(target).rgb.tobytes() != prior.display_content(target).rgb.tobytes()
+    assert (
+        fresh.display_content(target).rgb.tobytes() != prior.display_content(target).rgb.tobytes()
+    )
     fresh_saved, prior_saved = fresh.checkpoint(), prior.checkpoint()
     assert fresh_saved["history_sha256"] != prior_saved["history_sha256"]
     assert fresh_saved["identity"] == prior_saved["identity"]
@@ -633,7 +790,15 @@ def test_unused_invalid_legacy_load_cannot_be_persisted_as_valid_checkpoint(apl)
     pipe = Pipeline(profile(), abl_dynamics=config(), load_state=LoadState(apl))
     # The active limiter does not turn unused APL history into a load input.
     pipe.display_content(picture(0))
-    before = pipe.capacity_state.capacity_nits, pipe.capacity_state.elapsed_ms, pipe.capacity_state.ticks
+    before = (
+        pipe.capacity_state.capacity_nits,
+        pipe.capacity_state.elapsed_ms,
+        pipe.capacity_state.ticks,
+    )
     with pytest.raises(ValueError, match="APL|finite|nonnegative"):
         pipe.checkpoint()
-    assert (pipe.capacity_state.capacity_nits, pipe.capacity_state.elapsed_ms, pipe.capacity_state.ticks) == before
+    assert (
+        pipe.capacity_state.capacity_nits,
+        pipe.capacity_state.elapsed_ms,
+        pipe.capacity_state.ticks,
+    ) == before
