@@ -32,6 +32,11 @@ Open [the offline gallery](reports/gallery/index.html) after generation. The
 capacity, [LCD zone dynamics](docs/usage.md#lcd-zone-backlight-dynamics-opt-in),
 and opt-in colorimetry.
 
+Opt-in [sub-frame emission](docs/usage.md#sub-frame-response-and-emission-opt-in-m18)
+resolves LC response, overdrive, PWM/strobe and OLED BFI. Run `tv-sim subframe`
+for a separate synthetic waveform and pursuit-camera experiment; see the
+[shared-exposure comparison](reports/subframe-m18/index.html).
+
 ## Example output
 
 [![Shared-exposure starfield comparison across four generic profiles](reports/gallery/starfield.png)](reports/gallery/index.html)

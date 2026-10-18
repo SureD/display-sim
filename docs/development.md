@@ -63,6 +63,7 @@ Run from the checkout root:
 tv-sim validate --out reports
 make gallery
 tv-sim colorimetry --out reports/colorimetry-m15
+tv-sim subframe --out reports/subframe-example
 tv-sim motion validate --seed 7 --gallery --out reports/motion-m14
 tv-sim export-web --out web/data
 ```

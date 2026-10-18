@@ -13,11 +13,13 @@ contain conclusions superseded by later milestones; use the
 | [M4 comparison](comparison.md) | Preserved comparison against published anchors. |
 | [M16 repository engineering](M16-repo-engineering.md) | Repository migration, verification, and suggested commit split. |
 | [M17 LCD zone dynamics](M17-zone-temporal.md) | Zone-controller model, synthetic artifacts, verification and suggested commit split. |
+| [M18 sub-frame temporal emission](M18-subframe-temporal.md) | LC/OD/PWM/strobe/BFI model, pursuit/flicker artifacts and exact verification. |
 
 Generated assets remain under [`reports/`](../../reports/):
 [default gallery](../../reports/gallery/index.html),
 [M14 motion artifact notes](../../reports/motion-m14/README.md), and
 [M15 colorimetry notes](../../reports/colorimetry-m15/README.md), and
-[M17 LCD zone dynamics](../../reports/zone-temporal-m17/index.html).
+[M17 LCD zone dynamics](../../reports/zone-temporal-m17/index.html), and
+[M18 sub-frame emission](../../reports/subframe-m18/index.html).
 `tv-sim validate --out reports` regenerates a new `reports/comparison.md` alongside
 its metrics; the copy here preserves the earlier reviewed report.
