@@ -1,4 +1,4 @@
-# Research history: M1–M15
+# Research history: M1–M17
 
 Research starts with a physical question, distinguishes mechanism evidence from
 sample measurements, records missing conditions, and hands an explicit model and
@@ -31,6 +31,7 @@ implementation, and M12a/M12b were parallel workstreams; git history and the
 | **M13: OLED dynamics runtime** | Can the M11 design advance one capacity history per tick and resume exactly? | Capacity can share the existing shoulder when timing/identity/history are explicit; partial initialization is insufficient. No matched controller calibration is available. | Implement default-off capacity attack/release, full checkpoints, synthetic protocol, and separate reports. See [M11 acceptance criteria](m11-oled-dynamics.md#acceptance-tests-and-parity-gate) and [M13 schema](../profiles.md#oled-dynamics-protocol-schema-version-1-m13). |
 | **M14: block-motion proxy** | Can deterministic estimated motion expose interpolation artifacts beyond known translation? | Reduced-raster matching needs confidence, visibility, cuts, and fallback reasons; occlusion, thin text, repeated texture, and large motion remain difficult. | Add default-off `mci`, stream adjacent pairs, preserve one display update/tick, and validate seven synthetic truth fixtures. [Motion research](m7-memc-motion.md) motivates the proxy; [artifact report](../../reports/motion-m14/README.md) records observed errors and limitations. |
 | **M15: colorimetry and volume** | How should source/panel primaries, gamut mapping, WOLED color ceilings, and exports be explicit? | Container primaries differ from transfer/mastering declarations; exact matrices are D under their inputs. Straight u′v′ hue rays are not perceptual constant hue, and panel spectra/color-volume calibration remain NR. | Add default-off declared colorimetry, strict P panel sidecars, clip/compression and one joint color/HDR capacity owner. Preserve signed export coordinates and legacy parity. See [primary-source research](m15-colorimetry.md), [schema](../profiles.md#colorimetry-schema-version-1-m15), and [saved comparison](../../reports/colorimetry-m15/README.md). |
+| **M17: LCD zone dynamics** | How can local-dimming lag, halo trails and smoothing trade-offs be modeled without changing default rendering? | Patents and IEEE work support filtering zone commands before optical reconstruction and LCD compensation; reviewer transition tests support the artifact mechanisms but supply no calibrated zone tau. | Define an opt-in P asymmetric per-zone controller, explicit clocks/cuts/initialization/full-history continuation, strict state ownership and matched off/on synthetic metrics. See [research and implementation handoff](m17-zone-temporal.md). |
 
 ## Reading evidence and historical paths
 
