@@ -453,6 +453,7 @@ def main(argv: list[str] | None = None) -> None:
     from tv_sim.motion_provenance import validate_motion_provenance
     from tv_sim.motion_validate import validate_motion_validation_provenance
     from tv_sim.oled_dynamics_provenance import validate_oled_dynamics_provenance
+    from tv_sim.zone_temporal_provenance import validate_zone_temporal_provenance
 
     parser = argparse.ArgumentParser(
         description="Check offline profile provenance and measurement sidecars."
@@ -486,12 +487,13 @@ def main(argv: list[str] | None = None) -> None:
     failures.extend(validate_oled_dynamics_provenance())
     failures.extend(validate_motion_provenance())
     failures.extend(validate_motion_validation_provenance())
+    failures.extend(validate_zone_temporal_provenance())
     if failures:
         for error in failures:
             print(error, file=sys.stderr)
         raise SystemExit(1)
     print(
-        f"Provenance OK: {len(names)} profile(s), baseline/angular/colorimetry/OLED-dynamics/motion schema_version {SCHEMA_VERSION}"
+        f"Provenance OK: {len(names)} profile(s), baseline/angular/colorimetry/OLED-dynamics/motion/zone-temporal schema_version {SCHEMA_VERSION}"
     )
 
 

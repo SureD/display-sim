@@ -12,6 +12,7 @@ from tv_sim.pipeline import Pipeline
 from tv_sim.profile import TVProfile, available_profiles, load_profile
 from tv_sim.sequence import MotionConfig
 from tv_sim.viewing_angle import ViewingAngleConfig
+from tv_sim.zone_temporal import ZoneTemporalConfig
 
 __version__ = "0.1.0"
 __all__ = [
@@ -22,6 +23,7 @@ __all__ = [
     "Pipeline",
     "TVProfile",
     "ViewingAngleConfig",
+    "ZoneTemporalConfig",
     "available_profiles",
     "load_profile",
 ]
