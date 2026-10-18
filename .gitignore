@@ -16,4 +16,5 @@ dist/
 # Full-precision experiment arrays and browser transport are regenerated.
 *.npy
 *.npz
+!tests/fixtures/rendered_reference_values.npz
 web/data/frames/

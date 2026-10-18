@@ -16,9 +16,10 @@ from fractions import Fraction
 from hashlib import sha256
 from html import escape
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import numpy as np
+from numpy.typing import NDArray
 from PIL import Image, ImageDraw
 
 from tv_sim.color import luminance
@@ -225,7 +226,8 @@ def _metrics(
             result["transitions"][event] = {}
             for arm in ARMS:
                 command = np.array([np.mean(r["zone"]["after_nits"]) for r in traces[arm]])
-                output = np.mean(ys[arm], axis=(1, 2), dtype=np.float64)
+                # Reducing spatial axes leaves one sample per output tick.
+                output = cast(NDArray[np.float64], np.mean(ys[arm], axis=(1, 2), dtype=np.float64))
                 output_target = float(np.mean(ys["off"][stop - 1]))
                 result["transitions"][event][arm] = {
                     "zone": _settling(command, target, start, stop, tolerance, fps),

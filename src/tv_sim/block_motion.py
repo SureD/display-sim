@@ -343,7 +343,7 @@ def _match(source: np.ndarray, target: np.ndarray, config: BlockMotionConfig):
                         penalty = config.neighbor_penalty * np.linalg.norm(
                             np.array((dx * scale_x, dy * scale_y)) - neighbor
                         )
-                        ranked = cost + penalty
+                        ranked = float(cost + penalty)
                         if ranked < best:
                             runner, best = best, ranked
                             selected, selected_support = np.array((dx, dy), float), valid
