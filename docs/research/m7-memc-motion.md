@@ -1,6 +1,6 @@
 # M7 MEMC and motion: model, artifacts and implementation boundary
 
-Research checked **2026-10-16** against [README](../README.md), [STATUS](../docs/STATUS.md), [temporal research](04-temporal.md), [image-processing research](05-image-processing.md), and the current [stages](../sim/stages/). This is a research and implementation handoff; it changes no simulator code, profiles, M4 artifacts or gallery work. Consumer-TV feature descriptions establish behavior, while the public algorithms below establish reproducible model families. Neither establishes an exact Sony, Samsung or LG implementation.
+Research checked **2026-10-16** against [README](../../README.md), [STATUS](../reports/STATUS.md), [temporal research](04-temporal.md), [image-processing research](05-image-processing.md), and the current [stages](../../src/tv_sim/stages/). This is a research and implementation handoff; it changes no simulator code, profiles, M4 artifacts or gallery work. Consumer-TV feature descriptions establish behavior, while the public algorithms below establish reproducible model families. Neither establishes an exact Sony, Samsung or LG implementation.
 
 Use the [M5/M6 evidence convention](m6-profile-wiring.md): **M** = published measurement, **D** = deduction from declared inputs, **P** = proposed model or synthetic experiment, **NR** = no verified numerical reference, unidentified parameter or missing conditions. NR is not zero and is distinct from *not implemented*. Spell out **noise reduction** to avoid confusing that processing family with the evidence label. No measured TV interpolation coefficients or artifact distributions are claimed here.
 
@@ -8,15 +8,15 @@ Use the [M5/M6 evidence convention](m6-profile-wiring.md): **M** = published mea
 
 | Location | Implemented behavior | MEMC boundary |
 |---|---|---|
-| [process.py](../sim/stages/process.py), `process_image` | Nearest/bilinear scaling, then unsharp masking, on linear-nit RGB. | One picture at a time; no motion estimation, deinterlacing or temporal noise reduction. |
-| [temporal.py](../sim/stages/temporal.py), `respond` | First-order lag; optional overdrive command for a prefix of `frame_time_ms`, followed by the target. | Panel-response proxy, not reconstruction of intermediate content. `response_time_ms` is the time constant used by the equation, not a measured 10–90% GtG value. |
+| [process.py](../../src/tv_sim/stages/process.py), `process_image` | Nearest/bilinear scaling, then unsharp masking, on linear-nit RGB. | One picture at a time; no motion estimation, deinterlacing or temporal noise reduction. |
+| [temporal.py](../../src/tv_sim/stages/temporal.py), `respond` | First-order lag; optional overdrive command for a prefix of `frame_time_ms`, followed by the target. | Panel-response proxy, not reconstruction of intermediate content. `response_time_ms` is the time constant used by the equation, not a measured 10–90% GtG value. |
 | `TemporalState.previous` / `apply_temporal` | Stores the lagged linear-nit image **before** BFI and pursuit blur. First frame, absent history or shape mismatch starts fully settled. | No source-frame buffer, source timestamps, vectors, visibility or scene-cut state. |
 | `apply_bfi` | Duty scales frame-mean light and pursuit displacement; optional mean preservation with ceiling clipping. | No measured pulse train, scanout or PWM. BFI does not add motion positions. |
 | `sample_and_hold` / `shift_x` | Seven horizontal bilinear shifts averaged using manually supplied `motion_px_per_frame`; clamped border samples. | A local pursuit-image proxy; it neither moves objects between frames nor estimates flow. No full time-resolved eye integration. |
-| [pipeline.py](../sim/pipeline.py), `Pipeline.run_linear` | Decode → spatial processing → backlight → panel → tone map/ABL → ambient → temporal. Persistent panel and load states; one input produces one output. | No source/output-rate distinction. `frame_time_ms` advances both response and ABL dynamics. |
-| [frame.py](../sim/frame.py), [cli.py](../sim/cli.py) | `Frame` contains RGB nits and optional backlight map. Existing still CLI has `--motion-px`. | No PTS, clip loader, frame-rate converter or MEMC switch. `--motion-px` means eye displacement per simulated frame, not estimated source displacement. |
+| [pipeline.py](../../src/tv_sim/pipeline.py), `Pipeline.run_linear` | Decode → spatial processing → backlight → panel → tone map/ABL → ambient → temporal. Persistent panel and load states; one input produces one output. | No source/output-rate distinction. `frame_time_ms` advances both response and ABL dynamics. |
+| [frame.py](../../src/tv_sim/frame.py), [cli.py](../../src/tv_sim/cli.py) | `Frame` contains RGB nits and optional backlight map. Existing still CLI has `--motion-px`. | No PTS, clip loader, frame-rate converter or MEMC switch. `--motion-px` means eye displacement per simulated frame, not estimated source displacement. |
 
-The moving-edge [validation harness](../sim/validate.py) supplies successive pictures itself. Its `_render` creates a new `Pipeline` each time, sharing `TemporalState` but **not** `LoadState`; preserve this historical behavior for M4 comparisons. Its `temporal_only_blur_px` isolates the existing temporal stage, not interpolation quality. The [temporal tests](../tests/test_temporal.py) already protect lag, settled stills, pursuit-history isolation, overdrive and BFI.
+The moving-edge [validation harness](../../src/tv_sim/validate.py) supplies successive pictures itself. Its `_render` creates a new `Pipeline` each time, sharing `TemporalState` but **not** `LoadState`; preserve this historical behavior for M4 comparisons. Its `temporal_only_blur_px` isolates the existing temporal stage, not interpolation quality. The [temporal tests](../../tests/test_temporal.py) already protect lag, settled stills, pursuit-history isolation, overdrive and BFI.
 
 ## 2. A consumer-TV MEMC model
 
@@ -130,21 +130,21 @@ All commands/options below are **proposed, not supported by the current CLI or Y
 
 ```bash
 # Existing command: identical behavior after any future MEMC work.
-python3 -m sim --profile generic_woled --input in.png --output out.png
+python3 -m tv_sim --profile generic_woled --input in.png --output out.png
 
 # Proposed sequence baseline: scheduler enabled, source pictures repeated.
-python3 -m sim motion --profile generic_woled \
+python3 -m tv_sim motion --profile generic_woled \
   --input-frames 'clip/frame_*.png' --source-fps 24000/1001 \
   --output-fps 120000/1001 --memc repeat --out reports/motion-repeat/
 
 # Proposed synthesis, with diagnostics and fixed preview exposure.
-python3 -m sim motion --profile generic_woled \
+python3 -m tv_sim motion --profile generic_woled \
   --input-frames 'clip/frame_*.png' --source-fps 24000/1001 \
   --output-fps 120000/1001 --memc mci --motion-debug \
   --preview-reference-nits 1000 --out reports/motion-mci/
 
 # Proposed synthetic fixtures and isolated tests; keep M4 validate separate.
-python3 -m sim motion validate --fixtures pan occlusion text cut \
+python3 -m tv_sim motion validate --fixtures pan occlusion text cut \
   --source-fps 24/1 --output-fps 60/1 --seed 7 --out reports/motion-tests/
 ```
 

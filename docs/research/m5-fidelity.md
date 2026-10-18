@@ -1,6 +1,6 @@
 # M5 fidelity: measured anchors, quantitative models and exposed parameters
 
-Research checked **2026-10-16**. Scope: the four existing profiles, `generic_va_fald_miniled`, `generic_ips_edge`, `generic_woled`, and `generic_qdoled`. This is a research and implementation specification; it does not recalibrate their placeholder YAML values. Read alongside [STATUS](../docs/STATUS.md), [REPORT](../docs/REPORT.md), [M4 references](m4-reference-ranges.md), and the [M1 architecture](06-sim-architecture.md). CRT/plasma and GPU implementation are outside this note.
+Research checked **2026-10-16**. Scope: the four existing profiles, `generic_va_fald_miniled`, `generic_ips_edge`, `generic_woled`, and `generic_qdoled`. This is a research and implementation specification; it does not recalibrate their placeholder YAML values. Read alongside [STATUS](../reports/STATUS.md), [REPORT](../reports/REPORT.md), [M4 references](m4-reference-ranges.md), and the [M1 architecture](06-sim-architecture.md). CRT/plasma and GPU implementation are outside this note.
 
 **Evidence labels:** **M** = published measurement on the named sample; **D** = calculation from stated inputs; **P** = proposed simulator model or fitting choice; **NR** = no verified numerical reference, missing conditions, or an unidentified parameter. NR is not zero. A mechanism that does not apply is explicitly marked *not applicable*. An approximate number retains its publisher's rounding; these sources generally do not supply uncertainty budgets. A TV sample, a supporting monitor measurement, and a technology-wide distribution are different kinds of evidence.
 
@@ -31,7 +31,7 @@ For a historical **APL-labeled** comparison, DisplayMate measured LG **65EG9600*
 4. **P: LCD backlight power.** `P_BL = P_idle + sum_j p_j * d_j^eta_j`, with zone drives `d_j in [0,1]`. Limit drives, reconstruct the backlight, then recompute LCD compensation. Emitted APL alone cannot predict this load: dark LCD pixels can sit over energized zones. The IPS edge case uses long strip influences (or one global drive), not per-pixel emissive power. Published watts-to-zone-drive coefficients are **NR** for both LCD profiles.
 5. **P: separate state timescales.** Fast current limit, temperature-dependent capacity, and static-image dimming need separate states. One possible thermal surrogate is `T_next = T_eq(P) + (T_prev-T_eq(P))*exp(-dt/tau_th)`. Fit attack/release and thermal behavior from traces; their values are **NR** here. Do not turn source-history/static-logo dimming into pixel response lag.
 
-The present implementation instead evaluates a synthetic ceiling after the panel stage: `F + (P0-F)*(1-clip(mean(Y_panel)/P0,0,1))^gamma` ([tonemap.py](../sim/stages/tonemap.py)). Its `abl_gamma` is not a measured power exponent, and `abl_power_budget_nits` is weighted nits, not watts. A table should constrain actual center output; using a measured output as an asymptotic shoulder ceiling can undershoot it. Solve the drive/tone-map/load relationship rather than applying the same restriction twice.
+The present implementation instead evaluates a synthetic ceiling after the panel stage: `F + (P0-F)*(1-clip(mean(Y_panel)/P0,0,1))^gamma` ([tonemap.py](../../src/tv_sim/stages/tonemap.py)). Its `abl_gamma` is not a measured power exponent, and `abl_power_budget_nits` is weighted nits, not watts. A table should constrain actual center output; using a measured output as an asymptotic shoulder ceiling can undershoot it. Solve the drive/tone-map/load relationship rather than applying the same restriction twice.
 
 ## 2. Viewing angle: leakage, white gain and gamma need separate fits
 
@@ -118,7 +118,7 @@ For comparison, **P** a centered Gaussian with amplitude A and width sigma cross
 | WOLED | No LCD-zone leakage; emission may scatter in panel/cover optics | Measured emitted optical PSF **NR** |
 | QD-OLED | No LCD-zone leakage; conversion/cover optics and observer flare are distinct effects | Measured emitted optical PSF **NR** |
 
-Measure horizontal/vertical halo profiles, near-ring mean/max, far black, threshold width, outside-window energy and highlight retention. Save both all-black-run and same-frame-far-black baselines. Repeat window sizes/locations/zone phases, angles and dimming modes. Store distances in screen pixels, mm, zone pitches and visual degrees; the current 1–3-preview-pixel ring changes meaning with resolution. Calibrated camera flare subtraction is essential before fitting a weak tail. The simulator's emissive branch currently ignores its computed backlight/PSF map ([panel.py](../sim/stages/panel.py)); zero OLED halo in M4 does not validate optical scatter.
+Measure horizontal/vertical halo profiles, near-ring mean/max, far black, threshold width, outside-window energy and highlight retention. Save both all-black-run and same-frame-far-black baselines. Repeat window sizes/locations/zone phases, angles and dimming modes. Store distances in screen pixels, mm, zone pitches and visual degrees; the current 1–3-preview-pixel ring changes meaning with resolution. Calibrated camera flare subtraction is essential before fitting a weak tail. The simulator's emissive branch currently ignores its computed backlight/PSF map ([panel.py](../../src/tv_sim/stages/panel.py)); zero OLED halo in M4 does not validate optical scatter.
 
 ## 4. Aperture geometry and physical pixel pitch
 
@@ -198,7 +198,7 @@ u_OD = clip(u + k[g0,g1,refresh]*(u-q_start), u_min,u_max)
 
 Apply u_OD for `t_OD`, then return to u. Separate dark transitions and rise/fall; fit drive headroom and an extra pole or use a direct trace when one exponential cannot reproduce overshoot. For a monotonic exponential **in the same measurement domain**, `t10–90=ln(9)*tau`; `tau=t10–90/2.197`. A code-domain or first-target-crossing GtG number cannot be divided by 2.197 to obtain a linear-luminance tau. Voltage LUTs, pulse gains/durations and complete transition matrices for all four generic profiles remain **NR**. OLED has no need for a user-facing LCD OD knob, but its measured traces still need possible near-black overshoot/settling.
 
-Run LCD response on transmission state and OLED response on emitter state before panel optics; keep zone-controller rise/fall and frame latency separate. The current implementation filters emitted RGB, uses a fully settled first frame, and has a synthetic pulse prefix ([temporal.py](../sim/stages/temporal.py)). Photodiode tests need explicit pre-roll and subframe samples.
+Run LCD response on transmission state and OLED response on emitter state before panel optics; keep zone-controller rise/fall and frame latency separate. The current implementation filters emitted RGB, uses a fully settled first frame, and has a synthetic pulse prefix ([temporal.py](../../src/tv_sim/stages/temporal.py)). Photodiode tests need explicit pre-roll and subframe samples.
 
 ### Emission gate and motion-width conventions
 

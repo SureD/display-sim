@@ -1,6 +1,6 @@
 # Browser smoke check
 
-From the repository root, generate preview assets with `python3 -m sim export-web`,
+From the repository root, generate preview assets with `python3 -m tv_sim export-web`,
 then start `python3 -m http.server 8000`. In another terminal, run:
 
 ```sh

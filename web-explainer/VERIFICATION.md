@@ -9,7 +9,7 @@ Verified using **`/usr/bin/google-chrome`**, opening the local HTML files direct
 - **10 complete local-dimming rasters** against `simulate_backlight()` and `lcd_transmit()` at five positions and two contrasts. Maximum absolute difference: **1.2207e-4 nit**, from floating-point intermediates. Probe remains outside the bright window at either screen edge.
 - **48 PQ / ABL / neutral shoulder cases** against `pq_eotf()`, `abl_capacity()` and `soft_shoulder()` using all three instrument presets, four codes and four loads. Tolerance 0.001 nit; current outputs match exactly in the independent HDR comparison.
 - **4 ideal pursuit calculations**, including 120 Hz / duty 0.25 / 960 px/s = 2.0833 ms / 2 pixels of full support. This is explicitly distinct from measured MPRT and the simulator's 10–90 metric.
-- `python3 -m sim provenance --check`: **4 baseline/angular profile records pass**. Original simulator files and settings were not edited.
+- `python3 -m tv_sim provenance --check`: **4 baseline/angular profile records pass**. Original simulator files and settings were not edited.
 
 Each visible calculation, moving part and live readout shares its figure's model. Research citations and P/NR caveats are in the page and [SOURCES.md](SOURCES.md).
 

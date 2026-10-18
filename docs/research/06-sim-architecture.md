@@ -1,6 +1,6 @@
 # Recommended simulator architecture and validation
 
-Research date: 2026-10-15. This is a research proposal for the NumPy-first implementation in [PLAN](../docs/PLAN.md), not implemented software. M1 delivers these notes; M2 can implement the interfaces/schema, M3 the physical/stateful modules, M4 the measurement comparison. Sources and equations are in [panel](01-panel-tech.md), [backlight](02-backlight-local-dimming.md), [HDR](03-color-hdr.md), [temporal](04-temporal.md) and [processing](05-image-processing.md).
+Research date: 2026-10-15. This is a research proposal for the NumPy-first implementation in [PLAN](../reports/PLAN.md), not implemented software. M1 delivers these notes; M2 can implement the interfaces/schema, M3 the physical/stateful modules, M4 the measurement comparison. Sources and equations are in [panel](01-panel-tech.md), [backlight](02-backlight-local-dimming.md), [HDR](03-color-hdr.md), [temporal](04-temporal.md) and [processing](05-image-processing.md).
 
 ## Data flow and units
 

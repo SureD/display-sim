@@ -1,18 +1,74 @@
-# Profile and experiment provenance (M8, M10, M13, M14, M15)
+# Profiles and provenance
 
-Each runtime profile has a separate `sim/profiles/<name>.provenance.yaml`
+## Runtime profile schema and loading
+
+The four shipped presets are `generic_ips_edge`, `generic_va_fald_miniled`,
+`generic_woled`, and `generic_qdoled`. All are placeholders, not calibrated TVs.
+Their YAML files live in [`src/tv_sim/profiles/`](../src/tv_sim/profiles/) and ship
+as package data in source and wheel installations.
+
+`tv_sim.load_profile(name)` resolves a bundled profile by name through the package
+location, independently of the current working directory. `available_profiles()`
+excludes provenance, angular, and colorimetry sidecars. Each YAML is loaded into
+`TVProfile` and its section dataclasses; missing supported values use explicit
+Python defaults. The authoritative field definitions are in
+[`profile.py`](../src/tv_sim/profile.py).
+
+| Runtime key | Meaning and principal units |
+|---|---|
+| `name`, `technology`, `description` | Preset identity, mechanism family, and placeholder explanation. |
+| `input` | EOTF (`srgb`, `pq`, `hlg`), SDR white and HLG peak in nits. |
+| `processing` | Dimensionless scale/sharpen controls and resampling mode. |
+| `backlight` | `fald`, `edge`, or `per_pixel`; zone counts, PSF/LSF shape and boundary, drive in nits. PSF widths use zone pitches for LCD or pixels for emissive paths. |
+| `panel` | Native contrast, synthetic subpixel layout, legacy matrix/angle controls. |
+| `hdr` | Tone mapper, peak/full-field nits, dimensionless ABL curve, selected load source and optional legacy controls. Weighted-nit proxies are not watts. |
+| `ambient` | Illuminance in lux and dimensionless reflectance. |
+| `temporal` | Frame/response times in ms, pursuit pixels/frame, overdrive, BFI duty, integration samples. Response time is model tau, not measured GtG. |
+| `output` | Preview transfer function and reference luminance in nits. |
+
+New runtime experiments (`MotionConfig`, `ViewingAngleConfig`,
+`ABLDynamicsConfig`, `ColorimetryConfig`) are explicit API/CLI controls rather than
+silent profile changes. Baseline evidence sidecars snapshot every effective
+profile value, including dataclass defaults. Angular sidecars are offline
+snapshots; colorimetry sidecars supply parameters only to the enabled M15 path.
+
+## Historical paths and packaged data
+
+M16 preserves the bytes of all profile YAML and measurement/protocol JSON files,
+including source locator strings that name historical paths. Resolve those
+locators as follows when following evidence:
+
+| Historical locator | Current location |
+|---|---|
+| `sim/<module>.py` | `src/tv_sim/<module>.py` |
+| `sim/profiles/<file>` | `src/tv_sim/profiles/<file>` |
+| `research/<note>.md` | `docs/research/<note>.md` |
+| `research/measurements/<file>.json` | `src/tv_sim/data/measurements/<file>.json` |
+| `docs/PROVENANCE.md` | `docs/profiles.md` |
+| `docs/REPORT.md`, `docs/STATUS.md`, `docs/PLAN.md` | The same filenames under `docs/reports/`. |
+
+The historical Python module prefix `sim` is now `tv_sim`. These aliases explain
+immutable evidence; new documentation uses current paths. Bundled synthetic
+OLED/motion protocols are loaded relative to the installed package by default;
+CLI `--protocol`/`--motion-config` options select explicitly supplied alternatives.
+See [usage](usage.md) for examples. Do not write generated fits into this package
+data tree.
+
+## Evidence sidecars and validation
+
+Each runtime profile has a separate `src/tv_sim/profiles/<name>.provenance.yaml`
 record with `schema_version: 1`. These records document the current generic
 presets and preserve published measurements from the existing research.
 They do not calibrate a generic preset to a named television.
 
 ```sh
-python3 -m sim provenance --check
-python3 -m sim provenance --check --profiles generic_woled generic_qdoled
+python3 -m tv_sim provenance --check
+python3 -m tv_sim provenance --check --profiles generic_woled generic_qdoled
 ```
 
 The check reports invalid or missing records and exits unsuccessfully when
-validation fails. M10 adds `sim/profiles/<name>.angular.yaml` records to this
-same check. M15 adds `sim/profiles/<name>.colorimetry.yaml`; `--profiles`
+validation fails. M10 adds `src/tv_sim/profiles/<name>.angular.yaml` records to this
+same check. M15 adds `src/tv_sim/profiles/<name>.colorimetry.yaml`; `--profiles`
 selects baseline, angular and colorimetry records together. The default check
 also rejects orphan sidecars of these kinds with no corresponding runtime
 profile. Baseline and angular sidecars remain offline snapshots. Colorimetry
@@ -21,7 +77,7 @@ profile loading and disabled rendering never read them. Profile discovery
 excludes all three sidecar suffixes, so adding a record does not create another
 selectable TV profile. The four original runtime YAML files remain unchanged.
 
-M13 also checks the separate [synthetic OLED dynamics protocol](../research/measurements/oled_dynamics_synthetic_v1.json)
+M13 also checks the separate [synthetic OLED dynamics protocol](../src/tv_sim/data/measurements/oled_dynamics_synthetic_v1.json)
 on every invocation, including checks restricted by `--profiles`. This protocol
 is outside the profile tree and is never discovered by ordinary rendering.
 M14 checks the separate block motion config and synthetic validation protocol
@@ -29,8 +85,8 @@ on every invocation, including `--profiles` selections.
 
 ## Evidence and unknowns
 
-The labels follow [M5 fidelity](../research/m5-fidelity.md) and
-[M6 profile wiring](../research/m6-profile-wiring.md):
+The labels follow [M5 fidelity](research/m5-fidelity.md) and
+[M6 profile wiring](research/m6-profile-wiring.md):
 
 | Label | Meaning |
 |---|---|
@@ -64,7 +120,7 @@ are not electrical watt measurements.
 The `entries` mapping uses dotted profile paths. Each entry records an exact
 `value` snapshot, evidence, source location, conditions, interpolation, and
 support. Paths cover every leaf of the loaded profile, including defaults
-from [the profile dataclasses](../sim/profile.py), not only keys explicitly
+from [the profile dataclasses](../src/tv_sim/profile.py), not only keys explicitly
 written in the runtime YAML. Lists are atomic: for example,
 `panel.color_matrix` and `hdr.abl_channel_weights` each have one entry.
 An absent optional table is recorded at `backlight.psf_profile` with a null
@@ -130,13 +186,13 @@ size or picture mode is a different experiment.
 ## Angular schema version 1 (M10)
 
 The opt-in angular stage keeps its synthetic parameters in
-[`sim/viewing_angle.py`](../sim/viewing_angle.py), separately from the unchanged
+[`src/tv_sim/viewing_angle.py`](../src/tv_sim/viewing_angle.py), separately from the unchanged
 runtime profile YAML. Each `.angular.yaml` sidecar records every effective
 parameter, including the support bound, with an exact scalar or atomic RGB-list
 snapshot and the same `value`, `evidence`, `source`, `conditions`,
 `interpolation`, `support`, and `notes` fields described above. Missing labels,
 unknown fields, nonfinite values, stale snapshots, missing records and duplicate
-YAML keys fail `python3 -m sim provenance --check`. Ordinary profile loading and
+YAML keys fail `python3 -m tv_sim provenance --check`. Ordinary profile loading and
 rendering do not parse angular sidecars.
 
 All shipped angular numeric values have **P** evidence and
@@ -187,7 +243,7 @@ the angular mechanisms independently of emitted-load limiting.
 
 ## Measurement lookup
 
-`sim.provenance.lookup_measurement(data, dataset_id, fraction)` is an
+`tv_sim.provenance.lookup_measurement(data, dataset_id, fraction)` is an
 explicit research lookup. It returns the fraction, luminance in nits,
 evidence, and whether the result was interpolated. It does not modify a
 profile or run a rendering stage.
@@ -208,7 +264,7 @@ entry point below implements §8 item 2.
 
 ## M9 window replay and drive fitting
 
-`python3 -m sim fit-windows --help` explicitly selects a source measurement
+`python3 -m tv_sim fit-windows --help` explicitly selects a source measurement
 dataset, a **new** fitted dataset ID and a new `.fit.json` file. No defaults,
 profile dataclasses or generic YAMLs change. Ordinary rendering, validation,
 gallery generation and MEMC-off sequences never discover or load a fit file.
@@ -216,7 +272,7 @@ Fits are written outside the runtime profile directory and never overwrite
 an existing file. A baseline hash over all effective profile values prevents
 reusing drives after the baseline changes.
 
-`sim.window_replay.fit_windows` performs strict M8 lookup before any fitting.
+`tv_sim.window_replay.fit_windows` performs strict M8 lookup before any fitting.
 Both nominal and rasterized fractions must be inside source support. Numeric
 source nodes are selected by default; `NR` nodes are skipped and retained in
 the complete embedded source record. Explicit gap queries use the existing
@@ -343,7 +399,7 @@ migration or measured-device claim is provided here.
 
 ## Block motion config and validation schema version 1 (M14)
 
-[`motion_block_synthetic_v1.json`](../research/measurements/motion_block_synthetic_v1.json)
+[`motion_block_synthetic_v1.json`](../src/tv_sim/data/measurements/motion_block_synthetic_v1.json)
 records `kind: block_motion_proxy_v1`, integer `schema_version: 1`,
 `evidence: P`, `parameter_status: placeholder`, a synthetic source locator and
 `sample: NR`. `parameters` covers every `BlockMotionConfig` field with an exact
@@ -378,7 +434,7 @@ continuous. Static pairs and exact source endpoints retain their original
 content. Phase-1 off/repeat/analytic manifests remain schema 1 with their
 original fields and exact output bytes.
 
-[`motion_validation_synthetic_v1.json`](../research/measurements/motion_validation_synthetic_v1.json)
+[`motion_validation_synthetic_v1.json`](../src/tv_sim/data/measurements/motion_validation_synthetic_v1.json)
 is a separate P-only protocol: seed, raster, rational rates, clip length,
 shared preview exposure, synthetic textures/colors/geometry, layer velocities,
 cut/flash placement and region/trajectory metric parameters. It retains named-TV
@@ -397,7 +453,7 @@ Short-clip previews share one fixed exposure, so flashes remain visible.
 
 The separate `*.colorimetry.yaml` records are the source of panel parameters
 for the opt-in path, loaded by
-[`panel_parameters`](../sim/colorimetry_provenance.py). Baseline runtime
+[`panel_parameters`](../src/tv_sim/colorimetry_provenance.py). Baseline runtime
 `panel.color_matrix` identity values and their M8 snapshots remain unchanged.
 The new loader validates the whole record before returning parameters and
 has no fallback for absent or malformed evidence. Disabled rendering does not
@@ -464,5 +520,5 @@ errors are D relative to the declared source intent. u′v′ distance omits
 luminance and is not perceptual ΔE; report the deliberate luminance reduction
 separately. The shared preview exposure and host/browser calibration remain
 independent of TV evidence. See the
-[M15 research and primary sources](../research/m15-colorimetry.md) for the
+[M15 research and primary sources](research/m15-colorimetry.md) for the
 panel placeholders, geometric hue limitation and missing measurement ledger.

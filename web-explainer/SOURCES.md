@@ -4,17 +4,17 @@ This page explains the current CPU reference implementation and clearly labeled 
 
 ## 1. Pipeline / 管线
 
-Use the actual order in [sim/pipeline.py](../sim/pipeline.py), not the aspirational ordering in [research/06-sim-architecture.md](../research/06-sim-architecture.md#data-flow-and-units):
+Use the actual order in [src/tv_sim/pipeline.py](../src/tv_sim/pipeline.py), not the aspirational ordering in [docs/research/06-sim-architecture.md](../docs/research/06-sim-architecture.md#data-flow-and-units):
 
 `encoded RGB → EOTF decode → resize/sharpen → backlight/zone spread → panel → HDR shoulder/ABL → ambient → temporal → optional preview encode`.
 
 - Buffers are float32 linear RGB in nit-scaled units. `Pipeline.run_linear()` returns the physical-model output before preview encoding; `run()` returns an 8-bit preview. Neutral `(L,L,L)` has luminance `L`; a single colored RGB component is not patch luminance.
-- Current linear luminance weights are BT.709: **0.2126 / 0.7152 / 0.0722**, from [sim/color.py](../sim/color.py). The `Frame` has no complete color-space metadata. Identity panel matrices do not implement full BT.2020-to-panel color management.
+- Current linear luminance weights are BT.709: **0.2126 / 0.7152 / 0.0722**, from [src/tv_sim/color.py](../src/tv_sim/color.py). The `Frame` has no complete color-space metadata. Identity panel matrices do not implement full BT.2020-to-panel color management.
 - Default sRGB input white is **100 nits**; PQ input is absolute; HLG uses **1,000-nit** target peak by default. Raising panel capacity does not turn sRGB input into an HDR stimulus.
-- Opt-in sequence reconstruction occurs after per-source decoding/spatial processing and before the backlight/panel stages. Display/load history advances once per output tick. See [sim/sequence.py](../sim/sequence.py).
+- Opt-in sequence reconstruction occurs after per-source decoding/spatial processing and before the backlight/panel stages. Display/load history advances once per output tick. See [src/tv_sim/sequence.py](../src/tv_sim/sequence.py).
 - Ambient precedes response/BFI in the compatibility pipeline. Zero lux is required when illustrating emitted-light/BFI behavior without that ordering artifact.
 
-Research citation: [M6 §1](../research/m6-profile-wiring.md#1-what-can-be-wired-today), [M5 Mac §1](../research/m5-mac-display.md#1-preserve-the-simulators-physical-output). Runtime authority: [pipeline.py](../sim/pipeline.py), [decode.py](../sim/stages/decode.py), [encode.py](../sim/stages/encode.py).
+Research citation: [M6 §1](../docs/research/m6-profile-wiring.md#1-what-can-be-wired-today), [M5 Mac §1](../docs/research/m5-mac-display.md#1-preserve-the-simulators-physical-output). Runtime authority: [pipeline.py](../src/tv_sim/pipeline.py), [decode.py](../src/tv_sim/stages/decode.py), [encode.py](../src/tv_sim/stages/encode.py).
 
 ## 2. Panels and subpixels / 面板与子像素
 
@@ -22,11 +22,11 @@ Research citation: [M6 §1](../research/m6-profile-wiring.md#1-what-can-be-wired
 - RGB stripes are a generic LCD aperture illustration. Actual RGB/BGR order, electrode domains, aperture dimensions and fill factors remain **NR** for these presets.
 - WRGB uses a white-emitting OLED stack with filtered R/G/B and an additional W aperture. Aperture order varies by model/generation. The macro renderer illustrates an **R/W/B/G** repeat, not a universal layout.
 - The cited QD-OLED TV family uses blue OLED excitation, red/green QD conversion and retained blue, with green above red/blue in a staggered triangular pattern. This is not a statement that every QD-OLED generation uses that layout.
-- [sim/macro.py](../sim/macro.py) gives every technology the same square logical pitch. Default fill factor **0.72** and WRGB white allocation **65% × min(R,G,B)** are **P synthetic** choices. Apertures are independently area-normalized so the cell mean recovers input RGB. Concentrated aperture peaks are visualization energy, not measured emitter peak luminance. This macro allocation differs from the coarse, recombined runtime mosaic.
+- [src/tv_sim/macro.py](../src/tv_sim/macro.py) gives every technology the same square logical pitch. Default fill factor **0.72** and WRGB white allocation **65% × min(R,G,B)** are **P synthetic** choices. Apertures are independently area-normalized so the cell mean recovers input RGB. Concentrated aperture peaks are visualization energy, not measured emitter peak luminance. This macro allocation differs from the coarse, recombined runtime mosaic.
 - A nominal **65-inch, 3,840×2,160** square-pixel raster has **0.375-mm pitch / 67.8 PPI (D)**. Same active size and logical resolution imply the same logical pixel pitch; subpixel spacing is not automatically pitch/3 or pitch/4.
 - CRT/plasma are researched but have no current runtime profile.
 
-Research citation: [Panel constructions](../research/01-panel-tech.md#definitions-and-defensible-comparisons), [M5 §4 layout and pitch](../research/m5-fidelity.md#4-aperture-geometry-and-physical-pixel-pitch). Runtime authority: [macro.py](../sim/macro.py), [panel.py](../sim/stages/panel.py).
+Research citation: [Panel constructions](../docs/research/01-panel-tech.md#definitions-and-defensible-comparisons), [M5 §4 layout and pitch](../docs/research/m5-fidelity.md#4-aperture-geometry-and-physical-pixel-pitch). Runtime authority: [macro.py](../src/tv_sim/macro.py), [panel.py](../src/tv_sim/stages/panel.py).
 
 ## 3. Local dimming / 分区调光
 
@@ -40,7 +40,7 @@ For positive backlight `B`, the LCD output constraint is `L=clip(T,B/C,B)`. Thus
 
 Limits: no measured TV influence matrix, edge-light guide, zone-controller lag, iterative LCD/backlight allocation or per-zone watt model. The numerical `1e−8` safe floor in the legacy LCD function is not a physical black pedestal.
 
-Research citation: [Transport and compensation](../research/02-backlight-local-dimming.md#layout-and-light-transport), [M3 current grid/optics](../research/m3-local-dimming-params.md#grid-and-optics), [M5 halo evidence](../research/m5-fidelity.md#3-zone-transport-psf-shape-and-measured-halos). Runtime authority: [VA YAML](../sim/profiles/generic_va_fald_miniled.yaml), [backlight.py](../sim/stages/backlight.py), [panel.py](../sim/stages/panel.py).
+Research citation: [Transport and compensation](../docs/research/02-backlight-local-dimming.md#layout-and-light-transport), [M3 current grid/optics](../docs/research/m3-local-dimming-params.md#grid-and-optics), [M5 halo evidence](../docs/research/m5-fidelity.md#3-zone-transport-psf-shape-and-measured-halos). Runtime authority: [VA YAML](../src/tv_sim/profiles/generic_va_fald_miniled.yaml), [backlight.py](../src/tv_sim/stages/backlight.py), [panel.py](../src/tv_sim/stages/panel.py).
 
 ## 4. HDR and ABL / 绝对亮度与负载
 
@@ -63,7 +63,7 @@ ABL ceiling model: `a=clip(APL/P0,0,1)`; `P(a)=F+(P0−F)(1−a)^g`. A neutral w
 
 **Current-default caveat:** all shipped presets inherit `abl_source=emitted`, so their ceiling reads panel-stage output after panel clipping. `abl_source=demand` is a supported opt-in mode that reads requested linear luminance upstream. A dial using the research request-APL contract must label that experiment explicitly. `abl_response_ms=0` and `abl_backlight_tracking=0` retain instantaneous legacy behavior. `abl_power_budget_nits=0` disables the optional weighted-nit proxy, which is not an electrical watt budget. No timed thermal/static-logo behavior is modeled.
 
-Research citation: [PQ and HLG](../research/03-color-hdr.md#pq-and-hlg), [M3 ABL contract](../research/m3-hdr-abl-params.md#abl-versus-load), [M6 current knobs](../research/m6-profile-wiring.md#5-oled-abl-attack-and-release). Runtime authority: [color.py](../sim/color.py), [tonemap.py](../sim/stages/tonemap.py), [load.py](../sim/load.py), [profile defaults](../sim/profile.py).
+Research citation: [PQ and HLG](../docs/research/03-color-hdr.md#pq-and-hlg), [M3 ABL contract](../docs/research/m3-hdr-abl-params.md#abl-versus-load), [M6 current knobs](../docs/research/m6-profile-wiring.md#5-oled-abl-attack-and-release). Runtime authority: [color.py](../src/tv_sim/color.py), [tonemap.py](../src/tv_sim/stages/tonemap.py), [load.py](../src/tv_sim/load.py), [profile defaults](../src/tv_sim/profile.py).
 
 ## 5. Time and motion / 响应、保持与运动
 
@@ -91,7 +91,7 @@ These are **not measured device MPRT**. Default runtime uses endpoint response p
 
 24p repeated at **60 Hz** produces **3:2 holds / 50 and 33.333 ms**. At **120 Hz**, **5:5 / 41.667 ms** equalizes cadence but keeps 24 unique motion positions per second. Current MEMC modes are **off / repeat / analytic**, default off. Analytic reconstruction uses known translations or known layered masks/depths; no automatic motion estimation or scene-cut detection is included. Rational timing is **D**, synthetic reconstruction is **P**, vendor algorithms/latency are **NR**. At 480 px/s, source steps are **20 px at 24 fps**, and ideal output steps are **8 px at 60 fps / 4 px at 120 fps**.
 
-Research citation: [M5 response and timing](../research/m5-fidelity.md#5-response-overdrive-emission-timing-and-mprt), [M7 cadence](../research/m7-memc-motion.md#4-cadence-conversion-stutter-and-the-soap-opera-effect). Current support authority: [README](../README.md), [sequence.py](../sim/sequence.py), [temporal.py](../sim/stages/temporal.py).
+Research citation: [M5 response and timing](../docs/research/m5-fidelity.md#5-response-overdrive-emission-timing-and-mprt), [M7 cadence](../docs/research/m7-memc-motion.md#4-cadence-conversion-stutter-and-the-soap-opera-effect). Current support authority: [README](../README.md), [sequence.py](../src/tv_sim/sequence.py), [temporal.py](../src/tv_sim/stages/temporal.py).
 
 ## 6. Viewing angle / 视角
 
@@ -110,7 +110,7 @@ At a fixed 100-nit LCD backlight without other processing, the VA synthetic endp
 
 All shipped angular values are **P placeholders**. Full fits, IPS angular leakage calibration, and measured OLED gains/spectra remain **NR**. A center-angle model does not predict per-pixel seat geometry or IPS corner glow. Do not apply an extra cosine fade to a luminance curve.
 
-Research citation: [M5 angular mechanisms](../research/m5-fidelity.md#2-viewing-angle-leakage-white-gain-and-gamma-need-separate-fits), [M6 angular source boundaries](../research/m6-profile-wiring.md#3-angular-leakage-separate-va-and-ips-fits). Current authority: [M10 provenance](../docs/PROVENANCE.md#angular-schema-version-1-m10), [viewing_angle.py](../sim/viewing_angle.py).
+Research citation: [M5 angular mechanisms](../docs/research/m5-fidelity.md#2-viewing-angle-leakage-white-gain-and-gamma-need-separate-fits), [M6 angular source boundaries](../docs/research/m6-profile-wiring.md#3-angular-leakage-separate-va-and-ips-fits). Current authority: [M10 provenance](../docs/profiles.md#angular-schema-version-1-m10), [viewing_angle.py](../src/tv_sim/viewing_angle.py).
 
 ## 7. Host brightness / 宿主显示器映射
 
@@ -121,7 +121,7 @@ The static browser explainer is an SDR visualization, not a calibrated physical 
 - **EDR:** proposed native float path uses `C_EDR=M*C_TV_nits/W`, where **W is measured EDR=1 SDR/UI white**, not an assumed universal nit value. With **W=100 nits and admissible H=10**, 100/400/1,000 nits request EDR **1/4/10 (D/P)**. Ideal neutral ceiling is `W*H`; headroom alone is not a nit meter. Potential, current, and reference maxima have different meanings.
 - A dimmer host cannot emit a brighter TV's original light. Lowering SDR white may raise the relative EDR ratio without raising physical peak. Host black floor, dimming halos, gamut/color volume, window/duration limits, ambient/adaptation and response/BFI remain separate limits. No Mac renderer or host calibration was implemented by that research.
 
-Research citation: [EDR relative white](../research/m5-mac-display.md#2-edr-is-relative-to-sdr-white-not-an-absolute-nit-encoding), [Shared scale and clipping](../research/m5-mac-display.md#6-a-dimmer-host-cannot-emit-the-brighter-tvs-light). Runtime authority for current SDR output: [encode.py](../sim/stages/encode.py).
+Research citation: [EDR relative white](../docs/research/m5-mac-display.md#2-edr-is-relative-to-sdr-white-not-an-absolute-nit-encoding), [Shared scale and clipping](../docs/research/m5-mac-display.md#6-a-dimmer-host-cannot-emit-the-brighter-tvs-light). Runtime authority for current SDR output: [encode.py](../src/tv_sim/stages/encode.py).
 
 ## 8. Provenance / 证据等级
 
@@ -134,14 +134,14 @@ Research citation: [EDR relative white](../research/m5-mac-display.md#2-edr-is-r
 
 `NR` never means zero; use `not_applicable` for an absent mechanism. A measurement can be M while its dwell, requested amplitude or uncertainty is NR. Interpolation between measured nodes remains P. Numerical membership in a published envelope is not a calibration pass.
 
-Named-sample source records retain independent conditions: [M6 window table](../research/m6-profile-wiring.md#2-measured-window-and-apl-records), [versioned provenance sidecars](../docs/PROVENANCE.md#preserved-measurement-records). S95B's independent 2%/5%/75% values remain NR; X955 numerical support starts at 2%; IPS's 455-nit scalar has unknown window fraction and cannot form a window curve.
+Named-sample source records retain independent conditions: [M6 window table](../docs/research/m6-profile-wiring.md#2-measured-window-and-apl-records), [versioned provenance sidecars](../docs/profiles.md#preserved-measurement-records). S95B's independent 2%/5%/75% values remain NR; X955 numerical support starts at 2%; IPS's 455-nit scalar has unknown window fraction and cannot form a window curve.
 
-Convention authority: [docs/PROVENANCE.md](../docs/PROVENANCE.md#evidence-and-unknowns), [M5 fidelity](../research/m5-fidelity.md).
+Convention authority: [docs/profiles.md](../docs/profiles.md#evidence-and-unknowns), [M5 fidelity](../docs/research/m5-fidelity.md).
 
 ## Historical-text cautions
 
 Current code and versioned sidecars take precedence for runtime behavior. Earlier research still supplies measurement sources and model reasoning.
 
-- The first M4 sections of [docs/REPORT.md](../docs/REPORT.md) are historical. Their “OLED PSF ignored”, “MEMC not implemented” and chroma-only-angle wording must not describe current code.
-- [M6 §1](../research/m6-profile-wiring.md#1-what-can-be-wired-today) already identifies M5's stale emitted-only APL / ignored-PSF descriptions. The current QD-OLED **0.45-pixel** PSF actually spreads emitted RGB. [M6 §6](../research/m6-profile-wiring.md#6-defaults-and-the-limits-of-m4-parity) records the saved-M4 parity exception.
+- The first M4 sections of [docs/reports/REPORT.md](../docs/reports/REPORT.md) are historical. Their “OLED PSF ignored”, “MEMC not implemented” and chroma-only-angle wording must not describe current code.
+- [M6 §1](../docs/research/m6-profile-wiring.md#1-what-can-be-wired-today) already identifies M5's stale emitted-only APL / ignored-PSF descriptions. The current QD-OLED **0.45-pixel** PSF actually spreads emitted RGB. [M6 §6](../docs/research/m6-profile-wiring.md#6-defaults-and-the-limits-of-m4-parity) records the saved-M4 parity exception.
 - M6 angular extensions and M7 sequence CLI examples were design proposals when written. M10 and current README/code now implement opt-in angular behavior and **off/repeat/analytic** sequences. Proposed automatic block estimation and `blend/mci` modes remain absent.

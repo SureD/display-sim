@@ -1,4 +1,7 @@
 # PM Plan
+
+> Historical milestone record through M15. See [current documentation](../index.md)
+> and [M16 engineering report](M16-repo-engineering.md) for the repository migration.
 Workstreams
 1. Research (Codex): physical models per panel tech, subpixel layouts, backlight/local dimming/blooming, HDR tone mapping, color gamut/EOTF, response time/motion blur/BFI, viewing angle, reflectance/ambient light, TV image-processing (upscale, sharpen, MEMC).
 2. Architecture (Cursor): modular pipeline, TV profile spec (YAML), CLI + preview.

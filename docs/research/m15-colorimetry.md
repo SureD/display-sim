@@ -1,7 +1,7 @@
 # M15 — explicit colorimetry, gamut and color volume
 
 This note precedes M15 runtime implementation. It uses the repository's
-[M/D/P/NR convention](../docs/PROVENANCE.md): **M** is a measurement of an
+[M/D/P/NR convention](../profiles.md): **M** is a measurement of an
 identified specimen under recorded conditions; **D** is a deterministic
 calculation or an explicitly declared standard definition; **P** is a proposed
 synthetic model/placeholder; **NR** is not reported or not researched sufficiently

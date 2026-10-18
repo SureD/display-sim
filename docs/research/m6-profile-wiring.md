@@ -1,6 +1,6 @@
 # M6 profile wiring: measured loads, angular leakage, optical tables and ABL
 
-Research date: **2026-10-16**. This is a wiring specification for the four existing generic profiles, based on [README](../README.md), [STATUS](../docs/STATUS.md), [M5 fidelity](m5-fidelity.md), [M5 Mac display research](m5-mac-display.md), and the current [profile loader](../sim/profile.py). It changes no simulator code, profile YAML or saved M4 artifacts. Published measurements below describe named samples; assigning one to a generic technology does not make that preset a calibrated TV.
+Research date: **2026-10-16**. This is a wiring specification for the four existing generic profiles, based on [README](../../README.md), [STATUS](../reports/STATUS.md), [M5 fidelity](m5-fidelity.md), [M5 Mac display research](m5-mac-display.md), and the current [profile loader](../../src/tv_sim/profile.py). It changes no simulator code, profile YAML or saved M4 artifacts. Published measurements below describe named samples; assigning one to a generic technology does not make that preset a calibrated TV.
 
 Evidence follows M5 fidelity: **M** = published measurement; **D** = calculation; **P** = proposed model, interpolation or synthetic example; **NR** = no verified numerical reference or missing conditions. NR is not zero. Use `not_applicable` for a mechanism that does not apply. Unknown uncertainty, timing and source conditions remain NR even when a measured luminance is available.
 
@@ -18,7 +18,7 @@ Evidence follows M5 fidelity: **M** = published measurement; **D** = calculation
 
 The loader constructs dataclasses directly from each known section. Unknown keys **inside** `hdr`, `panel`, `backlight`, or `psf_profile` raise an error; unknown root keys are ignored, not implemented. Every YAML block below is labeled either **supported runtime fragment** (merge into a complete profile for a future experiment) or **proposed research schema** (not loadable as simulator settings). `NR` strings belong only in research records, never in active numeric dataclass fields. `null` in a supported block means an intentionally absent override, not a missing measurement.
 
-Two M5 implementation descriptions are now stale: [M5 fidelity §1](m5-fidelity.md#1-load-dependent-brightness-window-curves-are-conditional-measurements) describes emitted-only APL, and §3 says the OLED branch ignores the PSF. Current [load.py](../sim/load.py), [pipeline.py](../sim/pipeline.py), and [panel.py](../sim/stages/panel.py) support demand APL and emitted-light PSFs. Use M5 for measurement evidence and current code for field semantics.
+Two M5 implementation descriptions are now stale: [M5 fidelity §1](m5-fidelity.md#1-load-dependent-brightness-window-curves-are-conditional-measurements) describes emitted-only APL, and §3 says the OLED branch ignores the PSF. Current [load.py](../../src/tv_sim/load.py), [pipeline.py](../../src/tv_sim/pipeline.py), and [panel.py](../../src/tv_sim/stages/panel.py) support demand APL and emitted-light PSFs. Use M5 for measurement evidence and current code for field semantics.
 
 ## 2. Measured window and APL records
 
@@ -45,7 +45,7 @@ Vivid is excluded from candidate wiring: M5 transcribes 428 nits at 25% APL, whi
 
 ### Provenance schema and concrete rows
 
-**Proposed research schema**, not runtime YAML. A future sidecar could live under `research/measurements/`; this note creates no such files. Conditions and provenance inherit from a dataset into its nodes; a node override must be explicit. Every dataset needs its own specimen, conditions and source locator, including NR fields.
+**Proposed research schema**, not runtime YAML. A future sidecar could live under `src/tv_sim/data/measurements/`; this note creates no such files. Conditions and provenance inherit from a dataset into its nodes; a node override must be explicit. Every dataset needs its own specimen, conditions and source locator, including NR fields.
 
 ```yaml
 schema_version: m6-research-1
@@ -279,7 +279,7 @@ Acquire signed horizontal/vertical/azimuth × gray × RGB/black/white sweeps at 
 
 ## 4. Existing LSF/PSF table hooks
 
-The implementation is in [backlight.py](../sim/stages/backlight.py) (`table_kernel1d`, `psf_axis_kernels`, `apply_light_spread`) and [panel.py](../sim/stages/panel.py) (`emission_psf`, `spread_emission`).
+The implementation is in [backlight.py](../../src/tv_sim/stages/backlight.py) (`table_kernel1d`, `psf_axis_kernels`, `apply_light_spread`) and [panel.py](../../src/tv_sim/stages/panel.py) (`emission_psf`, `spread_emission`).
 
 | Runtime path | Allowed values / units | Wiring semantics |
 |---|---|---|
@@ -342,7 +342,7 @@ No retail-TV optical tables in M5 identify these four profiles. [Tan et al. 2018
 
 ### Supported symmetric experiment
 
-[smooth_apl](../sim/load.py) carries one demand-APL state per `Pipeline`. For frame interval dt and `hdr.abl_response_ms=tau`, it uses `A_next=A_target+(A_prev-A_target)*exp(-dt/tau)`. A missing/first state is already settled; tau 0 is instantaneous. `hdr.abl_source: demand` is necessary for that state to feed tone-map ABL. With legacy `emitted` and backlight tracking 0, changing `abl_response_ms` alone does not smooth OLED brightness.
+[smooth_apl](../../src/tv_sim/load.py) carries one demand-APL state per `Pipeline`. For frame interval dt and `hdr.abl_response_ms=tau`, it uses `A_next=A_target+(A_prev-A_target)*exp(-dt/tau)`. A missing/first state is already settled; tau 0 is instantaneous. `hdr.abl_source: demand` is necessary for that state to feed tone-map ABL. With legacy `emitted` and backlight tracking 0, changing `abl_response_ms` alone does not smooth OLED brightness.
 
 **Supported runtime fragment for either OLED, synthetic experiment P; measured tau NR.** Keep the selected profile's existing peak/curve settings unless conducting a separate refit.
 
@@ -442,9 +442,9 @@ backlight:
 
 WOLED already has zero core sigma and zero tail weight. The QD override recovers M4's lack of emitted optical spread, but also changes the debug backlight map, which M4 computed and ignored; it cannot restore both that old map and old emission through existing YAML. Treat complete historical artifact equality as requiring the historical code revision. The targeted probe verifies center/halo behavior only, not all motion/ramp pixels or all artifacts.
 
-M4's [harness](../sim/validate.py) forces PQ code 1 (a **10,000-nit request**) for windows/ANSI, uses fresh settled state for static patterns, and runs seven nominal window areas at 384×216. Its moving-edge helper also creates a fresh pipeline per frame, carrying temporal state but not load state, so that sequence does not validate attack/release either. It does not supply measured dwell or thermal prehistory, and it does not test the 75% source node. Record actual rasterized area. With `abl_source: demand` and the WOLED fallback reference 850 nits, an approximately 10% 10,000-nit request already saturates normalized load; retaining the old gamma/ceilings will not retain the old window result. Keep demand-APL refits in a separate experiment with known stimulus amplitude.
+M4's [harness](../../src/tv_sim/validate.py) forces PQ code 1 (a **10,000-nit request**) for windows/ANSI, uses fresh settled state for static patterns, and runs seven nominal window areas at 384×216. Its moving-edge helper also creates a fresh pipeline per frame, carrying temporal state but not load state, so that sequence does not validate attack/release either. It does not supply measured dwell or thermal prehistory, and it does not test the 75% source node. Record actual rasterized area. With `abl_source: demand` and the WOLED fallback reference 850 nits, an approximately 10% 10,000-nit request already saturates normalized load; retaining the old gamma/ceilings will not retain the old window result. Keep demand-APL refits in a separate experiment with known stimulus amplitude.
 
-For later implementation, compare unchanged-default results against both the pre-change current tree and the saved M4 manifest, explicitly accounting for the QD PSF difference. Use `python3 -m sim validate --out /tmp/tv-m6-parity` to avoid overwriting committed reports, preserve commit/profile hashes, and compare linear-nit metrics/arrays with declared tolerances. M4's defaults are six motion frames and 8 pixels/frame; changing frame count, history or geometry changes the comparison. Adding measured replay, angular leakage, edge compensation, demand APL or nonzero dynamics is an opt-in baseline change, not an M4 parity requirement.
+For later implementation, compare unchanged-default results against both the pre-change current tree and the saved M4 manifest, explicitly accounting for the QD PSF difference. Use `python3 -m tv_sim validate --out /tmp/tv-m6-parity` to avoid overwriting committed reports, preserve commit/profile hashes, and compare linear-nit metrics/arrays with declared tolerances. M4's defaults are six motion frames and 8 pixels/frame; changing frame count, history or geometry changes the comparison. Adding measured replay, angular leakage, edge compensation, demand APL or nonzero dynamics is an opt-in baseline change, not an M4 parity requirement.
 
 ## 7. Keep host preview calibration separate
 

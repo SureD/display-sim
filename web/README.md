@@ -7,7 +7,7 @@
 From the repository root, with the project's Python dependencies installed:
 
 ```sh
-python3 -m sim export-web
+python3 -m tv_sim export-web
 python3 -m http.server 8000
 ```
 
@@ -16,8 +16,8 @@ Open **http://localhost:8000/web/** in Chrome. No bundler, npm install, or build
 The default export writes `web/data/manifest.json`, frames, and profile snapshots at 256 × 144 logical resolution. To regenerate with different settings:
 
 ```sh
-python3 -m sim export-web --width 320 --height 180 --motion-frames 24
-python3 -m sim export-web --help
+python3 -m tv_sim export-web --width 320 --height 180 --motion-frames 24
+python3 -m tv_sim export-web --help
 ```
 
 The minimum export resolution is 160 × 96. `--out` changes the output directory; the page expects its manifest at `data/manifest.json`, so use `--out web/data` for this viewer. Frame files are generated assets and can be regenerated from the Python source.
@@ -25,7 +25,7 @@ The minimum export resolution is 160 × 96. `--out` changes the output directory
 M15 colorimetry is a separate **default-off** choice:
 
 ```sh
-python3 -m sim export-web --colorimetry --source-primaries bt2020 \
+python3 -m tv_sim export-web --colorimetry --source-primaries bt2020 \
   --colorimetry-output bt2020 --out web/data
 ```
 
@@ -54,7 +54,7 @@ For the motion scene, Play advances the exported CPU frames; the timeline allows
 
 ## HDR capability and renderer selection
 
-Sources were checked **2026-10-17**; see [the detailed Chrome research](../research/m12a-web-hdr.md). Chrome's shipped WebGPU HDR route uses `rgba16float` and `toneMapping: {mode: "extended"}`. The viewer tries that route first, requests `display-p3-linear`, and retries with `display-p3` when the linear space is unavailable. In the latter case the final shader applies the extended sRGB encoding transfer to linear P3 values, preserving values above one. P3 primaries are not a substitute for this transfer-function conversion. [Chrome 129 HDR support](https://developer.chrome.com/blog/new-in-webgpu-129#hdr_support_with_canvas_tone_mapping_mode), [Chrome 155–156 linear canvas spaces](https://developer.chrome.com/blog/new-in-webgpu-155-156#srgb-linear_and_display-p3-linear_color_spaces).
+Sources were checked **2026-10-17**; see [the detailed Chrome research](../docs/research/m12a-web-hdr.md). Chrome's shipped WebGPU HDR route uses `rgba16float` and `toneMapping: {mode: "extended"}`. The viewer tries that route first, requests `display-p3-linear`, and retries with `display-p3` when the linear space is unavailable. In the latter case the final shader applies the extended sRGB encoding transfer to linear P3 values, preserving values above one. P3 primaries are not a substitute for this transfer-function conversion. [Chrome 129 HDR support](https://developer.chrome.com/blog/new-in-webgpu-129#hdr_support_with_canvas_tone_mapping_mode), [Chrome 155–156 linear canvas spaces](https://developer.chrome.com/blog/new-in-webgpu-155-156#srgb-linear_and_display-p3-linear_color_spaces).
 
 If WebGPU is unavailable or fails, the viewer uses **WebGL2 SDR**. A **Canvas2D SDR** emergency fallback keeps the controls and images usable if WebGL2 also fails. SDR output clamps its presentation components to one. Canvas2D `colorType: "float16"` and `rgba-float16` ImageData support alone do not enable HDR presentation; Chromium's separate 2D HDR presentation APIs remain experimental, so this page does not depend on flags. The active renderer is shown on screen. [Chrome float canvas shipping intent](https://groups.google.com/a/chromium.org/g/blink-dev/c/w_3cqYiwFhU/m/EKFm06RNCgAJ), [Chromium runtime feature definitions](https://chromium.googlesource.com/chromium/src/+/refs/heads/main/third_party/blink/renderer/platform/runtime_enabled_features.json5).
 
@@ -85,11 +85,11 @@ A one-point reading fits one multiplicative scale under a linear-response assump
 
 Calibration is kept only for the browser tab session, not as a permanent display profile. Use Clear reading and remeasure after moving the window, changing display/preset/brightness, or changing browser/display configuration. The web platform cannot reliably identify every condition change or automatically keep a reading valid.
 
-**Chrome and macOS own the final brightness mapping.** The page cannot set the system brightness slider, select a native reference preset, bypass ColorSync/compositing, query Apple's native `NSScreen` EDR values, or force a requested nit value to be emitted. Host peak limits, black leakage, gamut, local dimming, power, temperature, ambient adaptation, and viewing geometry still apply. The host also adds its own optics and temporal response on top of the simulation. The [native display research and measurement protocol](../research/m5-mac-display.md) describe the additional validation needed for physical accuracy.
+**Chrome and macOS own the final brightness mapping.** The page cannot set the system brightness slider, select a native reference preset, bypass ColorSync/compositing, query Apple's native `NSScreen` EDR values, or force a requested nit value to be emitted. Host peak limits, black leakage, gamut, local dimming, power, temperature, ambient adaptation, and viewing geometry still apply. The host also adds its own optics and temporal response on top of the simulation. The [native display research and measurement protocol](../docs/research/m5-mac-display.md) describe the additional validation needed for physical accuracy.
 
 ## Data and provenance
 
-`python3 -m sim export-web` uses `Pipeline.run_linear()` through the existing gallery protocol. Every `.f16` is headerless **IEEE 754 binary16, little-endian**, with **frame-major HWC RGB** layout, top-to-bottom rows, three channels, and no alpha. An asset of `F × H × W` pixels has `F * H * W * 3 * 2` bytes. Frame `i` starts at `i * frame_stride_bytes`; RGB channels are interleaved.
+`python3 -m tv_sim export-web` uses `Pipeline.run_linear()` through the existing gallery protocol. Every `.f16` is headerless **IEEE 754 binary16, little-endian**, with **frame-major HWC RGB** layout, top-to-bottom rows, three channels, and no alpha. An asset of `F × H × W` pixels has `F * H * W * 3 * 2` bytes. Frame `i` starts at `i * frame_stride_bytes`; RGB channels are interleaved.
 
 Default values are absolute linear-nit channel intensities under an explicit **linear sRGB / BT.709 primaries, D65** preview interpretation. Neutral `(N,N,N)` represents `N` cd/m² in the model; one colored channel value is not itself the patch's luminance. The default profiles have synthetic matrices and no calibrated spectral/gamut model. PQ is used to feed the existing pipeline, without implying BT.2020 primaries for these procedural scenes. M15 instead supplies the declared basis and matrices described above. No output OETF or SDR normalization is baked into either transport.
 
@@ -107,7 +107,7 @@ From the repository root:
 
 ```sh
 python3 -m pytest -q
-python3 -m sim export-web
+python3 -m tv_sim export-web
 python3 -m http.server 8000
 ```
 

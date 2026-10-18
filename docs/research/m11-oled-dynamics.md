@@ -12,7 +12,7 @@ exactly, and initially rejects combination with existing M9 fitted drives.
 No measured dynamics preset is available for either generic OLED.
 
 Evidence follows [M6](m6-profile-wiring.md) and
-[PROVENANCE](../docs/PROVENANCE.md): **M** = published measurement on a named
+[PROVENANCE](../profiles.md): **M** = published measurement on a named
 specimen under recorded conditions; **D** = calculation from stated inputs;
 **P** = proposed model, synthetic setting, interpolation or fitting choice;
 **NR** = unverified numerical reference, unknown condition or unidentified
@@ -24,31 +24,31 @@ profile or inferred time constant.
 
 ## 1. Current implementation and compatibility boundary
 
-Read with [README](../README.md), [STATUS](../docs/STATUS.md),
-[PLAN](../docs/PLAN.md), [panel technologies](01-panel-tech.md),
+Read with [README](../../README.md), [STATUS](../reports/STATUS.md),
+[PLAN](../reports/PLAN.md), [panel technologies](01-panel-tech.md),
 [M3 HDR/ABL](m3-hdr-abl-params.md), [M5 fidelity](m5-fidelity.md), and
 [M6 §5–6](m6-profile-wiring.md#5-oled-abl-attack-and-release). Current code,
 rather than older skeleton descriptions in M3/M5, defines the baseline:
 
-1. [Pipeline.prepare_content](../sim/pipeline.py) decodes to linear nits and
+1. [Pipeline.prepare_content](../../src/tv_sim/pipeline.py) decodes to linear nits and
    processes spatially, without advancing any display history.
-2. [display_content](../sim/pipeline.py) measures demand APL after processing,
-   calls [smooth_apl](../sim/load.py), computes optional backlight derating,
+2. [display_content](../../src/tv_sim/pipeline.py) measures demand APL after processing,
+   calls [smooth_apl](../../src/tv_sim/load.py), computes optional backlight derating,
    then runs backlight and panel stages.
-3. [effective_peak](../sim/stages/tonemap.py) selects smoothed demand APL if
+3. [effective_peak](../../src/tv_sim/stages/tonemap.py) selects smoothed demand APL if
    `hdr.abl_source=demand`, or the current **post-panel, pre-HDR** picture's
    APL if `emitted`. Emitted here does not mean the previous final output.
 4. One soft shoulder and peak-cube color projection use that capacity. The
    optional weighted-channel-nit gain follows. Ambient reflection and the
    separate pixel-response/BFI/exposure stage then produce the frame.
 
-[LoadState.apl_nits](../sim/load.py) is an APL state, initially `None`.
+[LoadState.apl_nits](../../src/tv_sim/load.py) is an APL state, initially `None`.
 The first frame is settled; `abl_response_ms` supplies one symmetric e-fold
 time. With emitted APL and tracking zero, that smoother has no influence on
 the OLED HDR threshold. It is not already a capacity attack/release model.
 
-The current [WOLED](../sim/profiles/generic_woled.yaml) and
-[QD-OLED](../sim/profiles/generic_qdoled.yaml) values, including effective
+The current [WOLED](../../src/tv_sim/profiles/generic_woled.yaml) and
+[QD-OLED](../../src/tv_sim/profiles/generic_qdoled.yaml) values, including effective
 dataclass defaults, are **P placeholders**:
 
 | Existing quantity | WOLED | QD-OLED | Meaning |
@@ -63,11 +63,11 @@ dataclass defaults, are **P placeholders**:
 | Weighted-nit budget | 0 | 0 | Disabled; not measured watts |
 | Pixel-response tau / ms | 0.2 | 0.1 | Separate P pixel lag; never an ABL tau |
 
-The [WOLED provenance](../sim/profiles/generic_woled.provenance.yaml) and
-[QD-OLED provenance](../sim/profiles/generic_qdoled.provenance.yaml) preserve
+The [WOLED provenance](../../src/tv_sim/profiles/generic_woled.provenance.yaml) and
+[QD-OLED provenance](../../src/tv_sim/profiles/generic_qdoled.provenance.yaml) preserve
 named measurements separately from those settings. The two
-[WOLED angular](../sim/profiles/generic_woled.angular.yaml) /
-[QD-OLED angular](../sim/profiles/generic_qdoled.angular.yaml) records contain
+[WOLED angular](../../src/tv_sim/profiles/generic_woled.angular.yaml) /
+[QD-OLED angular](../../src/tv_sim/profiles/generic_qdoled.angular.yaml) records contain
 P angular gains, with measured spectra/fits NR; they supply no dynamics data.
 The panel's WRGB `min(R,G,B)` mosaic is an energy-preserving geometric
 illustration, not measured RGBW current allocation.
@@ -134,7 +134,7 @@ C_target,k = F + (P0 - F) * (1 - a_k)^gamma
 
 This is the existing **P** static target map, evaluated on the instantaneous
 selected picture. APL is in nits, normalized load a is dimensionless, and
-`C_target` is a nit capacity. Use [demand_apl/abl_capacity](../sim/load.py)
+`C_target` is a nit capacity. Use [demand_apl/abl_capacity](../../src/tv_sim/load.py)
 for the existing semantics, with no legacy APL filtering in the active mode.
 Require finite nonnegative APL and reject negative/nonfinite reference
 overrides; only the exact zero sentinel selects P0.
@@ -200,7 +200,7 @@ Active mode leaves the legacy `LoadState.apl_nits` untouched and unused.
 The selected instantaneous APL is trace data, not a second smoothed state.
 Do not switch an existing Pipeline between active and off modes mid-history.
 
-[M7 repeat/analytic sequences](../sim/sequence.py) supply output-tick time.
+[M7 repeat/analytic sequences](../../src/tv_sim/sequence.py) supply output-tick time.
 Use that time, not source FPS or the number of unique pictures. MEMC-off
 currently uses profile time per input picture even when source PTS exist;
 do not silently change that contract. The new experiment runner must pass
@@ -304,7 +304,7 @@ All admission checks occur before any tick/history advances:
 | Dynamics off + existing M9 fit/fitting | Retain M9 loading, validation, timing, scale and output behavior exactly. |
 | State input plus a competing initialization value/policy | Reject; resume is the sole initialization owner. |
 
-[M9](../sim/window_replay.py) fits independent **P**
+[M9](../../src/tv_sim/window_replay.py) fits independent **P**
 `per_window_normalized_drive_v1` scalars against **final** pipeline hold
 outputs. The scale multiplies processed internal drive, backlight peak/floor,
 HDR peak/full-field/reference/power budget and temporal ceiling; zero
@@ -342,7 +342,7 @@ and preserves existing fit identities and sidecar coverage.
 
 Use a separate runner and report, with a **single Pipeline per complete
 trial**, including pre-roll. Reinitialize only between explicitly independent
-trials. Keep [the M4 harness](../sim/validate.py), its settings and saved
+trials. Keep [the M4 harness](../../src/tv_sim/validate.py), its settings and saved
 reports unchanged.
 
 M4 uses fresh settled pipelines for static patterns. Its moving-edge helper
@@ -441,12 +441,12 @@ available after this document.
 
 | File | Proposed change |
 |---|---|
-| `sim/abl_dynamics.py` (new) | Frozen ABLDynamicsConfig, mutable ABLCapacityState, validation, instantaneous source selection/target wrapper, stable capacity update, trace records and versioned checkpoint validation. |
-| `sim/pipeline.py` | Keyword-only optional `abl_dynamics` and `capacity_state`. Separate off branch retains every existing operation and history update. Active branch validates before mutation, bypasses legacy APL smoothing, and updates one capacity after the panel input for both source domains is available. |
-| `sim/stages/tonemap.py` | Optional explicit `capacity_nits` input. With no override, retain current effective_peak call/arithmetic. With a validated override, use it directly for the existing shoulder/projection; do not recompute or take the minimum with static ABL. |
-| `sim/oled_dynamics_experiment.py` (new) | Read a versioned protocol, validate all conditions/conflicts before execution, render all ticks in one Pipeline, write traces/linear arrays/manifest and optional checkpoints exclusively into a separate output directory. |
-| `sim/cli.py` | Dispatch opt-in `oled-dynamics` subcommand; leave ordinary still/validate/gallery/motion/fit-windows defaults unchanged. |
-| `sim/window_replay.py` | Preserve v1 fit schema/model/fingerprints and replay arithmetic. Expose no active-dynamics option; reject any attempted v1 composition in shared dispatch/API validation. |
+| `src/tv_sim/abl_dynamics.py` (new) | Frozen ABLDynamicsConfig, mutable ABLCapacityState, validation, instantaneous source selection/target wrapper, stable capacity update, trace records and versioned checkpoint validation. |
+| `src/tv_sim/pipeline.py` | Keyword-only optional `abl_dynamics` and `capacity_state`. Separate off branch retains every existing operation and history update. Active branch validates before mutation, bypasses legacy APL smoothing, and updates one capacity after the panel input for both source domains is available. |
+| `src/tv_sim/stages/tonemap.py` | Optional explicit `capacity_nits` input. With no override, retain current effective_peak call/arithmetic. With a validated override, use it directly for the existing shoulder/projection; do not recompute or take the minimum with static ABL. |
+| `src/tv_sim/oled_dynamics_experiment.py` (new) | Read a versioned protocol, validate all conditions/conflicts before execution, render all ticks in one Pipeline, write traces/linear arrays/manifest and optional checkpoints exclusively into a separate output directory. |
+| `src/tv_sim/cli.py` | Dispatch opt-in `oled-dynamics` subcommand; leave ordinary still/validate/gallery/motion/fit-windows defaults unchanged. |
+| `src/tv_sim/window_replay.py` | Preserve v1 fit schema/model/fingerprints and replay arithmetic. Expose no active-dynamics option; reject any attempted v1 composition in shared dispatch/API validation. |
 | `tests/test_abl_dynamics.py`, `tests/test_oled_dynamics_experiment.py` (new), parity tests | Implement the acceptance cases below; no golden regeneration to accommodate off-path drift. |
 | Documentation/provenance | Document experimental config and its P/NR ledger. A later dynamics dataset uses its own versioned artifact outside runtime profiles; do not add HdrParams leaves or reinterpret current sidecars. |
 
@@ -491,7 +491,7 @@ existing experiment artifacts.
 An illustrative future command, all numerical choices **P**:
 
 ~~~sh
-python3 -m sim oled-dynamics --profile generic_woled \
+python3 -m tv_sim oled-dynamics --profile generic_woled \
   --abl-dynamics capacity_attack_release_v1 \
   --abl-attack-ms 100 --abl-release-ms 1000 --abl-initial cold \
   --abl-source demand --protocol research/measurements/example-steps.json \
@@ -541,8 +541,8 @@ retain a single pipeline and an explicit physical display clock.
    repeat/analytic motion, validation, default/angular galleries and M9
    replay, including panel/load histories and profile bytes. Repeat after an
    enabled dynamics experiment to catch shared-state contamination.
-   Reuse [existing parity fixtures](../tests/test_memc_parity.py) and
-   [M9 goldens](../tests/fixtures/window_replay_off_baseline.json); capture
+   Reuse [existing parity fixtures](../../tests/test_memc_parity.py) and
+   [M9 goldens](../../tests/fixtures/window_replay_off_baseline.json); capture
    missing current M10 baselines before implementation. Use exact equality
    for the off path, not relaxed tolerances. Do not rewrite saved M4 artifacts.
 8. **Review checks:** full pytest and provenance validation; render new

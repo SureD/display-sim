@@ -1,5 +1,8 @@
 # TV display simulator — M4 validation report
 
+> Historical milestone record through M15. See [current documentation](../index.md)
+> and [M16 engineering report](M16-repo-engineering.md) for the repository migration.
+
 Report date: 2026-10-16. **Values are post-calibration plausibility retune** (placeholder profile nudge + `reports/comparison.md`), harness re-run on main after merge `cursor/m4-calibration`. Results transcribed from `reports/metrics.json` / `reports/comparison.md`. This report does **not** claim real-TV calibration or an empirical fidelity pass.
 
 The M4 sections below describe that historical snapshot. Current code also has
@@ -12,7 +15,7 @@ The simulator explores how backlight topology, LCD extinction, emissive load lim
 
 **All profile numbers are placeholders, not measurements of specific TVs.** A technology label is a mechanism demonstration, not a calibrated product emulation. Published measurements in [M4 reference ranges](../research/m4-reference-ranges.md) provide limited plausibility anchors with explicit gaps. Earlier research priors must not be presented as published measurements.
 
-M1 research, M2 skeleton and M3 implementation are recorded complete in [STATUS](STATUS.md). The M4 harness is merged and produces [metrics.json](../reports/metrics.json), CSV and preview images. STATUS records **47/47** pytest passing after the calibration merge; that is unit-test evidence, not proof of perceptual fidelity.
+M1 research, M2 skeleton and M3 implementation are recorded complete in [STATUS](STATUS.md). The M4 harness is merged and produces [metrics.json](../../reports/metrics.json), CSV and preview images. STATUS records **47/47** pytest passing after the calibration merge; that is unit-test evidence, not proof of perceptual fidelity.
 
 ## Pipeline method as implemented
 
@@ -50,7 +53,7 @@ A preview on an ordinary screen cannot reproduce arbitrary simulated black level
 
 ## Landed harness and metric definitions
 
-Definitions were checked against [validate.py](../sim/validate.py) and [metrics.py](../sim/metrics.py). All scores use linear RGB output converted to luminance, not preview code values. The saved run is 384×216. Static patterns use fresh temporal state, whose first frame is settled; they do not simulate a dwell or warm-up. ANSI, on/off, windows and PQ ramp force PQ input; code 1 requests 10,000 nits, not the profile's nominal peak. Profile processing remains enabled. Gray ramps and moving edges use the profile input encoding (sRGB here).
+Definitions were checked against [validate.py](../../src/tv_sim/validate.py) and [metrics.py](../../src/tv_sim/metrics.py). All scores use linear RGB output converted to luminance, not preview code values. The saved run is 384×216. Static patterns use fresh temporal state, whose first frame is settled; they do not simulate a dwell or warm-up. ANSI, on/off, windows and PQ ramp force PQ input; code 1 requests 10,000 nits, not the profile's nominal peak. Profile processing remains enabled. Gray ramps and moving edges use the profile input encoding (sRGB here).
 
 | JSON field / experiment | Actual definition |
 |---|---|
@@ -71,7 +74,7 @@ Actual raster area fractions, in requested-area order, are 0.0100791, 0.0201823,
 
 ## Filled comparison worksheet
 
-**Snapshot: post-calibration plausibility retune, harness re-run on main after merge `cursor/m4-calibration` (reports match tip; PM refresh c7dbf01).** Authoritative scored cells also live in [reports/comparison.md](../reports/comparison.md). **All profiles remain placeholders**, not emulations of cited sets. Abbreviations: `generic_va_fald_miniled` (VA), `generic_ips_edge` (IPS), `generic_woled` (WOLED), `generic_qdoled` (QD-OLED).
+**Snapshot: post-calibration plausibility retune, harness re-run on main after merge `cursor/m4-calibration` (reports match tip; PM refresh c7dbf01).** Authoritative scored cells also live in [reports/comparison.md](comparison.md). **All profiles remain placeholders**, not emulations of cited sets. Abbreviations: `generic_va_fald_miniled` (VA), `generic_ips_edge` (IPS), `generic_woled` (WOLED), `generic_qdoled` (QD-OLED).
 
 **In** means numerical membership in the explicitly cited sample envelope (or within 5% relative of a single published sample, per the project scoring rule in `comparison.md`). **Out** means a numeric reference was scored and missed. **No-reference (NR)** means no matching numerical protocol/quantity. None of these labels is a calibration pass/fail. Source IDs: [M4 reference ranges](../research/m4-reference-ranges.md).
 
@@ -81,7 +84,7 @@ Profile YAML SHA-256 (12 hex): VA `bee4a76b1471`; IPS `eaf893126a59`; WOLED `e89
 
 | Profile / JSON metric | Saved simulator value | Published anchor | Assessment |
 |---|---|---|---|
-| VA `ansi` | White 1284.9; black 0.288878 nits; ratio 4447.9:1 | V1 QN95B ANSI black 0.048 nits; no same-pattern white; V3 monitor ~3598–3800:1 not scored | Black **out** vs isolated anchor; TV ratio **NR** ([comparison.md](../reports/comparison.md)). |
+| VA `ansi` | White 1284.9; black 0.288878 nits; ratio 4447.9:1 | V1 QN95B ANSI black 0.048 nits; no same-pattern white; V3 monitor ~3598–3800:1 not scored | Black **out** vs isolated anchor; TV ratio **NR** ([comparison.md](comparison.md)). |
 | IPS `ansi` | White 377.927; black 0.333333 nits; ratio 1133.78:1 | I1/I2 dimming-off ANSI ~764–1290:1 at 120-nit white | Ratio **in**; absolute black **out** of 0.093–0.157 under unmatched white/dimming. |
 | WOLED `ansi` | White 298.836; black 0 nits; ratio null | W2 EG960V 0-nit ANSI black | Qualitative black agreement; finite ratio **NR**; scored **in** as unmeasurable in comparison.md. |
 | QD-OLED `ansi` | White 649.148; black 0 nits; ratio null | Q2 sequential, not ANSI | ANSI **NR**; sequential scored **in** as unmeasurable. |
@@ -94,7 +97,7 @@ Sequential contrast remains undefined under the harness floor for all four profi
 
 ### HDR window center luminance
 
-Values are `windows[i].peak_nits` (nits). Scored assessments follow [comparison.md](../reports/comparison.md).
+Values are `windows[i].peak_nits` (nits). Scored assessments follow [comparison.md](comparison.md).
 
 | Requested area | VA | IPS | WOLED | QD-OLED | Published comparison / assessment |
 |---|---:|---:|---:|---:|---|
@@ -157,11 +160,11 @@ Full-field sustained luminance/duration is still not modeled; 100% window/on-off
 
 ## Reproduction and handoff
 
-Source of current values: [reports/metrics.json](../reports/metrics.json) and [reports/comparison.md](../reports/comparison.md), regenerated on main after merging `cursor/m4-calibration` (git tip at refresh: `c7dbf01`). **47/47** pytest passing on that tree. Re-run:
+Source of current values: [reports/metrics.json](../../reports/metrics.json) and [reports/comparison.md](comparison.md), regenerated on main after merging `cursor/m4-calibration` (git tip at refresh: `c7dbf01`). **47/47** pytest passing on that tree. Re-run:
 
 ```sh
 python3 -m pytest -q
-python3 -m sim validate --out reports/
+python3 -m tv_sim validate --out reports/
 ```
 
 Defaults: all available profiles, 384×216, motion 8 pixels/frame, six edge frames. Preserve code revision and profile hashes alongside outputs.
@@ -172,7 +175,7 @@ M4 is complete for the planned scope: harness, published reference ranges, fille
 
 ## Visual gallery (M6)
 
-Run `python3 -m sim gallery`, then open [reports/gallery/index.html](../reports/gallery/index.html).
+Run `python3 -m tv_sim gallery`, then open [reports/gallery/index.html](../../reports/gallery/index.html).
 The offline folder contains seven contact sheets: the six requested scenes
 (starfield, subtitles on black, bright window on dark, gradients, pan motion,
 macro subpixels) plus a pan-history sheet. Four columns always follow VA FALD,
@@ -234,7 +237,7 @@ and caption gutters.
 
 ## Opt-in viewing-angle comparison (M10)
 
-`python3 -m sim gallery --viewing-angle` appends `viewing_angle.png` to the
+`python3 -m tv_sim gallery --viewing-angle` appends `viewing_angle.png` to the
 ordinary offline gallery. Its two rows compare on-axis with +45° horizontal,
 0° vertical for all four generic profiles at a shared 100-nit preview exposure.
 The source contains 0/1/10/50/100-nit patches, a neutral gray ramp and
@@ -262,7 +265,7 @@ existing sheets and trace retain their captured golden hashes.
 
 ## Static browser preview (M12a)
 
-`python3 -m sim export-web` exports eight gallery scenes for all four profiles to
+`python3 -m tv_sim export-web` exports eight gallery scenes for all four profiles to
 `web/data/`, retaining absolute linear-nit channel intensities in little-endian
 RGB float16. The default 256×144 export includes 24 motion frames after 12-frame
 pre-roll, plus a 16×8-logical-pixel synthetic aperture macro. One persistent
@@ -288,7 +291,7 @@ allows meter input, and a neutral step wedge uses the same transform as A/B.
 This is a one-point scale under a linear-response assumption, not a calibrated
 display transfer. The browser/OS still determine emitted light. All TV parameters,
 colorimetry conventions and aperture geometry remain synthetic placeholders.
-See [the web protocol](../web/README.md) and [sourced Chrome research](../research/m12a-web-hdr.md).
+See [the web protocol](../../web/README.md) and [sourced Chrome research](../research/m12a-web-hdr.md).
 
 Verification: 546 pytest tests and eight JavaScript numeric tests pass, including
 transport/endian/frame-history/provenance checks and all existing default-output
