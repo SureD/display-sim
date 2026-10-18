@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "protocol_id": "subframe_synthetic_v1",
+  "evidence": "P",
+  "parameter_status": "placeholder",
+  "settings": {
+    "width": 128,
+    "height": 24,
+    "output_fps": "60/1",
+    "motion_duration_s": "1/5",
+    "substeps": 32,
+    "level_nits": 300,
+    "dark_nits": 20,
+    "preview_reference_nits": 500,
+    "speeds_px_s": [
+      120,
+      360,
+      720
+    ],
+    "gray_levels_nits": [
+      20,
+      100,
+      300
+    ],
+    "step_duration_s": "1/5",
+    "flash_duration_s": "1/1",
+    "flash_hz": 5,
+    "settling_fraction": 0.02
+  },
+  "demonstration": {
+    "rise_tau_ms": 5,
+    "fall_tau_ms": 8,
+    "overdrive_gain": 2,
+    "overdrive_fraction": "1/4",
+    "strobe_duty": "1/4",
+    "strobe_phase": "5/8",
+    "bfi_duty": "1/4",
+    "bfi_phase": "3/8",
+    "pwm_hz": "240/1",
+    "pwm_duty": "1/2"
+  },
+  "fixtures": [
+    "moving_edge",
+    "moving_bar",
+    "gray_steps",
+    "flashing_patch"
+  ],
+  "unavailable": {
+    "measured_gray_to_gray_table": "NR",
+    "measured_overdrive_lut": "NR",
+    "measured_pwm_waveform": "NR",
+    "measured_scanout": "NR",
+    "measured_strobe_crosstalk": "NR",
+    "device_calibration": "NR",
+    "certification": "NR"
+  },
+  "notes": "Every numeric protocol, fixture and demonstration choice is P, not a TV measurement. LCD uses a constant 1000-nit backlight and native profile extinction to isolate LC transitions; optical spread, ambient, legacy response and static ABL are disabled explicitly. OLED uses zero response tau to isolate emission duty. All emitted arrays, clocks and metrics are D under these P inputs. MPRT is an explicitly normalized synthetic tracking-edge width, not a VESA certification or a substitute for matched pursuit-camera measurements. Flicker index/percent and FFT are diagnostics, not IEEE 1789 safety classification. Device LUTs, scanout, crosstalk, calibration and certification are NR. See docs/research/m18-subframe-temporal.md. The synthetic LCD illumination 1000 nits and native contrast 4000:1 are P; their 0.25-nit extinction floor is D. GtG reference levels below that floor reject. Both P synthetic HDR ceilings are 1000 nits with knee ratio 1, so admitted gray references through 1000 nits remain unchanged by tone mapping."
+}

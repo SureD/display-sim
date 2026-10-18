@@ -626,3 +626,57 @@ is a luminance-pixel-time proxy, not electrical or radiometric joules. Shared
 exposure preserves brightness differences but does not calibrate host output or
 measure perceived flicker. See the [research and source limits](research/m17-zone-temporal.md)
 and [CLI example](usage.md#lcd-zone-backlight-dynamics-opt-in).
+
+## Sub-frame temporal protocol schema version 1 (M18)
+
+The separate packaged
+[`subframe_synthetic_v1.json`](../src/tv_sim/data/measurements/subframe_synthetic_v1.json)
+is P-only experiment data. It does not alter any TV YAML, load a measured OD
+table, or claim matched device response. `provenance --check` validates it even
+when `--profiles` selects a subset. Unknown/missing fields, duplicate JSON keys,
+nonfinite/bool numeric values, invalid clocks/ranges and promoted evidence reject.
+
+| Field | Contract |
+|---|---|
+| `schema_version`, `protocol_id` | Integer 1 and `subframe_synthetic_v1`. |
+| `evidence`, `parameter_status` | Exactly P and placeholder; all nested numeric choices inherit P. |
+| `settings` | Explicit raster, rational refresh/durations, substeps, luminance levels, ordered speeds/gray levels, preview exposure, flash frequency and settling fraction. Durations contain integral display ticks. |
+| `demonstration` | Explicit rise/fall e-fold taus, OD LUT-generation gain/prefix, strobe/BFI duty and phase, PWM frequency/duty. These remain experiment choices, never runtime defaults. |
+| `fixtures` | Ordered moving edge, moving bar, directed gray steps and flashing patch; a constant patch isolates emission modulation from content flashing. |
+| `unavailable` | Measured GtG/LUT/PWM/scanout/crosstalk, device calibration and certification stay NR. |
+| `notes` | Nonempty interpretation of the synthetic assumptions. |
+
+Protocol bounds constrain raster/clip size and keep PWM below sub-step Nyquist
+for the diagnostic FFT. Analytical runtime gating preserves energy even below
+bin resolution; bin-mean flicker and pursuit detail still require adequate
+sampling. The isolated experiment declares P LCD illumination of 1000 nits and
+native contrast 4000, deriving a 0.25-nit leakage floor. Gray-step references
+must stay within 0.25–1000 nits; the synthetic HDR map is identity throughout
+that support, so response references remain the actual steady endpoints.
+The experiment saves its effective profile/config snapshots, source
+identity, rational PTS and array hashes separately from the original profile
+provenance. Compact JSON preserves scalar waveforms/metrics; full linear arrays
+are gitignored and reproducible.
+
+`SubframeConfig` is a separate default-off runtime policy. Active rise/fall taus
+must be explicit nonnegative e-fold milliseconds. Optional immutable tables
+declare command-level-dependent taus and a bilinear LCD optical-command OD LUT.
+The LUT uses actual starting transmission rather than a calibrated previous
+voltage/gray command. Duty/phase/frequency use canonical rational strings;
+zero-frequency PWM means DC. All current choices have P/placeholder status.
+
+LCD state is float64 transmission bounded by native leakage and full opening;
+OLED state is nonnegative emitted nits. A steady target passes HDR/ABL once per
+tick before response. Each exact rational output bin integrates response over
+the intersections of illumination pulses. No implicit brightness compensation
+or scanout model is applied. Ambient remains ungated. See
+[runtime admission and continuation](usage.md#sub-frame-response-and-emission-opt-in-m18)
+for conflicts, full-state resume and MEMC clock semantics.
+
+Generated metrics are D under these P inputs: ungated 10–90 response and
+settling with observation/resolution limits, overshoot/inverse-ghost amplitude,
+principal pursuit-edge width and explicitly normalized synthetic MPRT, emitted
+brightness loss, percent flicker/area index and dominant FFT bin. None are a
+ClearMR certification or IEEE 1789 biological risk assessment. The
+[research note](research/m18-subframe-temporal.md) preserves source methods and
+specimen measurements separately from these settings.

@@ -10,6 +10,12 @@ records. Runtime package version remains defined in `pyproject.toml`.
 
 ### Added
 
+- Default-off M18 sub-frame LC response and overdrive LUTs, rational analytical
+  PWM/strobe/OLED BFI emission, exact complete-history checkpoints and explicit
+  M13/M17 ownership with all MEMC sequence modes.
+- Primary-source temporal research, strict P-only protocol/provenance checks and
+  `tv-sim subframe` synthetic response, flicker and pursuit-blur experiments with
+  compact traces, shared-exposure galleries and simulated pursuit images.
 - Default-off M17 LCD zone backlight dynamics with explicit asymmetric e-fold
   times, per-tick slew limits, scene-cut policy, initialization and exact full
   display-history continuation.

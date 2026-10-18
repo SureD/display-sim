@@ -89,6 +89,34 @@ keep their own responsibilities. Active OLED M13 capacity, legacy APL smoothing,
 backlight tracking, power-proxy derating and M9 fits reject with active M17.
 See [the model and evidence limits](research/m17-zone-temporal.md).
 
+M18's separate default-off `SubframeConfig` replaces the legacy temporal tail
+only when explicitly active. Its LCD state is dimensionless float64 LC
+transmission; OLED state is ungated emitted nits. Asymmetric first-order e-fold
+response and an optional bilinear old-state/new-target OD LUT evolve before
+rectangular illumination/BFI gates. Exact rational output bins integrate the
+exponential response over intersecting pulse intervals; narrow PWM pulses retain
+their energy. Endpoint state is independent of gating, pursuit and bin count.
+
+The active path establishes a steady HDR/ABL target once per tick, then resolves
+LC response multiplied by actual illumination. M17 owns its single zone update
+before this multiplication; M13 owns its single OLED capacity update before
+response/BFI. A target below physical LCD leakage or above full transmission
+rejects, except for bounded float32 roundoff. OD may exceed the steady target
+within physical transmission bounds. Ambient reflection is added after emission
+gating. Simultaneous global updates are a P approximation; row scanout, voltage
+dynamics, temperature, spectra and measured crosstalk remain NR.
+
+`subframe_pipeline.py` commits candidate LC/zone/capacity histories together.
+`subframe_history.py` records exact array bytes, float hex scalars, rational
+clocks, original initialization, effective geometry and implementation identity.
+All active owners must use resume for restoration; partial state and clock gaps
+reject. Active M10/M15 and competing legacy temporal/load models reject. Source
+reconstruction in all MEMC modes remains before the single display update and
+passes exact output PTS/duration. Sequence outputs expose resolved subframes;
+checkpoints own display state, while a caller resuming reconstruction must
+reproduce its independent source/estimator history. See
+[usage and admission rules](usage.md#sub-frame-response-and-emission-opt-in-m18).
+
 ## Module map
 
 | Module(s) under `src/tv_sim/` | Responsibility |
@@ -99,12 +127,14 @@ See [the model and evidence limits](research/m17-zone-temporal.md).
 | `sequence.py`, `motion.py`, `block_motion.py`, `block_sequence.py` | Rational scheduling, analytic motion and block-proxy reconstruction. |
 | `abl_dynamics.py`, `abl_history.py` | Optional global capacity evolution and full-history identity. |
 | `zone_temporal.py`, `zone_history.py` | Optional LCD zone command evolution, scene-cut policy and exact full-history continuation. |
+| `subframe.py`, `subframe_pipeline.py`, `subframe_history.py` | Optional LC/emission state, exact gated integration, tick ownership and complete display continuation. |
 | `viewing_angle.py`, `colorimetry.py` | Optional angular and color-volume models. |
 | `provenance.py`, `*_provenance.py` | Strict evidence snapshots and protocol validation. |
 | `validate.py`, `metrics.py`, `anchors.py`, `patterns.py` | Synthetic M4 protocols, reference comparisons, and numerical metrics. |
 | `gallery.py`, `macro.py`, `colorimetry_gallery.py` | Shared-exposure comparisons and illustrative aperture rendering. |
 | `window_replay.py`, `oled_dynamics_experiment.py`, `motion_validate.py` | Isolated opt-in experiment runners and artifacts. |
 | `zone_temporal_experiment.py` | Synthetic LCD moving/APL/flash/subtitle clips, zone traces, metrics and shared-exposure comparisons. |
+| `subframe_experiment.py`, `subframe_metrics.py` | Response/OD/PWM/strobe/BFI experiments, waveform and pursuit metrics, shared-exposure galleries. |
 | `export_web.py`, `colorimetry_export.py`, `cli.py`, `*_cli.py` | Export contracts and CLI dispatch. |
 | `data/measurements/` | Shipped P-only protocol/config records. |
 

@@ -29,6 +29,7 @@ from tv_sim.load import demand_apl
 from tv_sim.pipeline import Pipeline
 from tv_sim.profile import TVProfile
 from tv_sim.provenance import ProvenanceError, load_provenance, lookup_measurement
+from tv_sim.subframe import SubframeConfig
 from tv_sim.zone_temporal import ZoneTemporalConfig
 
 MODEL = "per_window_normalized_drive_v1"
@@ -39,6 +40,12 @@ def _reject_zone_fit(config: ZoneTemporalConfig | None) -> None:
     """Schema-1 fits lack zone-history conditions and cannot own that state."""
     if config is not None and config.active:
         raise ValueError("M9 schema-1 fits cannot compose with active zone temporal dynamics")
+
+
+def _reject_subframe_fit(config: SubframeConfig | None) -> None:
+    """M9 v1 records contain no sub-tick waveform or LC history conditions."""
+    if config is not None and config.active:
+        raise ValueError("M9 schema-1 fits cannot compose with active subframe emission")
 
 
 def _finite(value) -> bool:
@@ -260,6 +267,7 @@ def replay_window(
     height: int = 90,
     abl_dynamics: ABLDynamicsConfig | None = None,
     zone_temporal: ZoneTemporalConfig | None = None,
+    subframe: SubframeConfig | None = None,
 ) -> WindowReplay:
     """Forward model for one specified experiment; no target enters this call.
 
@@ -269,6 +277,7 @@ def replay_window(
     """
     reject_fit_composition(abl_dynamics)
     _reject_zone_fit(zone_temporal)
+    _reject_subframe_fit(subframe)
     _grid(profile, width, height)
     encoded, actual, apl = _pattern(width, height, fraction, conditions)
     pipeline = Pipeline(drive_profile(profile, drive_scale))
@@ -332,6 +341,7 @@ def fit_windows(
     max_iterations: int = 60,
     abl_dynamics: ABLDynamicsConfig | None = None,
     zone_temporal: ZoneTemporalConfig | None = None,
+    subframe: SubframeConfig | None = None,
 ) -> dict:
     """Fit independent P drive scales using strict M8 measurement lookup.
 
@@ -341,6 +351,7 @@ def fit_windows(
     """
     reject_fit_composition(abl_dynamics)
     _reject_zone_fit(zone_temporal)
+    _reject_subframe_fit(subframe)
     _grid(profile, width, height)
     if provenance.get("profile") != profile.name:
         raise ProvenanceError("source sidecar must belong to the baseline profile")
@@ -588,10 +599,12 @@ def replay_fit(
     *,
     abl_dynamics: ABLDynamicsConfig | None = None,
     zone_temporal: ZoneTemporalConfig | None = None,
+    subframe: SubframeConfig | None = None,
 ) -> list[WindowReplay]:
     """Explicit replay of the recorded experiments, never arbitrary content."""
     reject_fit_composition(abl_dynamics)
     _reject_zone_fit(zone_temporal)
+    _reject_subframe_fit(subframe)
     conditions = _validate_fit(data)
     if data["baseline_profile"] != profile.name or data["baseline_sha256"] != _fingerprint(profile):
         raise ProvenanceError(

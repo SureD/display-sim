@@ -202,6 +202,116 @@ differ for sparse over-peak content. See the
 [protocol and admission rules](profiles.md#lcd-zone-temporal-protocol-schema-version-1-m17)
 and [research](research/m17-zone-temporal.md) for limits and evidence.
 
+## Sub-frame response and emission (opt-in M18)
+
+Run the separate synthetic experiment into a new directory:
+
+```sh
+tv-sim subframe --out reports/subframe-example
+python -m tv_sim subframe --help
+```
+
+The [saved gallery](../reports/subframe-m18/index.html) compares LCD hold,
+overdrive, strobe and PWM with OLED hold/BFI at one shared exposure. Moving
+edges/bars at several speeds, directed gray steps, flashing patches and constant
+patches produce rational sub-step CSV, compact waveform/metric JSON, linear
+`.npz` arrays and simulated pursuit-camera images. Brightness loss is preserved
+in every preview. The packaged P-only protocol supplies explicit demonstration
+settings; ordinary rendering never loads these as TV defaults. `--protocol`
+accepts an independently validated protocol with the same versioned schema.
+
+For runtime use, explicitly remove the competing legacy response and emission
+hooks before choosing a separate `SubframeConfig`:
+
+```python
+from dataclasses import replace
+from fractions import Fraction
+import numpy as np
+from tv_sim import Frame, Pipeline, SubframeConfig, load_profile
+from tv_sim.profile import TemporalParams
+
+profile = load_profile("generic_va_fald_miniled")
+profile = replace(profile, temporal=TemporalParams(response_time_ms=0))
+config = SubframeConfig(
+    model="subframe_emission_v1", substeps=32,
+    rise_tau_ms=5, fall_tau_ms=8, initial="cold",
+    strobe_duty="1/4", strobe_phase="5/8",
+)
+pipeline = Pipeline(profile, subframe=config)
+tick = pipeline.display_subframes(
+    Frame(np.full((24, 128, 3), 100, dtype=np.float32)),
+    pts=Fraction(0), duration=Fraction(1001, 60000),
+)
+assert tick.samples[1].pts == Fraction(1001, 60000 * 32)
+```
+
+All numbers in this example are P choices. Rise/fall constants are e-fold
+milliseconds, not measured GtG durations. LCD state is float64 transmission;
+OLED state is ungated emitted RGB nits. Each sample contains its exact rational
+left PTS/duration, mean emitted RGB, response endpoint and exact illuminated
+fraction. The tick also returns an independent response endpoint and float32
+mean RGB. PWM/strobe/BFI gates are intersected analytically with the exponential
+response, including wrapped and sub-bin pulses. Ambient reflection stays outside
+the emission gate. There is no scanout or rolling camera model.
+
+`tau_table=((level, rise_ms, fall_ms), ...)` optionally interpolates constants
+by command level. LCD levels cover transmission 0–1; OLED levels use nits and
+must cover every requested command. Optional `overdrive_levels` and square
+`overdrive_commands` provide a bilinear LCD LUT with actual starting transmission
+on rows and target transmission on columns. Commands stay in 0–1 and use the
+finite `overdrive_fraction` prefix before returning to target. This optical
+surrogate can overshoot/undershoot gray targets; it is not a voltage LUT.
+
+LCD `pwm_hz`, `pwm_duty`, `pwm_phase` use an absolute rational clock (zero Hz
+means DC). LCD `strobe_duty`/`strobe_phase` and OLED `bfi_duty`/`bfi_phase` use
+fractions of each display tick. Phase specifies pulse onset; a pulse may wrap
+the tick boundary. Combined LCD PWM and strobe gates intersect; their duties
+need not multiply. There is no automatic peak boost: a settled rectangular
+pulse loses brightness in proportion to its effective duty.
+
+HDR/static ABL establishes the steady target once before response. M17 can
+update LCD zones once, then hold actual illumination during the resolved tick;
+M13 can update OLED capacity once before BFI. A mapped LCD target outside
+physical transmission/leakage bounds rejects (float32 roundoff is clipped).
+Transient OD can exceed the steady mapped target within physical transmission
+bounds. M17 scene cuts reset zones without resetting LC state. M13 and M17
+remain mutually exclusive by panel technology.
+
+Legacy response/OD/drive-ceiling/motion must explicitly be zero; legacy BFI
+must be duty one, preserve-mean off and integration one. Active M10 viewing
+angle, M15 colorimetry, legacy nonidentity panel matrix/off-axis law, smoothed
+APL, backlight tracking, channel-power proxy and M9 schema-1 fits reject.
+LCD BFI and OLED LCD-OD/PWM/strobe combinations reject. These domain limits
+keep one owner for each state and emitted-light transformation.
+
+All `MotionConfig` modes compose before one M18 update per output tick.
+`SequenceOutput.subframes` retains the resolved samples; output frames contain
+the mean emission without eye tracking. Repeat/analytic/MCI use exact output
+rate fractions. Off mode retains the profile's decimal tick duration.
+Direct `display_content`/`run_linear` also use the profile duration (or the
+decimal spelling of an explicit millisecond override); use `display_subframes`
+for exact fractional refresh rates and explicit PTS.
+
+Cold and settled-first initialization start new histories. `checkpoint()`
+records all LC/zone/capacity state bytes, original initialization, rational
+clock, geometry and effective implementation/config identity. To continue,
+create a fresh pipeline with `initial="resume"` for **every active owner**,
+then call `restore_checkpoint(data)` and supply the exact next PTS. Configuration
+changes, stale partial histories, clock gaps and externally edited state reject.
+The checkpoint resumes display history; MEMC source buffers/estimator history
+must independently reconstruct the same prepared targets and clocks.
+
+Response metrics use ungated response endpoints, interpolation, and explicit
+time-resolution/censoring fields. Pursuit images integrate emitted bin means
+at bin midpoints over a declared shutter. Normalized synthetic MPRT is rising
+10–90 edge width divided by `0.8 * speed`; finite raster and sub-step resolution
+remain visible. Flicker percent/index and dominant non-DC FFT frequency describe
+the saved bin-mean waveform, with Nyquist/bin-width metadata. Narrow pulses
+retain exact mean energy, but coarse bins can suppress modulation and pursuit
+detail. These metrics are not ClearMR certification or IEEE 1789 safety scores.
+See [research](research/m18-subframe-temporal.md) and
+[the protocol contract](profiles.md#sub-frame-temporal-protocol-schema-version-1-m18).
+
 ## Window drive fitting (opt-in)
 
 ```sh
