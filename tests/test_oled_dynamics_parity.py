@@ -1,10 +1,10 @@
-"""Exact pre-M13 current-tree snapshots supplement the M7/M9 goldens.
+"""Authenticated pre-M13 current-tree snapshots supplement the M7/M9 goldens.
 
 Captured before runtime edits: M10 angular rendering, repeated/analytic display
 ticks, profile identities and the web transport. No saved M4 report or older
 golden is regenerated. Code hashes in export manifests necessarily describe
-the current implementation. Assets remain exact; gallery numeric metadata
-allows tightly bounded CPU roundoff and migrated source labels are normalized.
+the current implementation. Historical rendered values and gallery statistics
+allow declared numerical roundoff; stable metadata and traces remain exact.
 """
 
 from __future__ import annotations
@@ -16,11 +16,20 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-from golden_support import assert_numeric_metadata, legacy_labels
+from golden_support import (
+    NumericResult,
+    RenderedDigest,
+    assert_historical_snapshot,
+    assert_numeric_metadata,
+    legacy_labels,
+    link_rendered_hashes,
+    rendered_file_digest,
+)
+from golden_support import array_digest as _array_digest
 from PIL import Image
 
 from tv_sim.export_web import generate_web_export
-from tv_sim.gallery import PROFILE_NAMES, generate_gallery
+from tv_sim.gallery import PROFILE_NAMES, generate_gallery, scenes
 from tv_sim.pipeline import Pipeline
 from tv_sim.profile import load_profile, profile_path
 from tv_sim.sequence import MotionConfig
@@ -30,17 +39,6 @@ from tv_sim.viewing_angle import ViewingAngleConfig
 pytestmark = [pytest.mark.slow, pytest.mark.golden]
 
 BASELINE = Path(__file__).parent / "fixtures" / "oled_dynamics_off_baseline.json"
-
-
-def _array_digest(array):
-    if array is None:
-        return None
-    array = np.ascontiguousarray(array)
-    return {
-        "shape": list(array.shape),
-        "dtype": str(array.dtype),
-        "sha256": sha256(array.tobytes()).hexdigest(),
-    }
 
 
 def _state_digest(pipeline):
@@ -73,7 +71,7 @@ def _frame_digest(frame, pipeline):
     return {
         "rgb": _array_digest(frame.rgb),
         "backlight": _array_digest(frame.backlight),
-        "preview": _array_digest(encode_frame(frame, pipeline.profile.output)),
+        "preview": _array_digest(encode_frame(frame, pipeline.profile.output), preview=True),
         "history": _state_digest(pipeline),
     }
 
@@ -121,7 +119,7 @@ def _gallery_snapshot(out, *, angular=False):
     return {
         "manifest": manifest,
         "decoded_previews": {
-            path.name: _array_digest(np.asarray(Image.open(path).convert("RGB")))
+            path.name: _array_digest(np.asarray(Image.open(path).convert("RGB")), preview=True)
             for path in sorted(out.glob("*.png"))
         },
         "other_files": {
@@ -137,26 +135,57 @@ def _gallery_snapshot(out, *, angular=False):
 
 
 def _assert_gallery_snapshot(out, expected, *, angular=False):
-    """Keep image/trace goldens exact, allowing only numeric metadata roundoff."""
+    """Compare authenticated renders numerically, retaining exact trace hashes."""
     actual = _gallery_snapshot(out, angular=angular)
     expected_manifest = expected["manifest"]
     payload = (json.dumps(expected_manifest, indent=2, allow_nan=False) + "\n").encode()
-    assert sha256(payload).hexdigest() == expected["other_files"]["manifest.json"]
+    assert_historical_snapshot(
+        sha256(payload).hexdigest(), expected["other_files"]["manifest.json"]
+    )
     assert_numeric_metadata(actual["manifest"], expected_manifest)
-    assert actual["decoded_previews"] == expected["decoded_previews"]
-    assert {
-        key: value for key, value in actual["other_files"].items() if key != "manifest.json"
-    } == {key: value for key, value in expected["other_files"].items() if key != "manifest.json"}
+    assert_historical_snapshot(actual["decoded_previews"], expected["decoded_previews"])
+    assert_historical_snapshot(
+        {key: value for key, value in actual["other_files"].items() if key != "manifest.json"},
+        {key: value for key, value in expected["other_files"].items() if key != "manifest.json"},
+    )
 
 
 def _export_snapshot(out):
     generate_web_export(out, width=160, height=96, motion_frames=3)
+    return _read_export_snapshot(out)
+
+
+def _read_export_snapshot(out):
     manifest = json.loads((out / "manifest.json").read_text())
     manifest.pop("implementation_sha256")
+    manifest = link_rendered_hashes(manifest, out)
+    sources = scenes(160, 96)
+    for scene in manifest["scenes"]:
+        if "source_linear_float32_sha256" in scene:
+            source = sources[scene["id"]].astype("<f4")
+            digest = sha256(source.tobytes()).hexdigest()
+            assert digest == scene["source_linear_float32_sha256"]
+            scene["source_linear_float32_sha256"] = RenderedDigest({"sha256": digest}, source)
+        for asset in scene["assets"].values():
+            # These fields describe rendered/quantised values, rather than
+            # protocol metadata. The transport itself is checked to one FP16 ULP.
+            for key, value in asset["statistics"].items():
+                if isinstance(value, float):
+                    rel, absolute = 1e-3, 1e-7
+                    if key == "float16_max_absolute_error_nits":
+                        rel, absolute = (
+                            0,
+                            max(1e-7, asset["statistics"]["peak_channel_nits"] * 2e-6),
+                        )
+                    asset["statistics"][key] = NumericResult(value, rel=rel, absolute=absolute)
     return {
         "manifest": legacy_labels(manifest),
         "files": {
-            path.relative_to(out).as_posix(): sha256(path.read_bytes()).hexdigest()
+            path.relative_to(out).as_posix(): rendered_file_digest(
+                path, {"sha256": sha256(path.read_bytes()).hexdigest()}
+            )
+            if path.suffix in (".png", ".f16")
+            else sha256(path.read_bytes()).hexdigest()
             for path in sorted(out.rglob("*"))
             if path.is_file() and path.name != "manifest.json"
         },
@@ -262,7 +291,7 @@ def after_enabled_dynamics(tmp_path_factory):
 
 
 def test_profile_bytes_and_effective_identities_match_pre_m13(baseline):
-    assert _profile_snapshot() == baseline["profiles"]
+    assert_historical_snapshot(_profile_snapshot(), baseline["profiles"])
 
 
 @pytest.mark.parametrize("explicit_off", [False, True], ids=["omitted", "explicit-off"])
@@ -280,7 +309,7 @@ def test_off_allocates_no_capacity_or_discovers_history(monkeypatch, explicit_of
     pipeline = Pipeline(load_profile("generic_woled"), **kwargs)
     assert pipeline.capacity_state is None
     frames = [_frame_digest(pipeline.run_linear(source), pipeline) for source in _inputs()]
-    assert frames == baseline["pipeline"]["generic_woled"]["False"]["frames"]
+    assert_historical_snapshot(frames, baseline["pipeline"]["generic_woled"]["False"]["frames"])
     assert pipeline.capacity_state is None
 
 
@@ -291,9 +320,9 @@ def test_pipeline_off_matches_pre_m13(name, angular, explicit_off, baseline):
     from tv_sim.abl_dynamics import ABLDynamicsConfig
 
     kwargs = {"abl_dynamics": ABLDynamicsConfig(model="off")} if explicit_off else {}
-    assert (
-        _pipeline_snapshot(name, angular=angular, dynamics_kwargs=kwargs)
-        == baseline["pipeline"][name][str(angular)]
+    assert_historical_snapshot(
+        _pipeline_snapshot(name, angular=angular, dynamics_kwargs=kwargs),
+        baseline["pipeline"][name][str(angular)],
     )
 
 
@@ -304,8 +333,8 @@ def test_motion_and_histories_match_pre_m13(name, mode, explicit_off, baseline):
     from tv_sim.abl_dynamics import ABLDynamicsConfig
 
     kwargs = {"abl_dynamics": ABLDynamicsConfig(model="off")} if explicit_off else {}
-    assert (
-        _sequence_snapshot(name, mode, dynamics_kwargs=kwargs) == baseline["sequence"][name][mode]
+    assert_historical_snapshot(
+        _sequence_snapshot(name, mode, dynamics_kwargs=kwargs), baseline["sequence"][name][mode]
     )
 
 
@@ -331,7 +360,7 @@ def test_export_after_active_experiment_matches_pre_m13(
 ):
     if explicit_off:
         _force_explicit_off(monkeypatch)
-    assert _export_snapshot(tmp_path / "export") == baseline["export"]
+    assert_historical_snapshot(_export_snapshot(tmp_path / "export"), baseline["export"])
 
 
 @pytest.mark.parametrize("name", PROFILE_NAMES)
@@ -339,7 +368,7 @@ def test_export_after_active_experiment_matches_pre_m13(
 def test_v1_m9_replay_and_histories_match_pre_m13(name, monkeypatch, explicit_off, baseline):
     if explicit_off:
         _force_explicit_off(monkeypatch)
-    assert _window_snapshot(name) == baseline["m9_replay"][name]
+    assert_historical_snapshot(_window_snapshot(name), baseline["m9_replay"][name])
 
 
 @pytest.mark.parametrize("explicit_off", [False, True], ids=["omitted", "explicit-off"])

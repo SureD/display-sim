@@ -37,6 +37,10 @@ Changelog = "https://github.com/SureD/display-sim/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
 dev = [
+    # NumPy includes its type stubs; use one Python-3.11-compatible version in CI.
+    "numpy==2.4.6",
+    "pillow==13.0.0",
+    "pyyaml==6.0.3",
     "pytest==8.4.2",
     "ruff==0.14.1",
     "mypy==1.18.2",

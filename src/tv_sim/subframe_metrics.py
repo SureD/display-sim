@@ -10,9 +10,10 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from fractions import Fraction
-from typing import Any
+from typing import Any, cast
 
 import numpy as np
+from numpy.typing import NDArray
 
 from tv_sim.color import luminance
 from tv_sim.stages.temporal import shift_x
@@ -160,7 +161,8 @@ def pursuit_metrics(rgb: np.ndarray, velocity_px_s: float) -> dict[str, Any]:
     """Measure the principal rising edge and label the normalized MPRT convention."""
     if rgb.ndim != 3 or rgb.shape[-1] != 3 or rgb.shape[1] < 8 or velocity_px_s == 0:
         raise ValueError("pursuit edge requires RGB width >= 8 and nonzero velocity")
-    edge = np.mean(luminance(rgb), axis=0, dtype=np.float64)
+    # RGB validation above guarantees that the height reduction leaves a 1-D edge.
+    edge = cast(NDArray[np.float64], np.mean(luminance(rgb), axis=0, dtype=np.float64))
     if not np.isfinite(edge).all() or not np.isfinite(velocity_px_s):
         raise ValueError("pursuit edge and velocity must be finite")
     span = max(1, len(edge) // 8)

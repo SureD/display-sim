@@ -4,9 +4,10 @@ The older captures already cover all default profiles, complete M4 reports,
 default/angular galleries, M9 replay, phase-1 sequence diagnostics and physical
 histories, and web-export assets. This capture adds the phase-1 motion CLI's
 saved artifacts and M13's enabled experiment artifacts. Expected values were
-saved before any M14 runtime changes. Comparisons are exact: file bytes for
-images/arrays/HTML and canonical JSON for substantive sidecar/checkpoint data.
-Only code-identity metadata and its enclosing checksum may change with code.
+saved before any M14 runtime changes. Historical images/arrays use authenticated
+decoded references and declared tolerances; HTML and substantive checkpoint
+state remain exact. Implementation fingerprints are excluded, actual checkpoint
+checksums are validated, and NumPy environment identity must match this host.
 """
 
 from __future__ import annotations
@@ -17,7 +18,7 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-from golden_support import legacy_labels
+from golden_support import assert_historical_snapshot, legacy_labels, rendered_file_digest
 from PIL import Image
 
 from tv_sim.gallery import PROFILE_NAMES
@@ -63,10 +64,9 @@ def _artifact_snapshot(out):
             payload = json.dumps(_substantive_json(value), sort_keys=True, allow_nan=False).encode()
         else:
             payload = path.read_bytes()
-        files[path.relative_to(out).as_posix()] = {
-            "bytes": len(payload),
-            "sha256": sha256(payload).hexdigest(),
-        }
+        files[path.relative_to(out).as_posix()] = rendered_file_digest(
+            path, {"bytes": len(payload), "sha256": sha256(payload).hexdigest()}, payload=payload
+        )
     return files
 
 
@@ -145,9 +145,13 @@ def baseline():
 @pytest.mark.parametrize("name", PROFILE_NAMES)
 @pytest.mark.parametrize("mode", ["off", "repeat", "analytic"])
 def test_phase1_motion_cli_artifacts_match_pre_m14(tmp_path, name, mode, baseline):
-    assert _motion_cli_snapshot(tmp_path, name, mode) == baseline["motion_cli"][name][mode]
+    assert_historical_snapshot(
+        _motion_cli_snapshot(tmp_path, name, mode), baseline["motion_cli"][name][mode]
+    )
 
 
 @pytest.mark.parametrize("name", ["generic_woled", "generic_qdoled"])
 def test_oled_dynamics_artifacts_match_pre_m14(tmp_path, name, baseline):
-    assert _oled_dynamics_snapshot(tmp_path, name) == baseline["oled_dynamics"][name]
+    assert_historical_snapshot(
+        _oled_dynamics_snapshot(tmp_path, name), baseline["oled_dynamics"][name]
+    )

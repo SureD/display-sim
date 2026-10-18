@@ -6,7 +6,13 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-from golden_support import assert_numeric_metadata, gallery_manifest_baseline, legacy_labels
+from golden_support import (
+    array_digest,
+    assert_historical_snapshot,
+    assert_numeric_metadata,
+    gallery_manifest_baseline,
+    legacy_labels,
+)
 from PIL import Image
 
 from tv_sim.cli import main
@@ -91,7 +97,7 @@ def test_gallery_angular_cli_appends_labeled_sheet_and_preserves_all_old_outputs
     expected_images = dict(legacy["decoded_previews"], **m9["decoded_previews"])
     for filename, expected in expected_images.items():
         pixels = np.asarray(Image.open(tmp_path / filename).convert("RGB"))
-        assert sha256(pixels.tobytes()).hexdigest() == expected["sha256"]
+        assert_historical_snapshot(array_digest(pixels, preview=True), expected)
     assert (
         sha256((tmp_path / "memc_trace.json").read_bytes()).hexdigest()
         == m9["memc_trace_json_sha256"]

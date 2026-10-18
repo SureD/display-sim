@@ -29,6 +29,10 @@ records. Runtime package version remains defined in `pyproject.toml`.
 
 ### Changed
 
+- M19 pins the development NumPy/stub and image toolchain across Python 3.11/3.12,
+  fixes portable NumPy scalar/array annotations including M18 metrics, and
+  compares historical floating renders against authenticated decoded references
+  while preserving exact same-machine default-path and checkpoint parity.
 - Organize historical plan/status/report material under `docs/reports/` and
   research notes under `docs/research/`; retain generated example artifacts in
   `reports/`.

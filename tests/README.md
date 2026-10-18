@@ -22,17 +22,51 @@ changes to golden fixtures separate from runtime changes and explain their
 source and expected effect in the pull request. Generated test artifacts use
 pytest temporary directories; do not replace committed reports while testing.
 
-Decoded PNG pixels, linear arrays, profile YAML bytes and trace hashes retain
-exact comparisons. Floating-point JSON/CSV metadata uses a tight `2e-6` relative
-and `1e-7` absolute tolerance where CPU math or reduction order can differ on
-macOS arm64. Text, keys, list lengths, integer values and artifact identities
-remain exact. The numeric validation captures were saved from the unmodified
-M15 implementation during M16 and authenticate against the existing pre-M7
-JSON/CSV hashes. Full gallery metadata comes from the already committed
-pre-M13 capture, authenticated against the pre-M9 manifest hash.
+Same-machine default-path off/on comparisons, repeated runs, checkpoint
+continuation, discrete masks/reason codes, rational traces and profile YAML
+bytes retain exact comparisons. For historical renders captured on another
+machine, `golden_support.py` compares decoded values with these tolerances:
+
+| Historical value | Tolerance |
+| --- | --- |
+| float32 rendered arrays/maps | `rtol=2e-6`, `atol=1e-7` |
+| float64 rendered arrays/maps | `rtol=1e-12`, `atol=1e-12` |
+| PNG / explicit uint8 previews | At most one code value per channel |
+| FP16 web transport | At most one adjacent finite FP16 code |
+| Named derived M14 image/trajectory metrics | `rtol=1e-12`, `atol=1e-12` |
+
+Shapes, dtypes, archive member names and discrete values remain exact. PNG/NPZ
+compression bytes are irrelevant to decoded-value comparisons. Nonfinite
+rendered values fail. Web transport statistics use `rtol=1e-3`, `atol=1e-7`,
+matching FP16 precision; its float32-to-FP16 maximum quantisation error uses
+`atol=max(1e-7, peak_nits * 2e-6)` instead. Protocol/settings JSON, rational
+timing, text, keys, counts and profile/source-file identities remain exact.
+Only hashes identifying rendered values are linked to decoded comparisons;
+each current hash must first match its actual file bytes exactly.
+
+The `rendered_reference_values.npz` fixture contains 1,074 references keyed by
+the **unchanged historical SHA-256 values**. Raw array bytes or canonical
+PNG/NPY/NPZ/FP16/JSON payload bytes must authenticate against that key before
+decoding. References were recovered from outputs whose hashes matched the
+existing captures; the original JSON baselines were not regenerated. Ordinary
+digest equality is unchanged: tolerance requires an explicit historical
+comparison. Focused helper tests cover accepted roundoff, rejected drift,
+authentication, dtype/shape changes, discrete codes and linked hashes.
+
+CPython 3.12 changed float `sum` accuracy; eight aggregated M14 luminance MAEs
+differ by one float64 step on Python 3.11 even with NumPy held fixed. Only the
+named derived numerical results accept roundoff. Historical M13 checkpoint
+environment identities accept the current NumPy version after checking it
+equals `numpy.__version__`; checkpoint checksums and all remaining state fields
+are still validated. Runtime checkpoint compatibility checks are unchanged.
+
+The existing numerical validation JSON/CSV comparisons retain their `2e-6`
+relative / `1e-7` absolute tolerance. These captures were saved from the
+unmodified M15 implementation during M16 and authenticate against the existing
+pre-M7 JSON/CSV hashes. Full gallery metadata comes from the committed pre-M13
+capture, authenticated against the pre-M9 manifest hash.
 
 `golden_support.py` also restores a small, explicit set of historical package
-and documentation labels before comparing migrated metadata. It does not
-normalize rendered data or replace numeric results. These compatibility rules
+and documentation labels before comparing migrated metadata. These compatibility rules
 allow the source layout and documentation paths to change without rewriting
 the historical golden evidence.
