@@ -1,8 +1,9 @@
 """Compare historical artifacts without tying numeric metadata to one CPU.
 
 Historical rendered arrays accept 2e-6 relative / 1e-7 absolute roundoff;
-decoded eight-bit previews accept one code value. Profile bytes, discrete
-arrays, text, trace hashes and same-machine comparisons remain exact.
+decoded eight-bit previews accept one code value. Historical JSON floats use
+1e-12 relative/absolute tolerance. Profile bytes, discrete arrays, rational
+traces, text and same-machine comparisons remain exact.
 The legacy label substitutions account solely for M16's package/docs moves.
 """
 
@@ -11,6 +12,7 @@ from __future__ import annotations
 import csv
 import io
 import json
+import math
 from functools import lru_cache
 from hashlib import sha256
 from pathlib import Path
@@ -37,6 +39,7 @@ class RenderedDigest(dict):
         self.file_kind: str | None = None
         self.payload: bytes | None = None
         self.file_path: Path | None = None
+        self.artifact_root: Path | None = None
 
 
 class NumericResult(float):
@@ -65,9 +68,9 @@ def array_digest(array: np.ndarray | None, *, preview: bool = False) -> Rendered
 
 
 def rendered_file_digest(
-    path: Path, record: dict, *, payload: bytes | None = None
+    path: Path, record: dict, *, payload: bytes | None = None, artifact_root: Path | None = None
 ) -> RenderedDigest | dict:
-    """Decode rendered files; retain exact hashes for all other artifact kinds."""
+    """Decode historical renders/JSON; retain exact hashes for other artifact kinds."""
     if path.suffix == ".png":
         with Image.open(path) as image:
             result = RenderedDigest(record, np.asarray(image), preview=True)
@@ -77,20 +80,18 @@ def rendered_file_digest(
         result = RenderedDigest(record, np.load(path, allow_pickle=False))
     elif path.suffix == ".f16":
         result = RenderedDigest(record, np.fromfile(path, dtype="<f2"))
-    elif (
-        path.name == "motion-validation.json"
-        or path.name.endswith(".state.json")
-        or (
-            path.name == "manifest.json" and payload is not None and "trials" in json.loads(payload)
-        )
-    ):
-        assert payload is not None
+    elif path.suffix == ".json":
+        # Canonical snapshots supply their normalised payload; direct callers
+        # compare the original JSON. Never hash float-bearing historical JSON
+        # as opaque bytes: one ULP can change both its SHA and encoded length.
+        payload = path.read_bytes() if payload is None else payload
         result = RenderedDigest(record, np.frombuffer(payload, dtype=np.uint8))
     else:
         return record
     result.file_kind = path.suffix
     result.payload = path.read_bytes() if payload is None else payload
     result.file_path = path
+    result.artifact_root = path.parent if artifact_root is None else artifact_root
     return result
 
 
@@ -126,8 +127,10 @@ def assert_rendered_reference(actual: RenderedDigest, expected: dict, path: str)
             reference = np.frombuffer(payload, dtype="<f2")
         else:
             current, saved = json.loads(actual.payload), json.loads(payload)
-            if actual.file_path.name == "motion-validation.json":
-                current = link_rendered_hashes(current, actual.file_path.parent)
+            if actual.file_path.name in {"motion-validation.json", "pts-trace.json"}:
+                # PTS traces live one directory below the report but contain
+                # paths relative to the complete experiment's output root.
+                current = link_rendered_hashes(current, actual.artifact_root)
             _assert_report_fields(current, saved, path)
             return
     if actual.file_kind is None:
@@ -178,7 +181,7 @@ def _assert_array_values(
 
 
 def assert_historical_snapshot(actual: Any, expected: Any, path: str = "root") -> None:
-    """Only decoded rendered values tolerate roundoff; metadata remains exact."""
+    """Compare historical rendered/JSON values; ordinary digest equality stays exact."""
     if isinstance(actual, RenderedDigest):
         if isinstance(expected, str):
             expected = {"sha256": expected}
@@ -200,10 +203,12 @@ def assert_historical_snapshot(actual: Any, expected: Any, path: str = "root") -
 
 
 def _assert_report_fields(actual: Any, expected: Any, path: str) -> None:
-    """Allow roundoff only in derived image/trajectory metrics, never metadata.
+    """Compare historical JSON with strict structure/types and finite float roundoff.
 
-    Python 3.12 changed float ``sum`` accuracy; the aggregated M14 MAEs can
-    differ by one float64 ULP from captures made on Python 3.13.
+    Float-bearing traces, diagnostics and summaries can vary by a few ULPs
+    across CPU/interpreter implementations, including their serialised length.
+    Rational strings, integers, booleans, text and keys remain exact. This
+    comparator is only used explicitly for historical captures.
     """
     if isinstance(actual, RenderedDigest):
         assert_historical_snapshot(actual, expected, path)
@@ -215,23 +220,9 @@ def _assert_report_fields(actual: Any, expected: Any, path: str) -> None:
         assert isinstance(actual, list) and len(actual) == len(expected), path
         for index, value in enumerate(expected):
             _assert_report_fields(actual[index], value, f"{path}[{index}]")
-    elif (
-        isinstance(expected, float)
-        and (".summary." in path or ".metrics." in path)
-        and (
-            path.rsplit(".", 1)[-1]
-            in {
-                "absolute_luma_error_sum_nits",
-                "linear_luma_mae_nits",
-                "trajectory_error_px",
-                "mean_error_px",
-                "max_error_px",
-            }
-            or ".observed_marker_centroid_px[" in path
-            or ".truth_marker_centroid_px[" in path
-        )
-    ):
+    elif isinstance(expected, float):
         assert type(actual) is float, path
+        assert math.isfinite(actual) and math.isfinite(expected), path
         assert actual == pytest.approx(expected, rel=1e-12, abs=1e-12), path
     elif path.endswith((".identity.numpy_version", ".pipeline_identity.numpy_version")):
         # Historical environment identity must truthfully describe this host.

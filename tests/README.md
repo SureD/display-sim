@@ -33,14 +33,17 @@ machine, `golden_support.py` compares decoded values with these tolerances:
 | float64 rendered arrays/maps | `rtol=1e-12`, `atol=1e-12` |
 | PNG / explicit uint8 previews | At most one code value per channel |
 | FP16 web transport | At most one adjacent finite FP16 code |
-| Named derived M14 image/trajectory metrics | `rtol=1e-12`, `atol=1e-12` |
+| Finite floating values in historical JSON | `rtol=1e-12`, `atol=1e-12` |
 
 Shapes, dtypes, archive member names and discrete values remain exact. PNG/NPZ
 compression bytes are irrelevant to decoded-value comparisons. Nonfinite
 rendered values fail. Web transport statistics use `rtol=1e-3`, `atol=1e-7`,
 matching FP16 precision; its float32-to-FP16 maximum quantisation error uses
-`atol=max(1e-7, peak_nits * 2e-6)` instead. Protocol/settings JSON, rational
-timing, text, keys, counts and profile/source-file identities remain exact.
+`atol=max(1e-7, peak_nits * 2e-6)` instead. JSON structure and nonfloating types,
+rational timing strings, text, keys, counts and profile/source-file identities
+remain exact. Float-bearing historical JSON is decoded regardless of filename;
+its current byte length and SHA may differ due to roundoff or formatting. The
+saved payload still authenticates against its original exact hash and length.
 Only hashes identifying rendered values are linked to decoded comparisons;
 each current hash must first match its actual file bytes exactly.
 
@@ -54,9 +57,14 @@ comparison. Focused helper tests cover accepted roundoff, rejected drift,
 authentication, dtype/shape changes, discrete codes and linked hashes.
 
 CPython 3.12 changed float `sum` accuracy; eight aggregated M14 luminance MAEs
-differ by one float64 step on Python 3.11 even with NumPy held fixed. Only the
-named derived numerical results accept roundoff. Historical M13 checkpoint
-environment identities accept the current NumPy version after checking it
+differ by one float64 step on Python 3.11 even with NumPy held fixed. M19b extends
+decoded comparison to all historical JSON, including PTS/capacity traces and
+motion CLI diagnostics. Float-to-integer substitutions and nonfinite numbers
+fail. Nested PTS trace array hashes resolve from the experiment root and must
+authenticate their current array bytes before decoded comparison. The existing
+gallery `memc_trace.json` hash stays strict: its only floats are deterministic
+0/1 fallback fractions and rational-to-float frame durations. Historical M13
+checkpoint environment identities accept the current NumPy version after checking it
 equals `numpy.__version__`; checkpoint checksums and all remaining state fields
 are still validated. Runtime checkpoint compatibility checks are unchanged.
 
