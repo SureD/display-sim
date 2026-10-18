@@ -12,6 +12,7 @@ from typing import TYPE_CHECKING, Any, cast
 
 import numpy as np
 
+from tv_sim.frame import Frame
 from tv_sim.motion import MotionTick, ReconstructionResult, reconstruct
 
 if TYPE_CHECKING:
@@ -157,7 +158,21 @@ def render_block_sequence(
                 maps.update(estimate.debug_arrays())
             # No hidden calls before/after this tick. In particular, estimation
             # and cut handling never touch panel or ABL history.
-            if pipeline._zone_active:
+            if pipeline._subframe_active:
+                boundary_cut = any(
+                    previous_displayed_source < cut_index <= index for cut_index in cut_indices
+                )
+                resolved = pipeline.display_subframes(
+                    result.frame,
+                    pts=output_pts,
+                    duration=1 / output_rate,
+                    scene_cut=boundary_cut,
+                )
+                displayed = Frame(resolved.mean)
+                previous_displayed_source = index
+                if pipeline._zone_active:
+                    diagnostics["zone_backlight"] = cast(dict, pipeline.last_zone_trace).copy()
+            elif pipeline._zone_active:
                 # M14's estimated cuts own reconstruction only. Explicit cuts
                 # reset zones here; M17 owns its separate target-delta detector.
                 boundary_cut = any(
@@ -172,7 +187,9 @@ def render_block_sequence(
                 displayed = pipeline.display_content(result.frame, frame_time_ms=dt_ms)
             if pipeline._dynamics_active:
                 diagnostics["abl_capacity"] = cast(dict, pipeline.last_capacity_trace).copy()
-            yield SequenceOutput(displayed, diagnostics, motion_maps=maps)
+            yield SequenceOutput(
+                displayed, diagnostics, motion_maps=maps, subframes=pipeline.last_subframe_result
+            )
             output_index += 1
         previous = estimate if estimate is not None and not estimate.scene_cut else None
         left = right

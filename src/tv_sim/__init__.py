@@ -11,6 +11,7 @@ from tv_sim.frame import Frame
 from tv_sim.pipeline import Pipeline
 from tv_sim.profile import TVProfile, available_profiles, load_profile
 from tv_sim.sequence import MotionConfig
+from tv_sim.subframe import SubframeConfig
 from tv_sim.viewing_angle import ViewingAngleConfig
 from tv_sim.zone_temporal import ZoneTemporalConfig
 
@@ -21,6 +22,7 @@ __all__ = [
     "Frame",
     "MotionConfig",
     "Pipeline",
+    "SubframeConfig",
     "TVProfile",
     "ViewingAngleConfig",
     "ZoneTemporalConfig",

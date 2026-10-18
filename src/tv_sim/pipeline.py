@@ -79,7 +79,10 @@ from tv_sim.viewing_angle import (
 from tv_sim.zone_temporal import ZoneBacklightState, ZoneTemporalConfig
 
 if TYPE_CHECKING:
+    from fractions import Fraction
+
     from tv_sim.sequence import MotionConfig, SequenceOutput
+    from tv_sim.subframe import SubframeConfig, SubframeResult, SubframeState
 
 
 class Pipeline:
@@ -105,6 +108,18 @@ class Pipeline:
     last_zone_trace: dict[str, Any] | None
     _zone_geometry: dict[str, Any] | None
     _zone_source_hash: str | None
+    subframe: SubframeConfig
+    _initial_subframe: SubframeConfig
+    subframe_state: SubframeState
+    last_subframe_result: SubframeResult | None
+    _subframe_geometry: dict[str, Any] | None
+    _subframe_origin_pts: Fraction | None
+    _subframe_elapsed: Fraction
+    _subframe_resumed: bool
+    _subframe_initialization: dict[str, Any]
+    _subframe_identity: dict[str, Any]
+    _subframe_boundary: str
+    _subframe_history_hash: str
 
     def __init__(
         self,
@@ -120,7 +135,9 @@ class Pipeline:
         panel_colorimetry: PanelColorimetry | None = None,
         zone_temporal: ZoneTemporalConfig | None = None,
         zone_state: ZoneBacklightState | None = None,
+        subframe: SubframeConfig | None = None,
     ) -> None:
+        self._subframe_active = False
         self.profile = profile
         self.colorimetry = colorimetry if colorimetry is not None else ColorimetryConfig()
         self._initial_colorimetry = self.colorimetry
@@ -265,6 +282,9 @@ class Pipeline:
             self._zone_identity = self.identity()
         elif zone_state is not None:
             raise ValueError("zone_state requires active zone temporal dynamics")
+        from tv_sim.subframe_pipeline import initialize
+
+        initialize(self, subframe)
 
     def run_linear(self, encoded: np.ndarray) -> Frame:
         """Run all stages except encode; active M15 RGB uses the declared panel basis."""
@@ -304,6 +324,28 @@ class Pipeline:
             or self.panel_colorimetry != self._initial_panel_colorimetry
         ):
             raise ValueError("changing colorimetry requires a fresh Pipeline history")
+        if self.subframe is not self._initial_subframe:
+            raise ValueError("changing subframe configuration requires a fresh Pipeline history")
+        if self._subframe_active:
+            from fractions import Fraction
+
+            from tv_sim.subframe_pipeline import display
+
+            duration = (
+                Fraction(
+                    str(
+                        self.profile.temporal.frame_time_ms
+                        if frame_time_ms is None
+                        else frame_time_ms
+                    )
+                )
+                / 1000
+            )
+            pts = self.subframe_state.next_pts or Fraction(0)
+            if timestamp_ms is not None:
+                pts = Fraction(str(timestamp_ms)) / 1000
+            result = display(self, frame, pts=pts, duration=duration, scene_cut=scene_cut)
+            return Frame(result.mean)
         if self._dynamics_active:
             return self._display_capacity(
                 frame, frame_time_ms=frame_time_ms, timestamp_ms=timestamp_ms
@@ -651,6 +693,10 @@ class Pipeline:
 
     def identity(self) -> dict:
         """Effective profile/controller/target/angle fingerprints, active only."""
+        if self._subframe_active:
+            from tv_sim.subframe_history import identity as subframe_identity
+
+            return subframe_identity(self)
         if self._zone_active:
             from tv_sim.zone_history import identity as zone_identity
 
@@ -661,6 +707,10 @@ class Pipeline:
 
     def checkpoint(self) -> dict:
         """Exact full display history at a successful active tick boundary."""
+        if self._subframe_active:
+            from tv_sim.subframe_history import checkpoint as subframe_checkpoint
+
+            return subframe_checkpoint(self)
         if self._zone_active:
             from tv_sim.zone_history import checkpoint as zone_checkpoint
 
@@ -678,6 +728,11 @@ class Pipeline:
         elapsed_ms: float | None = None,
     ) -> None:
         """Validate a full checkpoint, then restore atomically with resume policy."""
+        if self._subframe_active:
+            from tv_sim.subframe_history import restore_checkpoint as restore_subframe_checkpoint
+
+            restore_subframe_checkpoint(self, data, shape=shape, dtype=dtype, elapsed_ms=elapsed_ms)
+            return
         if self._zone_active:
             from tv_sim.zone_history import restore_checkpoint as restore_zone_checkpoint
 
@@ -686,6 +741,19 @@ class Pipeline:
         from tv_sim.abl_history import restore_checkpoint
 
         restore_checkpoint(self, data, shape=shape, dtype=dtype, elapsed_ms=elapsed_ms)
+
+    def display_subframes(
+        self,
+        frame: Frame,
+        *,
+        pts: Fraction,
+        duration: Fraction,
+        scene_cut: bool = False,
+    ) -> SubframeResult:
+        """Resolve one prepared tick on an explicit rational clock (seconds)."""
+        from tv_sim.subframe_pipeline import display
+
+        return display(self, frame, pts=pts, duration=duration, scene_cut=scene_cut)
 
     def run_sequence(
         self,

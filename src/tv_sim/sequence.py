@@ -22,6 +22,7 @@ if TYPE_CHECKING:
     from tv_sim.block_motion import BlockMotionConfig
     from tv_sim.motion import LayerScene
     from tv_sim.pipeline import Pipeline
+    from tv_sim.subframe import SubframeResult
 
 
 @dataclass(frozen=True)
@@ -77,6 +78,7 @@ class SequenceOutput:
     frame: Frame
     diagnostics: dict
     motion_maps: dict[str, np.ndarray] | None = None
+    subframes: SubframeResult | None = None
 
 
 def _pts_string(value: Fraction) -> str:
@@ -132,13 +134,22 @@ def render_sequence(
                 raise ValueError("source_pts must match the number of source frames")
             source_time = parsed_pts[index] if parsed_pts is not None else index / source_rate
             count += 1
-            displayed = (
-                pipeline.display_content(
-                    pipeline.prepare_content(encoded_frame), scene_cut=index in zone_cuts
+            if pipeline._subframe_active:
+                resolved = pipeline.display_subframes(
+                    pipeline.prepare_content(encoded_frame),
+                    pts=origin + index * output_step,
+                    duration=output_step,
+                    scene_cut=index in zone_cuts,
                 )
-                if pipeline._zone_active
-                else pipeline.run_linear(encoded_frame)
-            )
+                displayed = Frame(resolved.mean)
+            else:
+                displayed = (
+                    pipeline.display_content(
+                        pipeline.prepare_content(encoded_frame), scene_cut=index in zone_cuts
+                    )
+                    if pipeline._zone_active
+                    else pipeline.run_linear(encoded_frame)
+                )
             diagnostics = {
                 "output_index": index,
                 "source_index": index,
@@ -157,7 +168,7 @@ def render_sequence(
             }
             if pipeline._zone_active:
                 diagnostics["zone_backlight"] = cast(dict, pipeline.last_zone_trace).copy()
-            yield SequenceOutput(displayed, diagnostics)
+            yield SequenceOutput(displayed, diagnostics, subframes=pipeline.last_subframe_result)
         if parsed_pts is not None and count != len(parsed_pts):
             raise ValueError("source_pts must match the number of source frames")
         if any(i >= count for i in zone_cuts):
@@ -252,7 +263,21 @@ def render_sequence(
                 "frame_time_ms": dt_ms,
             }
         )
-        if pipeline._zone_active:
+        if pipeline._subframe_active:
+            boundary_cut = any(
+                previous_displayed_source < cut_index <= index for cut_index in cut_indices
+            )
+            resolved = pipeline.display_subframes(
+                target,
+                pts=tick.output_pts,
+                duration=1 / Fraction(output_fps),
+                scene_cut=boundary_cut,
+            )
+            displayed = Frame(resolved.mean)
+            previous_displayed_source = index
+            if pipeline._zone_active:
+                diagnostics["zone_backlight"] = cast(dict, pipeline.last_zone_trace).copy()
+        elif pipeline._zone_active:
             boundary_cut = any(
                 previous_displayed_source < cut_index <= index for cut_index in cut_indices
             )
@@ -263,4 +288,4 @@ def render_sequence(
             previous_displayed_source = index
         else:
             displayed = pipeline.display_content(target, frame_time_ms=dt_ms)
-        yield SequenceOutput(displayed, diagnostics)
+        yield SequenceOutput(displayed, diagnostics, subframes=pipeline.last_subframe_result)
