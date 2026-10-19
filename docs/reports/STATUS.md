@@ -1,4 +1,4 @@
-# Status — 2026-10-19 09:40 CST
+# Status — 2026-10-19 12:35 CST
 
 > Live PM status (moved here by M16). See [current documentation](../index.md)
 > and [M16 engineering report](M16-repo-engineering.md) for the repository migration.
@@ -63,6 +63,7 @@
 
 - Codex run18: **finished** M16 at ~06:37 (uncommitted → PM reviewed and committed in 5 logical commits; PM re-ran 1145/1145 pytest in 208.1s with the editable dev install, ruff/format/mypy/docs-links/provenance/`git diff --check` clean, `python -m sim` shim OK; merged to main at 09:40).
 - Codex run19: **started 09:40** → M17 opt-in LCD zone backlight temporal dynamics in worktree `/workspace/tv-sim-codex`, branch `codex/m17-zone-temporal`, prompt `/workspace/codex_run19_prompt.txt`, log `/workspace/codex_run19.log`.
+- 12:24 check: no worker running since 09:14; main `9490193` == origin, Actions #12 green. Codex run24 **started 12:30** → M20 Mac viewer.
 ## Tests
 - **1680/1680 pytest after M18** (worker final run **253.51s**; PM re-run before merge `1680 passed in 216.51s`), comprising all 1366 existing tests unchanged plus 314 M18 tests. Ruff check passed; format check reports 111 files already formatted; mypy reports no issues in 59 source files; docs links/anchors, full and restricted-profile provenance, wheel contents and `git diff --check` pass. All six pursuit contact sheets were visually inspected. Exact commands and artifact audit are in the [M18 report](M18-subframe-temporal.md).
 - **1,145/1,145 pytest after M16** (worker `1145 passed in 204.03s`; PM re-run `1145 passed in 208.12s`), adding 8 portable-golden checks. Tests need the package installed (`pip install -e '.[dev]'`, as CI does); `python -m pytest` from a bare checkout without install fails at import.
@@ -91,11 +92,10 @@
 - GPU path: per user (10-18), no Windows/`dscs2pc` builds; GPU acceleration targets only the Mac via Metal/MPS (needs the Mac to verify).
 
 ## Next (assigned this cycle)
-1. **M19 CI green**: DONE (run #11 green on all five jobs, 09:35). No new worker assigned this check: the remaining planned milestones need a Mac.
-2. **Mac native app (Metal/EDR)** per `docs/research/m5-mac-display.md`: needs a Mac to build/verify — waiting on user to say which Mac to use (registered: `dengshuos-MacBook-Air.local`, `SUREDENG-MC2`; both offline at 09:35) or to approve writing the Xcode/Swift project here for them to build after pulling.
-3. **GPU path (Mac only, Metal/MPS)**: Windows/`dscs2pc` dropped per user; needs the Mac to build/verify.
-4. **Measurement follow-ups**: deferred (matched measured traces, half-LSF data, OD/BFI/PWM waveforms, measured primaries/spectra for M15, FALD transition speeds for M17).
-5. **Cursor worker**: paused — M16 stalled twice on 10-18 despite an OK probe.
+1. **M20 native macOS Metal/EDR preview (scaffold + CI-verified build)**: assigned 12:30 to Codex run24 (worktree `/workspace/tv-sim-codex`, branch `codex/m20-mac-viewer`, prompt `/workspace/codex_run24_prompt.txt`, log `/workspace/codex_run24.log`). Swift package under `mac/` (AppKit/MetalKit, rgba16Float, extended linear Display P3, EDR opt-in, nil EDR metadata) loading `export-web` linear-nit assets, measured-W / headroom preview transform in Metal and Swift CPU, XCTest, and a macOS CI job (`swift build`, `swift test`, `xcrun metal`). Rationale: both Macs offline and no reply for 3 h; GitHub Actions macOS runners can verify the build, then the user pulls and runs on the Mac. On-device EDR output and luminance accuracy stay NR until run with a meter.
+2. **GPU path (Mac only, Metal/MPS)**: after M20; Windows/`dscs2pc` dropped per user.
+3. **Measurement follow-ups**: deferred (matched measured traces, half-LSF data, OD/BFI/PWM waveforms, measured primaries/spectra for M15, FALD transition speeds for M17).
+4. **Cursor worker**: paused — M16 stalled twice on 10-18 despite an OK probe.
 
 ## M12 (user-approved 2026-10-17) — DONE, merged 12:30 (record kept below)
 - M12a Web preview: worktree /workspace/tv-sim-web-preview, branch codex/m12-web-preview, log /workspace/codex_web.log. Chrome HDR/EDR brightness-mapping panel + `sim export-web` + viewer in web/.
