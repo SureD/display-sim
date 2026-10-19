@@ -29,6 +29,9 @@ records. Runtime package version remains defined in `pyproject.toml`.
 
 ### Changed
 
+- M19c authenticates manifest source files before comparing input PNG pixels
+  exactly across encoder differences, and links OLED raw-array sample and trace
+  hashes to decoded references while preserving same-machine byte identity.
 - M19b decodes all historical JSON traces/manifests, tolerating only tight
   finite-float roundoff while preserving exact structure, discrete/rational
   values and same-machine byte parity; nested PTS traces authenticate linked
