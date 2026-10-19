@@ -106,6 +106,7 @@ def _artifact_snapshot(out):
     for path in sorted(out.rglob("*")):
         if not path.is_file():
             continue
+        source_paths = {}
         if path.suffix == ".json":
             value = json.loads(path.read_text(encoding="utf-8"))
             if path.name.endswith(".state.json"):
@@ -116,7 +117,10 @@ def _artifact_snapshot(out):
                 )
             if path.name == "manifest.json" and "sources" in value:
                 for source in value["sources"]:
-                    source["file"] = Path(source["file"]).name
+                    source_path = Path(source["file"])
+                    assert sha256(source_path.read_bytes()).hexdigest() == source["sha256"]
+                    source_paths[source_path.name] = source_path
+                    source["file"] = source_path.name
             payload = json.dumps(_substantive_json(value), sort_keys=True, allow_nan=False).encode()
         else:
             payload = path.read_bytes()
@@ -125,6 +129,7 @@ def _artifact_snapshot(out):
             {"bytes": len(payload), "sha256": sha256(payload).hexdigest()},
             payload=payload,
             artifact_root=out,
+            source_paths=source_paths,
         )
     return files
 

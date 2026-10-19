@@ -1,5 +1,6 @@
 """Portable metadata checks retain useful sensitivity to real regressions."""
 
+import importlib
 import json
 import math
 from hashlib import sha256
@@ -374,3 +375,136 @@ def test_historical_csv_compares_typed_floats_and_retains_exact_integer_cells(
     (out / "metrics.csv").write_text(original_csv.replace("count,int,1", "count,int,2"))
     with pytest.raises(AssertionError):
         golden_support.assert_validation_metrics(out, expected)
+
+
+@pytest.mark.parametrize("module_name", ["test_colorimetry_parity", "test_m14_parity"])
+def test_cli_source_png_reencoding_preserves_exact_pixels_and_current_checksum(
+    monkeypatch, tmp_path, module_name
+):
+    sources, out = tmp_path / "sources", tmp_path / "motion"
+    sources.mkdir()
+    out.mkdir()
+    source = sources / "input.png"
+    pixels = np.full((3, 4, 3), 100, dtype=np.uint8)
+    Image.fromarray(pixels).save(source, compress_level=0)
+    original_png = source.read_bytes()
+    original_hash = sha256(original_png).hexdigest()
+    saved = {"sources": [{"file": source.name, "sha256": original_hash}], "pts": "1001/60000"}
+    original_json = json.dumps(saved, sort_keys=True, allow_nan=False).encode()
+    json_hash = sha256(original_json).hexdigest()
+    monkeypatch.setattr(
+        golden_support,
+        "_rendered_references",
+        lambda: {
+            original_hash: np.frombuffer(original_png, dtype=np.uint8),
+            json_hash: np.frombuffer(original_json, dtype=np.uint8),
+        },
+    )
+    expected = {"manifest.json": {"bytes": len(original_json), "sha256": json_hash}}
+    collect = importlib.import_module(module_name)._artifact_snapshot
+
+    def snapshot():
+        current = {
+            **saved,
+            "sources": [{"file": str(source), "sha256": sha256(source.read_bytes()).hexdigest()}],
+        }
+        (out / "manifest.json").write_text(json.dumps(current))
+        return collect(out)
+
+    Image.fromarray(pixels).save(source, compress_level=9)
+    assert sha256(source.read_bytes()).hexdigest() != original_hash
+    actual = snapshot()
+    assert actual != expected  # Ordinary same-machine digest equality stays byte-exact.
+    assert_historical_snapshot(actual, expected)
+    changed = pixels.copy()
+    changed[0, 0, 0] += 1
+    Image.fromarray(changed).save(source, compress_level=9)
+    with pytest.raises(AssertionError):
+        assert_historical_snapshot(snapshot(), expected)
+    # The collector must authenticate the current hash before erasing directories.
+    source.write_bytes(b"tampered after manifest creation")
+    with pytest.raises(AssertionError):
+        collect(out)
+
+
+@pytest.mark.parametrize("suffix", [".txt", ".yaml"])
+def test_manifest_text_and_profile_source_hashes_remain_exact(monkeypatch, tmp_path, suffix):
+    source = tmp_path / ("source" + suffix)
+    source.write_text("level: 1\n")
+    saved = {"sources": [{"file": source.name, "sha256": sha256(source.read_bytes()).hexdigest()}]}
+    payload = json.dumps(saved, sort_keys=True, allow_nan=False).encode()
+    expected = {
+        "bytes": len(payload),
+        "sha256": _reference(monkeypatch, np.frombuffer(payload, dtype=np.uint8)),
+    }
+    source.write_text("level: 2\n")
+    current = {
+        "sources": [{"file": source.name, "sha256": sha256(source.read_bytes()).hexdigest()}]
+    }
+    payload = json.dumps(current, sort_keys=True, allow_nan=False).encode()
+    path = tmp_path / "manifest.json"
+    path.write_bytes(payload)
+    actual = rendered_file_digest(
+        path,
+        {"bytes": len(payload), "sha256": sha256(payload).hexdigest()},
+        source_paths={source.name: source},
+    )
+    with pytest.raises(AssertionError):
+        assert_historical_snapshot(actual, expected)
+
+
+@pytest.mark.parametrize("tamper", [None, "array", "trace", "drift"])
+def test_oled_manifest_links_raw_float_samples_and_trace_json(monkeypatch, tmp_path, tamper):
+    folder = tmp_path / "trial"
+    folder.mkdir()
+    image, trace_path = folder / "sample.npy", folder / "trace.json"
+    reference = np.array([100], dtype=np.float32)
+    raw_hash = sha256(reference.tobytes()).hexdigest()
+    old_trace = b'{"nits": 100.0, "pts": "1/60"}'
+    trace_hash = sha256(old_trace).hexdigest()
+    sample = {"linear_file": image.name, "sha256": raw_hash}
+    saved = {
+        "trials": [
+            {
+                "trial_id": folder.name,
+                "samples": [sample],
+                "segments": [{"samples": [sample]}],
+                "trace_file": trace_path.name,
+                "trace_sha256": trace_hash,
+            }
+        ]
+    }
+    payload = json.dumps(saved, sort_keys=True, allow_nan=False).encode()
+    expected = {"bytes": len(payload), "sha256": sha256(payload).hexdigest()}
+    refs = {
+        raw_hash: reference,
+        trace_hash: np.frombuffer(old_trace, dtype=np.uint8),
+        expected["sha256"]: np.frombuffer(payload, dtype=np.uint8),
+    }
+    monkeypatch.setattr(golden_support, "_rendered_references", lambda: refs)
+    array = np.nextafter(reference, np.float32(np.inf))
+    if tamper == "drift":
+        array = reference + np.float32(0.1)
+    np.save(image, array)
+    trace_path.write_text(json.dumps({"nits": math.nextafter(100.0, math.inf), "pts": "1/60"}))
+    current = json.loads(payload)
+    trial = current["trials"][0]
+    for record in (trial["samples"][0], trial["segments"][0]["samples"][0]):
+        record["sha256"] = sha256(array.tobytes()).hexdigest()
+    trial["trace_sha256"] = sha256(trace_path.read_bytes()).hexdigest()
+    path = tmp_path / "manifest.json"
+    payload = json.dumps(current, sort_keys=True, allow_nan=False).encode()
+    path.write_bytes(payload)
+    actual = rendered_file_digest(
+        path, {"bytes": len(payload), "sha256": sha256(payload).hexdigest()}
+    )
+    assert actual != expected
+    if tamper is None:
+        assert_historical_snapshot(actual, expected)
+    else:
+        if tamper == "array":
+            np.save(image, array + 1)
+        elif tamper == "trace":
+            trace_path.write_text('{"nits": 101.0, "pts": "1/60"}')
+        with pytest.raises(AssertionError):
+            assert_historical_snapshot(actual, expected)

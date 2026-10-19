@@ -32,6 +32,7 @@ machine, `golden_support.py` compares decoded values with these tolerances:
 | float32 rendered arrays/maps | `rtol=2e-6`, `atol=1e-7` |
 | float64 rendered arrays/maps | `rtol=1e-12`, `atol=1e-12` |
 | PNG / explicit uint8 previews | At most one code value per channel |
+| CLI input PNGs | Exact decoded shape, dtype and pixels; encoded bytes may differ |
 | FP16 web transport | At most one adjacent finite FP16 code |
 | Finite floating values in historical JSON | `rtol=1e-12`, `atol=1e-12` |
 
@@ -40,14 +41,19 @@ compression bytes are irrelevant to decoded-value comparisons. Nonfinite
 rendered values fail. Web transport statistics use `rtol=1e-3`, `atol=1e-7`,
 matching FP16 precision; its float32-to-FP16 maximum quantisation error uses
 `atol=max(1e-7, peak_nits * 2e-6)` instead. JSON structure and nonfloating types,
-rational timing strings, text, keys, counts and profile/source-file identities
+rational timing strings, text, keys, counts and profile/text-source identities
 remain exact. Float-bearing historical JSON is decoded regardless of filename;
 its current byte length and SHA may differ due to roundoff or formatting. The
 saved payload still authenticates against its original exact hash and length.
-Only hashes identifying rendered values are linked to decoded comparisons;
-each current hash must first match its actual file bytes exactly.
+Rendered-value and encoded-image hashes are linked to decoded comparisons;
+each current hash must first match its actual file bytes exactly. CLI source
+paths are retained before basename normalisation so input files can be checked.
+Input PNG pixels use exact equality, including rejection of a one-code change;
+the preview tolerance never applies to these discrete inputs. OLED manifest
+sample hashes authenticate raw RGB array bytes, not NPY container bytes, and
+trial trace hashes authenticate their JSON files before decoded comparison.
 
-The `rendered_reference_values.npz` fixture contains 1,074 references keyed by
+The `rendered_reference_values.npz` fixture contains 1,100 references keyed by
 the **unchanged historical SHA-256 values**. Raw array bytes or canonical
 PNG/NPY/NPZ/FP16/JSON payload bytes must authenticate against that key before
 decoding. References were recovered from outputs whose hashes matched the

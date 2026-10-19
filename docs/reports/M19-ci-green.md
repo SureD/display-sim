@@ -322,3 +322,127 @@ Suggested commit: `M19b: compare historical JSON traces by decoded values`.
 Actual Ubuntu/macOS Actions verification follows PM integration; local Linux
 results and controlled roundoff tests do not claim that those jobs have run
 on this unpushed follow-up.
+
+## M19c — manifest input and numerical file identities after Actions #9
+
+Verified 2026-10-19, Asia/Shanghai, on `codex/m19-ci-green` after PM committed
+M19b as `882cf77`, merged it as `8dacc3a`, and fast-forwarded this worktree
+through status commit `3fe5b04`. M19c remains uncommitted and unpushed.
+
+### Verified cause: encoded input PNGs, not floating source arrays
+
+[Actions run #9](https://github.com/SureD/display-sim/actions/runs/39172132885)
+passed quality and both Ubuntu test jobs. Both macOS jobs reported
+`32 failed, 1685 passed`. The full supplied logs
+`/tmp/job_117807231810.log` (Python 3.12) and
+`/tmp/job_117807231835.log` (Python 3.11) identify the failure at
+`root.manifest.json.sources[0].sha256`. The first reported pair is:
+
+```text
+macOS:     43e0314172b42262dbbd31a7684e290b03d62df7ee2893f5938aef24438dec28
+historical:c25ac7f5cd781cd88e0d5e120419adece9faf7fd16790e7698bdf33a548a5667
+```
+
+The source-generation and manifest code disprove the floating-array hunch.
+The CLI opens RGB images, obtains integer pixel arrays, and hashes the original
+encoded input file bytes in `sources[*].sha256`. These tests create 24×40
+`uint8` PNGs using integer index arithmetic and fixed rolls/white/black images;
+there is no floating-point or BLAS computation in source generation. See
+[`motion_cli.py`](../../src/tv_sim/motion_cli.py) and the two historical CLI
+artifact test collectors.
+
+The Linux default PNG encoder reproduces the historical `c25ac7…` hash. Saving
+identical integer pixels with another compression level changes the encoded
+SHA without changing any decoded pixel. The native macOS PNG bytes were not
+included in the supplied logs, so the precise encoder/filter/library difference
+cannot be established here. The relevant portability mistake is treating an
+encoded PNG container hash as an invariant of the simulator's discrete input.
+
+M19b decoded manifest JSON but compared its source SHA strings literally.
+Furthermore, both collectors discarded source directories before comparison,
+preventing the comparator from resolving the corresponding external files.
+Linking these SHA fields as floating-point render outputs would incorrectly
+permit a one-code input pixel change; the fix therefore distinguishes source
+pixels from rendered previews.
+
+### Fix and complete file-hash audit
+
+Both artifact collectors authenticate each current source file's SHA **before**
+normalising its displayed filename, retaining the original physical path as
+comparison context. Manifest comparison authenticates the current file again
+and decodes its authenticated historical reference. Input PNG shape, dtype and
+every pixel must match **exactly**. Only the encoding may differ. Text/profile
+source hashes remain literal exact comparisons. No equality operator or runtime
+CLI output/hash behavior changed.
+
+The historical JSON hash audit also identified OLED experiment samples whose
+`sha256` hashes raw contiguous RGB bytes, rather than their NPY file containers,
+and `trace_sha256` fields hashing floating-result JSON files. These now link
+through the trial directory: sample hashes first authenticate the current raw
+array bytes, and trace hashes first authenticate their exact current files.
+Their decoded historical comparisons use the existing float-array/JSON
+tolerances. Top-level and per-segment sample records are both covered.
+
+| Historical field/class | M19c treatment |
+| --- | --- |
+| CLI manifest `sources[*].sha256` for input PNGs | Authenticate encoded file; compare decoded discrete pixels exactly |
+| Motion-validation/PTS `sha256`, `truth_sha256`, `linear_sha256`, `display_sha256` | Existing container authentication and decoded-array links retained |
+| OLED manifest top-level/per-segment sample `sha256` | Authenticate raw array bytes; compare decoded arrays with existing tight tolerance |
+| OLED manifest `trace_sha256` | Authenticate trace JSON bytes; compare decoded values under M19b's finite-float rule |
+| Web transport file hashes / `source_linear_float32_sha256` | Existing decoded transport/raw-source links retained |
+| Profile, protocol, runtime configuration and text-input hashes | Remain exact deterministic input/evidence identities |
+| Raw source/prepared-array fingerprints and history chains inside OLED traces/checkpoints | Remain exact; these are input/history identities rather than file-container hashes |
+| Checkpoint checksums and same-machine off/on/repeated-run comparisons | Remain exact, including existing actual checkpoint authentication |
+
+No additional historical JSON hash of a numerical file was left as an opaque
+container comparison in the audited schemas. The encoded-source and raw-array
+hash conventions are handled explicitly rather than guessing from a SHA string
+or treating raw bytes as an NPY file.
+
+The reference archive adds 26 entries, each authenticated against an existing
+historical hash: four source PNG payloads, four original trace JSON payloads,
+and 18 raw float arrays. They were recovered from the fixed integer source
+fixtures and preserved M19b outputs only when their SHA matched the original
+manifest. All 1,074 previous entries retain identical dtype, shape and bytes;
+no baseline JSON expectation was changed or regenerated.
+
+The archive now has 1,100 entries, 4,897,448 bytes, SHA-256
+`a65fce0f801270d89e98b02a85923f4add8057df4e39dc686028e0965eed78e3`.
+The additive-reference check is recorded in `/tmp/m19c-reference-audit.log`.
+
+Eight regression cases bring the helper module to 53 tests. They exercise both
+actual collectors with re-encoded external PNGs, reject a one-code input change
+and stale current checksums, preserve exact text/YAML identities, accept one-ULP
+OLED sample/trace perturbations, and reject material array drift or stale
+sample/trace hashes. A separate source-encoding probe forces compression level
+0 for all CLI input PNG saves: **all 32 originally failing test cases pass in
+1.85s**, after re-encoding 128 input files. This tests the required portability
+without relaxing discrete pixel equality.
+
+### Exact verification
+
+Full runs reused `/tmp/m19-py311` and `/tmp/m19-py312`, with CPython
+3.11.17/3.12.15, NumPy 2.4.6, pytest 8.4.2, Ruff 0.14.1 and mypy 1.18.2.
+Both environments import this worktree. No runtime source or dependency changed.
+
+| Check | CPython 3.11.17 | CPython 3.12.15 |
+| --- | --- | --- |
+| Full `pytest -q`, including slow tests | **1725 passed in 370.70s** | **1725 passed in 366.17s** |
+| `ruff check .` | All checks passed | All checks passed |
+| `ruff format --check .` | 111 files already formatted | 111 files already formatted |
+| `mypy` | No issues in 59 source files | No issues in 59 source files |
+| `scripts/check_docs.py` | All local targets/anchors passed | All local targets/anchors passed |
+
+Full test temporary roots are `/tmp/m19c-full-py311` and
+`/tmp/m19c-full-py312`. Quality commands used
+`/tmp/m19-make/usr/bin/make PYTHON=<environment>/bin/python lint typecheck docs-check`.
+The system `python3 scripts/check_docs.py` and `git diff --check` also pass.
+Logs are `/tmp/m19c-py311-pytest.log`, `/tmp/m19c-py312-pytest.log`,
+`/tmp/m19c-py311-quality.log`, `/tmp/m19c-py312-quality.log`,
+`/tmp/m19c-helper.log`, and `/tmp/m19c-alternate-png.log`.
+
+Suggested commit: `M19c: compare manifest source pixels and numerical file hashes portably`.
+macOS was not executable on this host; actual Actions verification follows PM
+integration. Local full-suite results, exact-pixel regression checks and the
+32-case alternate-encoding probe are the verification available for this
+uncommitted follow-up.

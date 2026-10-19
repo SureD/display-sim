@@ -40,6 +40,7 @@ class RenderedDigest(dict):
         self.payload: bytes | None = None
         self.file_path: Path | None = None
         self.artifact_root: Path | None = None
+        self.source_paths: dict[str, Path] = {}
 
 
 class NumericResult(float):
@@ -68,7 +69,12 @@ def array_digest(array: np.ndarray | None, *, preview: bool = False) -> Rendered
 
 
 def rendered_file_digest(
-    path: Path, record: dict, *, payload: bytes | None = None, artifact_root: Path | None = None
+    path: Path,
+    record: dict,
+    *,
+    payload: bytes | None = None,
+    artifact_root: Path | None = None,
+    source_paths: dict[str, Path] | None = None,
 ) -> RenderedDigest | dict:
     """Decode historical renders/JSON; retain exact hashes for other artifact kinds."""
     if path.suffix == ".png":
@@ -92,6 +98,7 @@ def rendered_file_digest(
     result.payload = path.read_bytes() if payload is None else payload
     result.file_path = path
     result.artifact_root = path.parent if artifact_root is None else artifact_root
+    result.source_paths = {} if source_paths is None else source_paths
     return result
 
 
@@ -127,6 +134,8 @@ def assert_rendered_reference(actual: RenderedDigest, expected: dict, path: str)
             reference = np.frombuffer(payload, dtype="<f2")
         else:
             current, saved = json.loads(actual.payload), json.loads(payload)
+            if actual.file_path.name == "manifest.json" and isinstance(current, dict):
+                link_manifest_hashes(current, actual.artifact_root, actual.source_paths)
             if actual.file_path.name in {"motion-validation.json", "pts-trace.json"}:
                 # PTS traces live one directory below the report but contain
                 # paths relative to the complete experiment's output root.
@@ -145,6 +154,39 @@ def assert_rendered_reference(actual: RenderedDigest, expected: dict, path: str)
         assert actual["dtype"] == expected["dtype"], path
         assert sha256(reference.tobytes()).hexdigest() == expected["sha256"], path
     _assert_array_values(actual.values, reference, actual.preview, path)
+
+
+def link_manifest_hashes(value: dict, root: Path, source_paths: dict[str, Path]) -> None:
+    """Authenticate manifest inputs and experiment artifacts before linking values.
+
+    CLI sources are external encoded inputs: integer PNG pixels stay exact.
+    OLED samples hash raw RGB bytes, unlike NPY container hashes in other
+    reports. Their paths and trace paths are relative to the trial directory.
+    Text/profile inputs remain ordinary exact hashes.
+    """
+    for source in value.get("sources", []):
+        path = source_paths[source["file"]]
+        digest = source["sha256"]
+        assert sha256(path.read_bytes()).hexdigest() == digest, path
+        if path.suffix in {".png", ".npy", ".npz", ".f16"}:
+            linked = rendered_file_digest(path, {"sha256": digest})
+            linked.preview = False  # Source pixels are discrete inputs, not rendered previews.
+            source["sha256"] = linked
+    for trial in value.get("trials", []):
+        folder = root / trial["trial_id"]
+        samples = list(trial["samples"])
+        for segment in trial["segments"]:
+            samples.extend(segment["samples"])
+        for sample in samples:
+            path = folder / sample["linear_file"]
+            array = np.ascontiguousarray(np.load(path, allow_pickle=False))
+            digest = sample["sha256"]
+            assert sha256(array.tobytes()).hexdigest() == digest, path
+            sample["sha256"] = RenderedDigest({"sha256": digest}, array)
+        path = folder / trial["trace_file"]
+        digest = trial["trace_sha256"]
+        assert sha256(path.read_bytes()).hexdigest() == digest, path
+        trial["trace_sha256"] = rendered_file_digest(path, {"sha256": digest}, artifact_root=root)
 
 
 def _assert_array_values(
