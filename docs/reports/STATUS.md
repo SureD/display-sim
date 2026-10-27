@@ -1,4 +1,4 @@
-# Status — 2026-10-28 03:25 CST
+# Status — 2026-10-28 06:22 CST
 
 > Live PM status (moved here by M16). See [current documentation](../index.md)
 > and [M16 engineering report](M16-repo-engineering.md) for the repository migration.
@@ -65,6 +65,7 @@
 - Codex run19: **started 09:40** → M17 opt-in LCD zone backlight temporal dynamics in worktree `/workspace/tv-sim-codex`, branch `codex/m17-zone-temporal`, prompt `/workspace/codex_run19_prompt.txt`, log `/workspace/codex_run19.log`.
 - 12:24 check: no worker running since 09:14; main `9490193` == origin, Actions #12 green. Codex run24 **started 12:30** → M20 Mac viewer.
 - 03:25 CST 2026-10-28 PM check: **no Codex/Cursor workers running**. Codex run24 (M20) left **no working-tree changes** on `codex/m20-mac-viewer` (still at `9490193`, no `mac/` tree); branch empty/stopped. `main` = `origin/main` = `fccecc0`; Actions run #12 (docs) **success**. Per user hold (Oct 19): **do not start M20 or Mac GPU** until explicitly resumed; workers stay idle; no new milestone assigned.
+- 06:22 CST 2026-10-28 PM check: **no Codex/Cursor workers running**; no uncommitted work in any worktree. `main` = `origin/main` = `ea9c0b1` (03:25 docs hold note). `codex/m20-mac-viewer` still empty at `9490193` (no `mac/` tree). Actions on `ea9c0b1` **success**. Hold M20/Mac GPU unchanged; workers stay idle; nothing merged.
 ## Tests
 - **1680/1680 pytest after M18** (worker final run **253.51s**; PM re-run before merge `1680 passed in 216.51s`), comprising all 1366 existing tests unchanged plus 314 M18 tests. Ruff check passed; format check reports 111 files already formatted; mypy reports no issues in 59 source files; docs links/anchors, full and restricted-profile provenance, wheel contents and `git diff --check` pass. All six pursuit contact sheets were visually inspected. Exact commands and artifact audit are in the [M18 report](M18-subframe-temporal.md).
 - **1,145/1,145 pytest after M16** (worker `1145 passed in 204.03s`; PM re-run `1145 passed in 208.12s`), adding 8 portable-golden checks. Tests need the package installed (`pip install -e '.[dev]'`, as CI does); `python -m pytest` from a bare checkout without install fails at import.
@@ -97,7 +98,7 @@
 2. **HOLD — GPU path (Mac only, Metal/MPS)**: same hold; Windows/`dscs2pc` remains dropped.
 3. **Measurement follow-ups**: deferred (matched measured traces, half-LSF data, OD/BFI/PWM waveforms, measured primaries/spectra for M15, FALD transition speeds for M17).
 4. **Workers**: stay idle unless the user asks or a clear non-Mac plan item appears. Cursor CLI remains paused (recurring stalls).
-5. **Current main**: M1–M19 DONE; Actions green on all five jobs (last verified run #11 on M19c merge; run #12 docs success).
+5. **Current main**: M1–M19 DONE; `ea9c0b1`; Actions green (M19c run #11 all five jobs; subsequent docs commits on `fccecc0`/`ea9c0b1` also success).
 
 ## M12 (user-approved 2026-10-17) — DONE, merged 12:30 (record kept below)
 - M12a Web preview: worktree /workspace/tv-sim-web-preview, branch codex/m12-web-preview, log /workspace/codex_web.log. Chrome HDR/EDR brightness-mapping panel + `sim export-web` + viewer in web/.
