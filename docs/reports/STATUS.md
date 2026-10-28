@@ -1,4 +1,4 @@
-# Status — 2026-10-28 21:26 CST
+# Status — 2026-10-29 00:27 CST
 
 > Live PM status (moved here by M16). See [current documentation](../index.md)
 > and [M16 engineering report](M16-repo-engineering.md) for the repository migration.
@@ -68,6 +68,7 @@
 - 06:22 CST 2026-10-28 PM check: **no Codex/Cursor workers running**; no uncommitted work in any worktree. `main` = `origin/main` = `ea9c0b1` (03:25 docs hold note). `codex/m20-mac-viewer` still empty at `9490193` (no `mac/` tree). Actions on `ea9c0b1` **success**. Hold M20/Mac GPU unchanged; workers stay idle; nothing merged.
 - 09:22 CST 2026-10-28 PM check: **no Codex/Cursor workers running**; no uncommitted work in any worktree. `main` = `origin/main` = `6ad5a51` (06:22 docs hold note). `codex/m20-mac-viewer` still empty at `9490193` (no `mac/` tree). Actions on `6ad5a51` **success**. Hold M20/Mac GPU unchanged; workers stay idle; nothing merged.
 - 18:21 CST 2026-10-28 PM check: **no Codex/Cursor workers running**; no uncommitted work in any worktree. `main` = `origin/main` = `23b7ce8` (12:17 docs hold note). `codex/m20-mac-viewer` still empty at `9490193` (no `mac/` tree). Actions run #17 on `23b7ce8` **success** (all five jobs). Hold M20/Mac GPU unchanged; workers stay idle; nothing merged.
+- 00:27 CST 2026-10-29 PM check: **no Codex/Cursor workers running**; no uncommitted work in any worktree. `main` = `origin/main` = `13002f2` (21:26 docs hold note). `codex/m20-mac-viewer` still empty at `9490193` (no `mac/` tree). Actions run on `13002f2` **success** (all five jobs). Hold M20/Mac GPU unchanged; workers stay idle; nothing merged.
 - 12:17 CST 2026-10-28 PM check: **no Codex/Cursor workers running**; no uncommitted work in any worktree. `main` = `origin/main` = `43bb77b` (09:22 docs hold note). `codex/m20-mac-viewer` still empty at `9490193` (no `mac/` tree). Actions run #16 on `43bb77b` **success** (all five jobs). Hold M20/Mac GPU unchanged; workers stay idle; nothing merged.
 ## Tests
 - **1680/1680 pytest after M18** (worker final run **253.51s**; PM re-run before merge `1680 passed in 216.51s`), comprising all 1366 existing tests unchanged plus 314 M18 tests. Ruff check passed; format check reports 111 files already formatted; mypy reports no issues in 59 source files; docs links/anchors, full and restricted-profile provenance, wheel contents and `git diff --check` pass. All six pursuit contact sheets were visually inspected. Exact commands and artifact audit are in the [M18 report](M18-subframe-temporal.md).
@@ -101,7 +102,7 @@
 2. **HOLD — GPU path (Mac only, Metal/MPS)**: same hold; Windows/`dscs2pc` remains dropped.
 3. **Measurement follow-ups**: deferred (matched measured traces, half-LSF data, OD/BFI/PWM waveforms, measured primaries/spectra for M15, FALD transition speeds for M17).
 4. **Workers**: stay idle unless the user asks or a clear non-Mac plan item appears. Cursor CLI remains paused (recurring stalls).
-5. **Current main**: M1–M19 DONE; `3d67173`; Actions green (M19c run #11 all five jobs; subsequent docs hold commits through `3d67173` / Actions #18 also success).
+5. **Current main**: M1–M19 DONE; `13002f2`; Actions green (M19c run #11 all five jobs; subsequent docs hold commits through `13002f2` / Actions on that commit also success).
 
 ## M12 (user-approved 2026-10-17) — DONE, merged 12:30 (record kept below)
 - M12a Web preview: worktree /workspace/tv-sim-web-preview, branch codex/m12-web-preview, log /workspace/codex_web.log. Chrome HDR/EDR brightness-mapping panel + `sim export-web` + viewer in web/.
