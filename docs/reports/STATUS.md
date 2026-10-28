@@ -1,4 +1,4 @@
-# Status — 2026-10-28 18:21 CST
+# Status — 2026-10-28 21:26 CST
 
 > Live PM status (moved here by M16). See [current documentation](../index.md)
 > and [M16 engineering report](M16-repo-engineering.md) for the repository migration.
@@ -101,7 +101,7 @@
 2. **HOLD — GPU path (Mac only, Metal/MPS)**: same hold; Windows/`dscs2pc` remains dropped.
 3. **Measurement follow-ups**: deferred (matched measured traces, half-LSF data, OD/BFI/PWM waveforms, measured primaries/spectra for M15, FALD transition speeds for M17).
 4. **Workers**: stay idle unless the user asks or a clear non-Mac plan item appears. Cursor CLI remains paused (recurring stalls).
-5. **Current main**: M1–M19 DONE; `23b7ce8`; Actions green (M19c run #11 all five jobs; subsequent docs hold commits through `23b7ce8` / Actions #17 also success).
+5. **Current main**: M1–M19 DONE; `3d67173`; Actions green (M19c run #11 all five jobs; subsequent docs hold commits through `3d67173` / Actions #18 also success).
 
 ## M12 (user-approved 2026-10-17) — DONE, merged 12:30 (record kept below)
 - M12a Web preview: worktree /workspace/tv-sim-web-preview, branch codex/m12-web-preview, log /workspace/codex_web.log. Chrome HDR/EDR brightness-mapping panel + `sim export-web` + viewer in web/.
