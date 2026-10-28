@@ -1,4 +1,4 @@
-# Status — 2026-10-28 09:22 CST
+# Status — 2026-10-28 12:17 CST
 
 > Live PM status (moved here by M16). See [current documentation](../index.md)
 > and [M16 engineering report](M16-repo-engineering.md) for the repository migration.
@@ -67,6 +67,7 @@
 - 03:25 CST 2026-10-28 PM check: **no Codex/Cursor workers running**. Codex run24 (M20) left **no working-tree changes** on `codex/m20-mac-viewer` (still at `9490193`, no `mac/` tree); branch empty/stopped. `main` = `origin/main` = `fccecc0`; Actions run #12 (docs) **success**. Per user hold (Oct 19): **do not start M20 or Mac GPU** until explicitly resumed; workers stay idle; no new milestone assigned.
 - 06:22 CST 2026-10-28 PM check: **no Codex/Cursor workers running**; no uncommitted work in any worktree. `main` = `origin/main` = `ea9c0b1` (03:25 docs hold note). `codex/m20-mac-viewer` still empty at `9490193` (no `mac/` tree). Actions on `ea9c0b1` **success**. Hold M20/Mac GPU unchanged; workers stay idle; nothing merged.
 - 09:22 CST 2026-10-28 PM check: **no Codex/Cursor workers running**; no uncommitted work in any worktree. `main` = `origin/main` = `6ad5a51` (06:22 docs hold note). `codex/m20-mac-viewer` still empty at `9490193` (no `mac/` tree). Actions on `6ad5a51` **success**. Hold M20/Mac GPU unchanged; workers stay idle; nothing merged.
+- 12:17 CST 2026-10-28 PM check: **no Codex/Cursor workers running**; no uncommitted work in any worktree. `main` = `origin/main` = `43bb77b` (09:22 docs hold note). `codex/m20-mac-viewer` still empty at `9490193` (no `mac/` tree). Actions run #16 on `43bb77b` **success** (all five jobs). Hold M20/Mac GPU unchanged; workers stay idle; nothing merged.
 ## Tests
 - **1680/1680 pytest after M18** (worker final run **253.51s**; PM re-run before merge `1680 passed in 216.51s`), comprising all 1366 existing tests unchanged plus 314 M18 tests. Ruff check passed; format check reports 111 files already formatted; mypy reports no issues in 59 source files; docs links/anchors, full and restricted-profile provenance, wheel contents and `git diff --check` pass. All six pursuit contact sheets were visually inspected. Exact commands and artifact audit are in the [M18 report](M18-subframe-temporal.md).
 - **1,145/1,145 pytest after M16** (worker `1145 passed in 204.03s`; PM re-run `1145 passed in 208.12s`), adding 8 portable-golden checks. Tests need the package installed (`pip install -e '.[dev]'`, as CI does); `python -m pytest` from a bare checkout without install fails at import.
