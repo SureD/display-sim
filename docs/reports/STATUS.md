@@ -1,4 +1,4 @@
-# Status — 2026-10-29 18:17 CST
+# Status — 2026-10-29 21:18 CST
 
 > Live PM status (moved here by M16). See [current documentation](../index.md)
 > and [M16 engineering report](M16-repo-engineering.md) for the repository migration.
@@ -33,6 +33,7 @@
 - **M17 opt-in LCD zone backlight temporal dynamics**: DONE (merge `ec4c22e` of `codex/m17-zone-temporal`, commits `e6ff300` research, `78f05f4` runtime, `bcbf78f` experiment/gallery, `a88c81f` docs/report). [Research](../research/m17-zone-temporal.md) precedes runtime changes. Default-off float64 per-zone backlight state with asymmetric attack/release taus (rate-independent e-fold per tick), optional slew limit, declared/detected scene-cut reset, cold/settled-first/explicit init and exact checkpoint continuation; LCD only (OLED rejects); P-only `zone_temporal_synthetic_v1.json` checked by provenance. `tv-sim` zone-temporal experiment saves 4 clips (moving object, APL step, flashing highlight, subtitle) with rational PTS, per-zone traces, halo-trail/settling/pumping metrics and a shared-exposure off/on gallery. Example D results under P inputs: moving-object trail 10 → 22 px, APL fall zone settling 1/60 → 47/60 s. [Report](M17-zone-temporal.md).
 
 ## Workers (this cycle)
+- 21:18 CST 2026-10-29 PM check: **no Codex/Cursor workers running**; no uncommitted work in any worktree. `main` = `origin/main` = `cd8c48b` (18:17 docs hold note). `codex/m20-mac-viewer` still empty at `9490193` (no `mac/` tree). Actions run #26 on `cd8c48b` **success** (all five jobs). Hold M20/Mac GPU unchanged; workers stay idle; nothing merged.
 - 18:17 CST 2026-10-29 PM check: **no Codex/Cursor workers running**; no uncommitted work in any worktree. `main` = `origin/main` = `f4ee630` (15:19 docs hold note). `codex/m20-mac-viewer` still empty at `9490193` (no `mac/` tree). Actions run #25 on `f4ee630` **success** (all five jobs). Hold M20/Mac GPU unchanged; workers stay idle; nothing merged.
 - 15:19 CST 2026-10-29 PM check: **no Codex/Cursor workers running**; no uncommitted work in any worktree. `main` = `origin/main` = `0423bc1` (12:26 docs hold note). `codex/m20-mac-viewer` still empty at `9490193` (no `mac/` tree). Actions run #24 on `0423bc1` **success** (all five jobs). Hold M20/Mac GPU unchanged; workers stay idle; nothing merged.
 - Codex run19: **finished M17 but hung** after its final pytest (no output 10:42–12:20, waiting on the model). PM killed it at 12:20, re-ran checks (1366 pytest, ruff/format/mypy/docs/provenance clean), filled in the report's verification section, committed the suggested 4-commit split and merged.
