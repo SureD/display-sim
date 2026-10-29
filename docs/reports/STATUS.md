@@ -1,4 +1,4 @@
-# Status — 2026-10-29 09:19 CST
+# Status — 2026-10-29 12:26 CST
 
 > Live PM status (moved here by M16). See [current documentation](../index.md)
 > and [M16 engineering report](M16-repo-engineering.md) for the repository migration.
@@ -72,6 +72,7 @@
 - 03:21 CST 2026-10-29 PM check: **no Codex/Cursor workers running**; no uncommitted work in any worktree. `main` = `origin/main` = `2194fc6` (00:27 docs hold note). `codex/m20-mac-viewer` still empty at `9490193` (no `mac/` tree). Local pytest **1725 passed** in 232.37s. Actions run #20 on `2194fc6` **success** (all five jobs). Hold M20/Mac GPU unchanged; workers stay idle; nothing merged.
 - 06:19 CST 2026-10-29 PM check: **no Codex/Cursor workers running**; no uncommitted work in any worktree. `main` = `origin/main` = `f481542` (03:21 docs hold note). `codex/m20-mac-viewer` still empty at `9490193` (no `mac/` tree). Actions run #21 on `f481542` **success** (all five jobs). Hold M20/Mac GPU unchanged; workers stay idle; nothing merged.
 - 09:19 CST 2026-10-29 PM check: **no Codex/Cursor workers running**; no uncommitted work in any worktree. `main` = `origin/main` = `9bf3642` (06:19 docs hold note; that commit was local-only until this cycle pushed it). `codex/m20-mac-viewer` still empty at `9490193` (no `mac/` tree). Actions run #21 on `f481542` **success** (all five jobs); no newer completed run yet for `9bf3642`. Hold M20/Mac GPU unchanged; workers stay idle; nothing merged.
+- 12:26 CST 2026-10-29 PM check: **no Codex/Cursor workers running**; no uncommitted work in any worktree. `main` = `origin/main` = `584398a` (09:19 docs hold note). `codex/m20-mac-viewer` still empty at `9490193` (no `mac/` tree). Actions run #23 on `584398a` **success** (all five jobs). Hold M20/Mac GPU unchanged; workers stay idle; nothing merged.
 - 12:17 CST 2026-10-28 PM check: **no Codex/Cursor workers running**; no uncommitted work in any worktree. `main` = `origin/main` = `43bb77b` (09:22 docs hold note). `codex/m20-mac-viewer` still empty at `9490193` (no `mac/` tree). Actions run #16 on `43bb77b` **success** (all five jobs). Hold M20/Mac GPU unchanged; workers stay idle; nothing merged.
 ## Tests
 - **1680/1680 pytest after M18** (worker final run **253.51s**; PM re-run before merge `1680 passed in 216.51s`), comprising all 1366 existing tests unchanged plus 314 M18 tests. Ruff check passed; format check reports 111 files already formatted; mypy reports no issues in 59 source files; docs links/anchors, full and restricted-profile provenance, wheel contents and `git diff --check` pass. All six pursuit contact sheets were visually inspected. Exact commands and artifact audit are in the [M18 report](M18-subframe-temporal.md).
