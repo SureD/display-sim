@@ -1,4 +1,4 @@
-# Status — 2026-11-03 15:24 CST
+# Status — 2026-11-03 18:22 CST
 
 > Live PM status (moved here by M16). See [current documentation](../index.md)
 > and [M16 engineering report](M16-repo-engineering.md) for the repository migration.
@@ -33,6 +33,7 @@
 - **M17 opt-in LCD zone backlight temporal dynamics**: DONE (merge `ec4c22e` of `codex/m17-zone-temporal`, commits `e6ff300` research, `78f05f4` runtime, `bcbf78f` experiment/gallery, `a88c81f` docs/report). [Research](../research/m17-zone-temporal.md) precedes runtime changes. Default-off float64 per-zone backlight state with asymmetric attack/release taus (rate-independent e-fold per tick), optional slew limit, declared/detected scene-cut reset, cold/settled-first/explicit init and exact checkpoint continuation; LCD only (OLED rejects); P-only `zone_temporal_synthetic_v1.json` checked by provenance. `tv-sim` zone-temporal experiment saves 4 clips (moving object, APL step, flashing highlight, subtitle) with rational PTS, per-zone traces, halo-trail/settling/pumping metrics and a shared-exposure off/on gallery. Example D results under P inputs: moving-object trail 10 → 22 px, APL fall zone settling 1/60 → 47/60 s. [Report](M17-zone-temporal.md).
 
 ## Workers (this cycle)
+- 18:22 CST 2026-11-03 PM check: **no Codex/Cursor workers running**; no uncommitted work in any worktree. `main` = `origin/main` = `97a9ce8` (15:24 docs hold note). `codex/m20-mac-viewer` still empty at `9490193` (no `mac/` tree). Actions run #60 on `97a9ce8` **success** (all five jobs). Hold M20/Mac GPU unchanged; workers stay idle; nothing merged.
 - 15:24 CST 2026-11-03 PM check: **no Codex/Cursor workers running**; no uncommitted work in any worktree. `main` = `origin/main` = `43a81ed` (12:27 docs hold note). `codex/m20-mac-viewer` still empty at `9490193` (no `mac/` tree). Actions run #59 on `43a81ed` **success** (all five jobs). Hold M20/Mac GPU unchanged; workers stay idle; nothing merged.
 - 12:27 CST 2026-11-03 PM check: **no Codex/Cursor workers running**; no uncommitted work in any worktree. `main` = `origin/main` = `25aeb7d` (09:26 docs hold note). `codex/m20-mac-viewer` still empty at `9490193` (no `mac/` tree). Actions run #58 on `25aeb7d` **success** (all five jobs). Hold M20/Mac GPU unchanged; workers stay idle; nothing merged.
 - 09:26 CST 2026-11-03 PM check: **no Codex/Cursor workers running**; no uncommitted work in any worktree. `main` = `origin/main` = `5f58385` (06:21 docs hold note). `codex/m20-mac-viewer` still empty at `9490193` (no `mac/` tree). Local pytest **1725 passed** in 216.72s. Actions run #57 attempt 1 on `5f58385` had **failure** overall: quality + both Ubuntu test jobs green; both macOS jobs **cancelled** after ~15 min with no runner assigned (queue/availability, not a test failure). PM re-ran failed jobs; attempt 2 **success** on all five jobs. Hold M20/Mac GPU unchanged; workers stay idle; nothing merged.
@@ -142,7 +143,7 @@
 2. **HOLD — GPU path (Mac only, Metal/MPS)**: same hold; Windows/`dscs2pc` remains dropped.
 3. **Measurement follow-ups**: deferred (matched measured traces, half-LSF data, OD/BFI/PWM waveforms, measured primaries/spectra for M15, FALD transition speeds for M17).
 4. **Workers**: stay idle unless the user asks or a clear non-Mac plan item appears. Cursor CLI remains paused (recurring stalls).
-5. **Current main**: M1–M19 DONE; `43a81ed`; Actions green (M19c run #11 all five jobs; subsequent docs hold commits through `43a81ed` / Actions run #59 on that commit also success).
+5. **Current main**: M1–M19 DONE; `97a9ce8`; Actions green (M19c run #11 all five jobs; subsequent docs hold commits through `97a9ce8` / Actions run #60 on that commit also success).
 
 ## M12 (user-approved 2026-10-17) — DONE, merged 12:30 (record kept below)
 - M12a Web preview: worktree /workspace/tv-sim-web-preview, branch codex/m12-web-preview, log /workspace/codex_web.log. Chrome HDR/EDR brightness-mapping panel + `sim export-web` + viewer in web/.
