@@ -1,4 +1,4 @@
-# Status — 2026-11-06 03:24 CST
+# Status — 2026-11-06 06:25 CST
 
 > Live PM status (moved here by M16). See [current documentation](../index.md)
 > and [M16 engineering report](M16-repo-engineering.md) for the repository migration.
@@ -33,6 +33,7 @@
 - **M17 opt-in LCD zone backlight temporal dynamics**: DONE (merge `ec4c22e` of `codex/m17-zone-temporal`, commits `e6ff300` research, `78f05f4` runtime, `bcbf78f` experiment/gallery, `a88c81f` docs/report). [Research](../research/m17-zone-temporal.md) precedes runtime changes. Default-off float64 per-zone backlight state with asymmetric attack/release taus (rate-independent e-fold per tick), optional slew limit, declared/detected scene-cut reset, cold/settled-first/explicit init and exact checkpoint continuation; LCD only (OLED rejects); P-only `zone_temporal_synthetic_v1.json` checked by provenance. `tv-sim` zone-temporal experiment saves 4 clips (moving object, APL step, flashing highlight, subtitle) with rational PTS, per-zone traces, halo-trail/settling/pumping metrics and a shared-exposure off/on gallery. Example D results under P inputs: moving-object trail 10 → 22 px, APL fall zone settling 1/60 → 47/60 s. [Report](M17-zone-temporal.md).
 
 ## Workers (this cycle)
+- 06:25 CST 2026-11-06 PM check: **no Codex/Cursor DisplaySim workers running**; no uncommitted work in any worktree. `main` = `origin/main` = `98f2920` (03:24 docs hold note). `codex/m20-mac-viewer` still empty at `9490193` (no `mac/` tree). Actions run #78 on `98f2920` **success** (all five jobs). Hold M20/Mac GPU unchanged; workers stay idle; nothing merged.
 - 03:24 CST 2026-11-06 PM check: **no Codex/Cursor DisplaySim workers running**; no uncommitted work in any worktree. `main` = `origin/main` = `6e43d5c` (00:25 docs hold note). `codex/m20-mac-viewer` still empty at `9490193` (no `mac/` tree). Actions run #77 on `6e43d5c` **success** (all five jobs). Hold M20/Mac GPU unchanged; workers stay idle; nothing merged.
 - 00:25 CST 2026-11-06 PM check: **no Codex/Cursor DisplaySim workers running**; no uncommitted work in any worktree. `main` = `origin/main` = `4346715` (21:25 docs hold note). `codex/m20-mac-viewer` still empty at `9490193` (no `mac/` tree). Actions run #76 on `4346715` **success** (all five jobs). Hold M20/Mac GPU unchanged; workers stay idle; nothing merged.
 - 21:25 CST 2026-11-05 PM check: **no Codex/Cursor DisplaySim workers running**; no uncommitted work in any worktree. `main` = `origin/main` = `cd7de64` (18:24 docs hold note). `codex/m20-mac-viewer` still empty at `9490193` (no `mac/` tree). Actions run #75 on `cd7de64` **success** (all five jobs). Hold M20/Mac GPU unchanged; workers stay idle; nothing merged.
